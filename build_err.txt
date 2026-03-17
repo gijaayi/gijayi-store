@@ -1,0 +1,23 @@
+Found 1 warning while optimizing generated CSS:
+
+[2m│   }[22m
+[2m│ }[22m
+[2m│[22m @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap');
+[2m┆[22m        [33m[2m^--[22m @import rules must precede all rules aside from @charset and @layer statements[39m
+[2m┆[22m
+[2m│ :root {[22m
+[2m│   --background: #ffffff;[22m
+
+Failed to compile.
+
+./src/context/CartContext.tsx:100:42
+Type error: Parameter 'sum' implicitly has an 'any' type.
+
+[0m [90m  98 |[39m   }[33m,[39m [state[33m.[39mitems])[33m;[39m
+ [90m  99 |[39m
+[31m[1m>[22m[39m[90m 100 |[39m   [36mconst[39m totalItems [33m=[39m state[33m.[39mitems[33m.[39mreduce((sum[33m,[39m i) [33m=>[39m sum [33m+[39m i[33m.[39mquantity[33m,[39m [35m0[39m)[33m;[39m
+ [90m     |[39m                                          [31m[1m^[22m[39m
+ [90m 101 |[39m   [36mconst[39m totalPrice [33m=[39m state[33m.[39mitems[33m.[39mreduce((sum[33m,[39m i) [33m=>[39m sum [33m+[39m i[33m.[39mproduct[33m.[39mprice [33m*[39m i[33m.[39mquantity[33m,[39m [35m0[39m)[33m;[39m
+ [90m 102 |[39m
+ [90m 103 |[39m   [36mreturn[39m ([0m
+Next.js build worker exited with code: 1 and signal: null

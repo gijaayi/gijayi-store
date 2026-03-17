@@ -1,0 +1,223 @@
+{
+  "users": [
+    {
+      "id": "ec2882b5-10c6-4e87-983f-0f5b8769389f",
+      "name": "Platform Admin",
+      "email": "admin@gijayi.com",
+      "passwordHash": "5a3946fc060ce77f239ed0b2a9dae66e:e446491b9f5656e9ba31dd8d822feccb19b1feb285701b685fca481d7dbca5abd3970045b920f4f94cff2c313afe02523decad90221aaf8ef71d27e1e9a0313a",
+      "role": "admin",
+      "createdAt": "2026-03-13T07:37:22.108Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "1",
+      "slug": "gold-kundan-necklace",
+      "name": "Gold Kundan Necklace",
+      "price": 12500,
+      "compareAtPrice": 15000,
+      "images": [
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80",
+        "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=800&q=80"
+      ],
+      "category": "Necklaces",
+      "collection": "Bridal",
+      "description": "An exquisite Kundan necklace handcrafted by skilled artisans, featuring traditional meenakari work and polki diamonds set in 22K gold plating. Perfect for bridal ceremonies and festive occasions.",
+      "details": [
+        "Material: 22K Gold Plated Brass",
+        "Stone: Kundan & Semi-precious stones",
+        "Finish: Meenakari enamel work",
+        "Occasion: Bridal, Festive, Wedding",
+        "Care: Store in a dry place, avoid perfume contact"
+      ],
+      "isNew": false,
+      "isBestseller": true,
+      "stock": 5
+    },
+    {
+      "id": "2",
+      "slug": "emerald-choker-set",
+      "name": "Emerald Polki Choker Set",
+      "price": 18900,
+      "images": [
+        "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80",
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80"
+      ],
+      "category": "Necklaces",
+      "collection": "Heritage",
+      "description": "A regal emerald and polki diamond choker set inspired by Mughal-era jewellery. Includes matching earrings and maang tikka. A statement piece for royal occasions.",
+      "details": [
+        "Material: Sterling Silver with Gold Polish",
+        "Stone: Natural Emerald & Polki Diamonds",
+        "Set includes: Choker, Earrings, Tikka",
+        "Occasion: Bridal, Wedding, Festive"
+      ],
+      "isNew": true,
+      "isBestseller": false,
+      "stock": 3
+    },
+    {
+      "id": "3",
+      "slug": "pearl-drop-earrings",
+      "name": "Pearl Drop Jhumka Earrings",
+      "price": 4200,
+      "compareAtPrice": 5000,
+      "images": [
+        "https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80",
+        "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80"
+      ],
+      "category": "Earrings",
+      "collection": "Everyday Luxe",
+      "description": "Delicate pearl drop jhumka earrings with intricate filigree work. Lightweight yet luxurious, these earrings transition seamlessly from day to night.",
+      "details": [
+        "Material: Gold-plated Silver",
+        "Stone: Freshwater Pearls",
+        "Weight: 12g approx",
+        "Occasion: Daily, Office, Festive"
+      ],
+      "isNew": false,
+      "isBestseller": true,
+      "stock": 12
+    },
+    {
+      "id": "4",
+      "slug": "ruby-bangles-set",
+      "name": "Ruby Studded Bangles Set",
+      "price": 8750,
+      "images": [
+        "https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=800&q=80",
+        "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=800&q=80"
+      ],
+      "category": "Bangles",
+      "collection": "Bridal",
+      "description": "A stunning set of 6 gold-plated bangles adorned with natural ruby stones. The rich red of the rubies against gleaming gold creates an irresistible classic Indian jewellery look.",
+      "details": [
+        "Material: Gold-plated Brass",
+        "Stone: Natural Ruby",
+        "Set of: 6 bangles",
+        "Size: 2.4, 2.6, 2.8 (customisable)"
+      ],
+      "sizes": [
+        "2.4",
+        "2.6",
+        "2.8"
+      ],
+      "isNew": true,
+      "isBestseller": false,
+      "stock": 8
+    },
+    {
+      "id": "5",
+      "slug": "diamond-maang-tikka",
+      "name": "Diamond Maang Tikka",
+      "price": 6300,
+      "compareAtPrice": 7500,
+      "images": [
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80",
+        "https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80"
+      ],
+      "category": "Maang Tikka",
+      "collection": "Heritage",
+      "description": "An elegant diamond maang tikka with a floral motif, set in white gold. The centrepiece features a marquise-cut diamond surrounded by smaller brilliant-cut stones.",
+      "details": [
+        "Material: White Gold Plated",
+        "Stone: CZ Diamond",
+        "Style: Floral motif",
+        "Occasion: Bridal, Wedding"
+      ],
+      "isBestseller": true,
+      "stock": 6
+    },
+    {
+      "id": "6",
+      "slug": "antique-waistband",
+      "name": "Antique Gold Waistband",
+      "price": 22000,
+      "images": [
+        "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=800&q=80",
+        "https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=800&q=80"
+      ],
+      "category": "Waistbands",
+      "collection": "Bridal",
+      "description": "A magnificent antique-finish gold waistband (kamarbandh) crafted in the traditional manner, featuring elaborate floral and paisley motifs. A must-have bridal accessory.",
+      "details": [
+        "Material: Antique Gold Plated Brass",
+        "Length: Adjustable 28\"–36\"",
+        "Finish: Antique Gold",
+        "Handcrafted by master artisans"
+      ],
+      "isNew": true,
+      "stock": 4
+    },
+    {
+      "id": "7",
+      "slug": "kundan-nose-ring",
+      "name": "Kundan Nath (Nose Ring)",
+      "price": 3100,
+      "images": [
+        "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80",
+        "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80"
+      ],
+      "category": "Nose Rings",
+      "collection": "Bridal",
+      "description": "A traditional Kundan nath adorned with pearls and rubies, a bridal jewellery staple across Rajasthan and Punjab. The intricate kundan setting gives it a royal appearance.",
+      "details": [
+        "Material: Gold-plated Silver",
+        "Stone: Kundan, Pearls, Ruby",
+        "Style: Rajasthani Bridal"
+      ],
+      "isBestseller": false,
+      "isNew": false,
+      "stock": 10
+    },
+    {
+      "id": "8",
+      "slug": "silver-anklet-pair",
+      "name": "Silver Ghungroo Anklet Pair",
+      "price": 2800,
+      "compareAtPrice": 3200,
+      "images": [
+        "https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=800&q=80",
+        "https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80"
+      ],
+      "category": "Anklets",
+      "collection": "Everyday Luxe",
+      "description": "Sterling silver ghungroo payal (anklets) with delicate bells that chime with every step. Pair sold together. A timeless Indian accessory for all occasions.",
+      "details": [
+        "Material: 925 Sterling Silver",
+        "Weight: 20g per pair",
+        "Length: Adjustable 9\"–11\""
+      ],
+      "isBestseller": true,
+      "stock": 15
+    }
+  ],
+  "collections": [
+    {
+      "id": "1",
+      "name": "Bridal Collection",
+      "slug": "bridal",
+      "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80",
+      "description": "Opulent jewellery crafted for your most cherished moments. Every piece tells a story of love and tradition.",
+      "itemCount": 24
+    },
+    {
+      "id": "2",
+      "name": "Heritage",
+      "slug": "heritage",
+      "image": "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900&q=80",
+      "description": "Timeless designs inspired by India's rich jewellery-making legacy, reimagined for the modern woman.",
+      "itemCount": 18
+    },
+    {
+      "id": "3",
+      "name": "Everyday Luxe",
+      "slug": "everyday-luxe",
+      "image": "https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=900&q=80",
+      "description": "Refined pieces to elevate every day. Effortlessly luxurious for the woman who appreciates beauty in simplicity.",
+      "itemCount": 32
+    }
+  ],
+  "contacts": [],
+  "orders": []
+}

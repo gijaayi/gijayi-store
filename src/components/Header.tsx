@@ -1,0 +1,363 @@
+'use client';
+
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ShoppingBag, Search, Menu, X, ChevronDown, Heart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const navLinks = [
+  {
+    label: 'Shop',
+    href: '/shop',
+    children: [
+      { label: 'Earrings', href: '/shop?category=Earrings' },
+      { label: 'Neck Pieces', href: '/shop?category=Neck+Pieces' },
+      { label: 'Hand Accessories', href: '/shop?category=Hand+Accessories' },
+      { label: 'Head Gears', href: '/shop?category=Head+Gears' },
+      { label: 'Brooches', href: '/shop?category=Brooches' },
+    ],
+  },
+  {
+    label: 'Gijayi Edit',
+    href: '/collections',
+    children: [
+      { label: 'Bano', href: '/shop?q=Bano' },
+      { label: 'Begum', href: '/shop?q=Begum' },
+      { label: 'Bi', href: '/shop?q=Bi' },
+      { label: 'Khatoon', href: '/shop?q=Khatoon' },
+      { label: 'Khanam', href: '/shop?q=Khanam' },
+      { label: 'Naaz', href: '/shop?q=Naaz' },
+    ],
+  },
+  {
+    label: 'Fresh Arrival',
+    href: '/shop?filter=new',
+    children: [],
+  },
+];
+
+export default function Header() {
+  const { totalItems, toggleCart } = useCart();
+  const { count } = useWishlist();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  useEffect(() => {
+    setSearchValue(searchParams.get('q') ?? '');
+  }, [searchParams]);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmedValue = searchValue.trim();
+    const params = new URLSearchParams(pathname === '/shop' ? searchParams.toString() : '');
+
+    if (trimmedValue) {
+      params.set('q', trimmedValue);
+    } else {
+      params.delete('q');
+    }
+
+    router.push(`/shop${params.toString() ? `?${params.toString()}` : ''}`);
+    setSearchOpen(false);
+    setMobileOpen(false);
+  }
+
+  return (
+    <>
+      {/* Announcement Bar */}
+      <div className="bg-slate-100 text-slate-800 text-center py-2.5 text-xs tracking-widest uppercase font-medium">
+        Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India
+      </div>
+
+      <header
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          scrolled ? 'bg-white shadow-lg' : 'bg-white'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Mobile menu button */}
+            <button
+              className="md:hidden p-2"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu size={22} />
+            </button>
+
+            {/* Logo */}
+            <Link href="/" className="shrink-0">
+              <span className="font-serif text-2xl md:text-3xl tracking-[0.2em] text-[#1a1a1a] uppercase">
+                Gijayi
+              </span>
+            </Link>
+
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center space-x-8">
+              {navLinks.map((link) => (
+                <div
+                  key={link.label}
+                  className="relative group"
+                  onMouseEnter={() => setActiveDropdown(link.label)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <Link
+                    href={link.href}
+                    className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#1a1a1a] hover:text-[#b8963e] transition-colors duration-200"
+                  >
+                    {link.label}
+                    {link.children && link.children.length > 0 && (
+                      <ChevronDown size={12} />
+                    )}
+                  </Link>
+                  {link.children && link.children.length > 0 && (
+                    <AnimatePresence>
+                      {activeDropdown === link.label && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 8 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[320px] bg-white shadow-xl border border-gray-100 py-3 z-50"
+                        >
+                          <div className="grid grid-cols-2 gap-1 px-2">
+                            {link.children.map((child) => (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                className="block px-3 py-2 text-[11px] tracking-widest uppercase text-[#555] hover:text-[#b8963e] hover:bg-[#faf8f4] transition-colors"
+                              >
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Actions */}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <>
+                  {user.role === 'admin' && (
+                    <Link href="/admin" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors">
+                      Admin
+                    </Link>
+                  )}
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      router.refresh();
+                    }}
+                    className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="hidden md:flex items-center gap-3 text-[11px] tracking-widest uppercase">
+                  <Link href="/login" className="hover:text-[#b8963e] transition-colors">Login</Link>
+                  <Link href="/register" className="hover:text-[#b8963e] transition-colors">Register</Link>
+                </div>
+              )}
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="p-2 hover:text-[#b8963e] transition-colors"
+                aria-label="Search"
+              >
+                <Search size={20} />
+              </button>
+              <Link
+                href="/wishlist"
+                className="p-2 hover:text-[#b8963e] transition-colors relative"
+                aria-label="Wishlist"
+              >
+                <Heart size={20} />
+                {count > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#1a1a1a] text-white text-[10px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-medium">
+                    {count}
+                  </span>
+                )}
+              </Link>
+              <button
+                onClick={toggleCart}
+                className="p-2 hover:text-[#b8963e] transition-colors relative"
+                aria-label="Cart"
+              >
+                <ShoppingBag size={20} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#b8963e] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Search Bar */}
+          <AnimatePresence>
+            {searchOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden border-t border-gray-100"
+              >
+                <form onSubmit={handleSearchSubmit} className="py-4 flex items-center gap-3">
+                  <Search size={18} className="text-gray-400" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={searchValue}
+                    onChange={(event) => setSearchValue(event.target.value)}
+                    placeholder="Search for jewellery, collections, or categories..."
+                    className="flex-1 outline-none text-sm tracking-wide"
+                  />
+                  <button
+                    type="submit"
+                    className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a] transition-colors"
+                  >
+                    Search
+                  </button>
+                  <button type="button" onClick={() => setSearchOpen(false)}>
+                    <X size={18} className="text-gray-400" />
+                  </button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 z-50"
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="fixed top-0 left-0 h-full w-80 bg-white z-50 overflow-y-auto"
+            >
+              <div className="flex items-center justify-between p-6 border-b">
+                <span className="font-serif text-2xl tracking-widest uppercase">Gijayi</span>
+                <button onClick={() => setMobileOpen(false)}>
+                  <X size={22} />
+                </button>
+              </div>
+              <nav className="p-6 space-y-4">
+                <div className="pb-6 border-b border-gray-100">
+                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 border border-gray-200 px-3 py-3">
+                    <Search size={16} className="text-gray-400" />
+                    <input
+                      type="text"
+                      value={searchValue}
+                      onChange={(event) => setSearchValue(event.target.value)}
+                      placeholder="Search the store"
+                      className="flex-1 text-sm outline-none"
+                    />
+                  </form>
+                </div>
+                {navLinks.map((link) => (
+                  <div key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="block text-sm tracking-widest uppercase font-medium text-[#1a1a1a] py-2 hover:text-[#b8963e]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                    {link.children && link.children.length > 0 && (
+                      <div className="pl-4 space-y-2 mt-1">
+                        {link.children.map((child) => (
+                          <Link
+                            key={child.label}
+                            href={child.href}
+                            className="block text-xs tracking-widest uppercase text-[#777] hover:text-[#b8963e] py-1"
+                            onClick={() => setMobileOpen(false)}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-3 text-xs tracking-widest uppercase">
+                  <Link href="/wishlist" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                    Wishlist
+                  </Link>
+                  <Link href="/track-order" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                    Track Order
+                  </Link>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs tracking-widest uppercase">
+                  {user ? (
+                    <>
+                      {user.role === 'admin' ? (
+                        <Link href="/admin" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                          Admin
+                        </Link>
+                      ) : (
+                        <div className="border border-gray-200 px-4 py-3 text-center text-gray-400">Account</div>
+                      )}
+                      <button
+                        onClick={async () => {
+                          await logout();
+                          setMobileOpen(false);
+                          router.refresh();
+                        }}
+                        className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                        Login
+                      </Link>
+                      <Link href="/register" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
