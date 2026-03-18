@@ -31,7 +31,7 @@ export const products: Product[] = [
     name: 'Emerald Polki Choker Set',
     price: 18900,
     images: [
-      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80',
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80',
     ],
     category: 'Necklaces',
@@ -55,7 +55,7 @@ export const products: Product[] = [
     compareAtPrice: 5000,
     images: [
       'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80',
-      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80',
     ],
     category: 'Earrings',
     collection: 'Everyday Luxe',
@@ -142,7 +142,7 @@ export const products: Product[] = [
     name: 'Kundan Nath (Nose Ring)',
     price: 3100,
     images: [
-      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80',
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80',
     ],
     category: 'Nose Rings',
@@ -193,7 +193,7 @@ export const collections: Collection[] = [
     id: '2',
     name: 'Heritage',
     slug: 'heritage',
-    image: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900&q=80',
+    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=900&q=80',
     description: 'Timeless designs inspired by India\'s rich jewellery-making legacy, reimagined for the modern woman.',
     itemCount: 18,
   },

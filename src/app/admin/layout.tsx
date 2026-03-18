@@ -3,26 +3,27 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  ShoppingCart, 
-  Folder, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  ShoppingCart,
+  Folder,
+  LogOut,
+  Menu,
   X,
-  MessageSquare
+  MessageSquare,
+  Store,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Products', href: '/admin/products', icon: Package },
-  { label: 'Categories', href: '/admin/categories', icon: Folder },
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-  { label: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
+  { label: 'Overview', href: '/admin', icon: LayoutDashboard },
+  { label: 'Products', href: '/admin#products', icon: Package },
+  { label: 'Orders', href: '/admin#orders', icon: ShoppingCart },
+  { label: 'Categories', href: '/admin#categories', icon: Folder },
+  { label: 'Customers', href: '/admin#users', icon: Users },
+  { label: 'Inquiries', href: '/admin#inquiries', icon: MessageSquare },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -59,40 +60,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <aside
-        className={`fixed lg:relative left-0 top-0 h-screen w-64 bg-white border-r border-slate-200 transition-transform duration-300 ${
+        className={`fixed lg:relative left-0 top-0 h-screen w-72 bg-white border-r border-slate-200 transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } z-50 lg:z-0`}
+        } z-50 lg:z-0 shadow-xl lg:shadow-none`}
       >
-        {/* Sidebar Header */}
-        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-200">
-          <Link href="/admin" className="font-serif text-xl text-slate-900">
-            Gijayi
-          </Link>
+        <div className="h-24 flex items-center justify-between px-6 border-b border-slate-200">
+          <div>
+            <p className="text-[10px] tracking-[0.35em] uppercase text-slate-500 mb-1">Gijayi</p>
+            <p className="font-serif text-2xl text-slate-900">Admin Studio</p>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-slate-500 hover:text-slate-700"
+            aria-label="Close sidebar"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Nav Links */}
-        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav className="px-4 py-6 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = pathname === '/admin' && item.href === '/admin';
+
             return (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-slate-100 text-slate-900 border-l-4 border-slate-900'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-slate-900 text-white shadow-md'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 <Icon size={18} />
@@ -102,20 +103,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* User Section */}
-        <div className="px-4 py-4 border-t border-slate-200">
-          <div className="flex items-center justify-between gap-3 mb-4 px-4">
-            <div className="flex-1">
-              <p className="text-xs font-medium text-slate-900">{user.name}</p>
-              <p className="text-xs text-slate-500">{user.email}</p>
-            </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-slate-800 to-slate-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+        <div className="px-4 pb-4 mt-auto">
+          <Link
+            href="/"
+            className="w-full mb-3 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 px-4 py-3 text-sm font-medium transition-colors"
+          >
+            <Store size={16} />
+            Open Storefront
+          </Link>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 mb-3">
+            <p className="text-xs font-medium text-slate-900 truncate">{user.name}</p>
+            <p className="text-xs text-slate-500 truncate">{user.email}</p>
           </div>
+
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors border border-red-100"
           >
             <LogOut size={16} />
             Logout
@@ -123,38 +127,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <div className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+        <div className="h-24 bg-white/90 backdrop-blur border-b border-slate-200 flex items-center justify-between px-6 lg:px-8">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden text-slate-600 hover:text-slate-900"
+            aria-label="Toggle sidebar"
           >
             <Menu size={20} />
           </button>
-          <div className="flex-1 text-center lg:text-left">
-            <h1 className="font-serif text-2xl text-slate-900">Dashboard</h1>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.35em] text-slate-500 mb-1">Control Center</p>
+            <h1 className="font-serif text-3xl text-slate-900">Dashboard</h1>
           </div>
-          <div className="text-right text-sm text-slate-500">
-            Admin Portal
+
+          <div className="hidden md:flex items-center gap-3 text-xs text-slate-500">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            Live Store Connected
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-            {children}
-          </div>
+          <div className="p-6 lg:p-8 max-w-[1400px] mx-auto">{children}</div>
         </div>
       </main>
 
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 lg:hidden z-40"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 lg:hidden z-40" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   );
