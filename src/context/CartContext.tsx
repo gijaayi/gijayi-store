@@ -12,6 +12,7 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: { product: Product; size?: string } }
   | { type: 'REMOVE_ITEM'; payload: { productId: string; size?: string } }
   | { type: 'UPDATE_QTY'; payload: { productId: string; size?: string; quantity: number } }
+  | { type: 'HYDRATE'; payload: { items: CartItem[] } }
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_CART' }
   | { type: 'CLOSE_CART' };
@@ -54,6 +55,11 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             : i
         ).filter((i) => i.quantity > 0),
       };
+    case 'HYDRATE':
+      return {
+        ...state,
+        items: action.payload.items,
+      };
     case 'CLEAR_CART':
       return { ...state, items: [] };
     case 'TOGGLE_CART':
@@ -80,22 +86,27 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState, () => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('gijayi-cart');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          return { ...initialState, items: parsed };
-        } catch { /* ignore */ }
-      }
-    }
-    return initialState;
-  });
+  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [hydrated, setHydrated] = React.useState(false);
 
   useEffect(() => {
-    localStorage.setItem('gijayi-cart', JSON.stringify(state.items));
-  }, [state.items]);
+    try {
+      const saved = window.localStorage.getItem('gijayi-cart');
+      if (saved) {
+        const parsed = JSON.parse(saved) as CartItem[];
+        dispatch({ type: 'HYDRATE', payload: { items: parsed } });
+      }
+    } catch {
+      window.localStorage.removeItem('gijayi-cart');
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    window.localStorage.setItem('gijayi-cart', JSON.stringify(state.items));
+  }, [hydrated, state.items]);
 
   const totalItems = state.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const totalPrice = state.items.reduce(

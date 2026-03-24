@@ -18,6 +18,10 @@ const shippingBlocks = [
     title: 'Returns',
     points: ['Eligible ready-to-ship items can be returned within 15 days of delivery.', 'Products must be unworn, unused, and sent back in their original packaging.', 'Custom, altered, or personalised pieces cannot be returned unless they arrive damaged or incorrect.'],
   },
+  {
+    title: 'Payment Methods',
+    points: ['We accept UPI, Visa, Mastercard, and Net Banking for domestic orders.', 'All prepaid payments are processed through secure encrypted checkout flows.', 'Cash-on-delivery availability may vary by pincode and order value.'],
+  },
 ];
 
 export default function ShippingPage() {
@@ -28,7 +32,7 @@ export default function ShippingPage() {
         <h1 className="font-serif text-4xl md:text-5xl">Shipping and Returns</h1>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {shippingBlocks.map((block) => (
           <section key={block.title} className="border border-[#efe6d7] p-6 bg-[#fcfbf8]">
             <h2 className="font-serif text-2xl mb-4">{block.title}</h2>

@@ -47,6 +47,22 @@ export async function POST(request: NextRequest) {
     const details = Array.isArray(body.details) ? body.details.map((item: unknown) => String(item).trim()).filter(Boolean) : [];
     const sizes = Array.isArray(body.sizes) ? body.sizes.map((item: unknown) => String(item).trim()).filter(Boolean) : undefined;
 
+    const dbSnapshot = await readDatabase();
+    const categoryExists = dbSnapshot.categories.some((item) => item.name === category);
+    if (!categoryExists) {
+      return NextResponse.json({ error: 'Please select a valid category from admin categories.' }, { status: 400 });
+    }
+
+    const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
+      (item) => item.toLowerCase() === collection.toLowerCase()
+    );
+    if (!collectionExists) {
+      return NextResponse.json(
+        { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
+        { status: 400 }
+      );
+    }
+
     const db = await updateDatabase((state) => {
       const slugBase = slugify(name);
       let slug = slugBase;

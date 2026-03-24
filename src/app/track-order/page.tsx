@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PackageCheck, Truck, ShoppingBag, Sparkles } from 'lucide-react';
 
 interface TrackedOrder {
@@ -11,12 +12,46 @@ interface TrackedOrder {
   updatedAt: string;
 }
 
-export default function TrackOrderPage() {
+function TrackOrderPageContent() {
+  const searchParams = useSearchParams();
   const [orderCode, setOrderCode] = useState('');
   const [order, setOrder] = useState<TrackedOrder | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasLookup, setHasLookup] = useState(false);
+
+  async function handleLookup(code: string) {
+    const normalizedCode = code.trim().toUpperCase();
+    if (!normalizedCode) return;
+
+    setLoading(true);
+    setHasLookup(true);
+    setError('');
+
+    const response = await fetch(`/api/track-order/${normalizedCode}`, {
+      cache: 'no-store',
+    });
+
+    const data = (await response.json()) as { order?: TrackedOrder; error?: string };
+
+    if (!response.ok || !data.order) {
+      setOrder(null);
+      setError(data.error || 'Order not found.');
+      setLoading(false);
+      return;
+    }
+
+    setOrder(data.order);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (!code) return;
+
+    setOrderCode(code);
+    void handleLookup(code);
+  }, [searchParams]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -33,25 +68,7 @@ export default function TrackOrderPage() {
           className="grid gap-4 md:grid-cols-[1fr_auto]"
           onSubmit={async (event) => {
             event.preventDefault();
-            setLoading(true);
-            setHasLookup(true);
-            setError('');
-
-            const response = await fetch(`/api/track-order/${orderCode.trim().toUpperCase()}`, {
-              cache: 'no-store',
-            });
-
-            const data = (await response.json()) as { order?: TrackedOrder; error?: string };
-
-            if (!response.ok || !data.order) {
-              setOrder(null);
-              setError(data.error || 'Order not found.');
-              setLoading(false);
-              return;
-            }
-
-            setOrder(data.order);
-            setLoading(false);
+            await handleLookup(orderCode);
           }}
         >
           <input
@@ -111,5 +128,13 @@ export default function TrackOrderPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">Loading order tracking...</div>}>
+      <TrackOrderPageContent />
+    </Suspense>
   );
 }

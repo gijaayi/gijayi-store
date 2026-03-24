@@ -350,7 +350,9 @@ export async function getHomeData() {
 
 export async function getShopData() {
   const products = await getAllProducts();
-  const categories = ['All', ...Array.from(new Set(products.map((product) => product.category).filter(Boolean)))];
+  const db = await readDatabase();
+  const configuredCategories = db.categories.map((category) => category.name).filter(Boolean);
+  const categories = ['All', ...(configuredCategories.length ? configuredCategories : Array.from(new Set(products.map((product) => product.category).filter(Boolean))))];
 
   return { products, categories };
 }

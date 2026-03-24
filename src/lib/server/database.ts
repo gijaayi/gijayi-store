@@ -13,7 +13,21 @@ export interface DbUser {
   email: string;
   passwordHash: string;
   role: 'admin' | 'user';
+  phone?: string;
+  defaultAddress?: DbUserAddress;
   createdAt: string;
+}
+
+export interface DbUserAddress {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
 }
 
 export interface DbContact {
@@ -70,6 +84,80 @@ export interface DbOrder {
   updatedAt: string;
 }
 
+export interface DbStorefrontHero {
+  badge: string;
+  title: string;
+  subtitle: string;
+  primaryCtaLabel: string;
+  primaryCtaHref: string;
+  secondaryCtaLabel: string;
+  secondaryCtaHref: string;
+  heroImage: string;
+  featureLabel: string;
+  featureTitle: string;
+  featureSubtitle: string;
+  secondaryMedia: {
+    enabled: boolean;
+    image: string;
+    label: string;
+    title: string;
+    href: string;
+  };
+}
+
+export interface DbStorefrontTrustSignal {
+  title: string;
+  desc: string;
+}
+
+export interface DbStorefrontTestimonial {
+  name: string;
+  location: string;
+  text: string;
+  rating: number;
+}
+
+export interface DbStorefrontSettings {
+  id: string;
+  navigation: {
+    shop: {
+      label: string;
+      subcategories: string[];
+    };
+    gijayiEdit: {
+      label: string;
+      subcategories: string[];
+    };
+    freshArrival: {
+      label: string;
+    };
+  };
+  hero: DbStorefrontHero;
+  luxurySignals: string[];
+  trustSection: {
+    badge: string;
+    title: string;
+    subtitle: string;
+  };
+  trustSignals: DbStorefrontTrustSignal[];
+  testimonialsSection: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    testimonials: DbStorefrontTestimonial[];
+  };
+  productCard: {
+    quickAddLabel: string;
+    quickViewLabel: string;
+    newBadgeLabel: string;
+    bestsellerBadgeLabel: string;
+    saleBadgeSuffix: string;
+    ratingValue: string;
+    ratingCountLabel: string;
+  };
+  updatedAt: string;
+}
+
 export interface DatabaseState {
   users: DbUser[];
   products: Product[];
@@ -77,6 +165,7 @@ export interface DatabaseState {
   categories: DbCategory[];
   contacts: DbContact[];
   orders: DbOrder[];
+  storefront: DbStorefrontSettings;
 }
 
 export interface DbCategory {
@@ -86,7 +175,143 @@ export interface DbCategory {
   createdAt: string;
 }
 
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  'Necklaces',
+  'Earrings',
+  'Bangles',
+  'Maang Tikka',
+  'Waistbands',
+  'Nose Rings',
+];
+
 let writeQueue: Promise<void> = Promise.resolve();
+let fallbackState: DatabaseState | null = null;
+
+const ADMIN_LOGIN_EMAIL = (process.env.ADMIN_LOGIN_EMAIL || 'admin@gijayi.com').trim().toLowerCase() || 'admin@gijayi.com';
+const ADMIN_LOGIN_PASSWORD = process.env.ADMIN_LOGIN_PASSWORD || 'Admin@123';
+const ADMIN_NAME = 'Platform Admin';
+
+export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
+  id: 'storefront-config',
+  navigation: {
+    shop: {
+      label: 'Shop',
+      subcategories: ['Earrings', 'Neck Pieces', 'Hand Accessories', 'Head Gears', 'Brooches'],
+    },
+    gijayiEdit: {
+      label: 'Gijayi Edit',
+      subcategories: ['Bano', 'Begum', 'Bi', 'Khatoon', 'Khanam', 'Naaz'],
+    },
+    freshArrival: {
+      label: 'Fresh Arrival',
+    },
+  },
+  hero: {
+    badge: 'Handcrafted Indian Jewellery',
+    title: 'Handcrafted Bridal & Statement Jewelry',
+    subtitle:
+      'Unique designs, fair prices, made in India.',
+    primaryCtaLabel: 'Explore Collection',
+    primaryCtaHref: '/shop',
+    secondaryCtaLabel: 'Explore Collections',
+    secondaryCtaHref: '/collections',
+    heroImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90',
+    featureLabel: 'Featured Drop',
+    featureTitle: 'Heritage Edit',
+    featureSubtitle: '18 statement pieces inspired by royal Indian silhouettes.',
+    secondaryMedia: {
+      enabled: false,
+      image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=90',
+      label: 'Craft Spotlight',
+      title: 'Atelier Details',
+      href: '/about',
+    },
+  },
+  luxurySignals: ['Handmade in India', 'Quality Materials', 'Proudly trusted by customers across India'],
+  trustSection: {
+    badge: 'Why Gijayi',
+    title: 'Confidence at Every Step',
+    subtitle: 'From authenticity to delivery, every stage is designed for premium confidence.',
+  },
+  trustSignals: [
+    { title: 'Certified Authentic', desc: 'Every piece includes authenticity-backed quality checks.' },
+    { title: 'Premium Shipping', desc: 'Safe and trackable delivery with complimentary packaging.' },
+    { title: 'Easy Returns', desc: 'Simple return support with assisted pickup flow.' },
+    { title: 'Style Concierge', desc: 'Personal guidance for bridal, gifting, and festive edits.' },
+  ],
+  testimonialsSection: {
+    badge: 'Loved By Customers',
+    title: 'Trusted Across India',
+    subtitle: 'Proudly trusted by customers across India for handcrafted Indian jewelry and bridal jewelry online.',
+    testimonials: [
+      {
+        name: 'Nisha Kapoor',
+        location: 'Mumbai',
+        text: 'Beautiful handcrafted Indian jewelry and quick delivery. Perfect for my wedding functions.',
+        rating: 5,
+      },
+      {
+        name: 'Aarohi Mehta',
+        location: 'Hyderabad',
+        text: 'Loved the quality materials and finish. Bridal jewelry online that actually looks premium.',
+        rating: 5,
+      },
+      {
+        name: 'Sana Rizvi',
+        location: 'Lucknow',
+        text: 'Affordable designer jewelry with classy packaging. Great support on WhatsApp too.',
+        rating: 5,
+      },
+    ],
+  },
+  productCard: {
+    quickAddLabel: 'Quick Add',
+    quickViewLabel: 'Quick View',
+    newBadgeLabel: 'New',
+    bestsellerBadgeLabel: 'Bestseller',
+    saleBadgeSuffix: 'Off',
+    ratingValue: '4.8',
+    ratingCountLabel: '(24 reviews)',
+  },
+  updatedAt: new Date().toISOString(),
+};
+
+function cloneState<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+async function getFallbackState(): Promise<DatabaseState> {
+  if (!fallbackState) {
+    const adminHash = await hashPassword(ADMIN_LOGIN_PASSWORD);
+
+    fallbackState = {
+      users: [
+        {
+          id: randomUUID(),
+          name: ADMIN_NAME,
+          email: ADMIN_LOGIN_EMAIL,
+          passwordHash: adminHash,
+          role: 'admin',
+          phone: '',
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      products: cloneState(seedProducts),
+      collections: cloneState(seedCollections),
+      categories: DEFAULT_PRODUCT_CATEGORIES.map((name) => ({
+        id: randomUUID(),
+        name,
+        slug: slugify(name),
+        createdAt: new Date().toISOString(),
+      })),
+      contacts: [],
+      orders: [],
+      storefront: cloneState(DEFAULT_STOREFRONT_SETTINGS),
+    };
+  }
+
+  return cloneState(fallbackState);
+}
 
 function slugify(value: string) {
   return value
@@ -101,6 +326,68 @@ function withoutMongoId<T>(doc: T & Document): T {
   const { _id, ...rest } = doc;
   void _id;
   return rest as T;
+}
+
+function normalizeStorefrontSettings(value: Partial<DbStorefrontSettings> | undefined): DbStorefrontSettings {
+  return {
+    ...DEFAULT_STOREFRONT_SETTINGS,
+    ...value,
+    navigation: {
+      shop: {
+        ...DEFAULT_STOREFRONT_SETTINGS.navigation.shop,
+        ...(value?.navigation?.shop || {}),
+        subcategories:
+          value?.navigation?.shop?.subcategories && value.navigation.shop.subcategories.length
+            ? value.navigation.shop.subcategories
+            : DEFAULT_STOREFRONT_SETTINGS.navigation.shop.subcategories,
+      },
+      gijayiEdit: {
+        ...DEFAULT_STOREFRONT_SETTINGS.navigation.gijayiEdit,
+        ...(value?.navigation?.gijayiEdit || {}),
+        subcategories:
+          value?.navigation?.gijayiEdit?.subcategories && value.navigation.gijayiEdit.subcategories.length
+            ? value.navigation.gijayiEdit.subcategories
+            : DEFAULT_STOREFRONT_SETTINGS.navigation.gijayiEdit.subcategories,
+      },
+      freshArrival: {
+        ...DEFAULT_STOREFRONT_SETTINGS.navigation.freshArrival,
+        ...(value?.navigation?.freshArrival || {}),
+      },
+    },
+    hero: {
+      ...DEFAULT_STOREFRONT_SETTINGS.hero,
+      ...(value?.hero || {}),
+      secondaryMedia: {
+        ...DEFAULT_STOREFRONT_SETTINGS.hero.secondaryMedia,
+        ...(value?.hero?.secondaryMedia || {}),
+      },
+    },
+    productCard: {
+      ...DEFAULT_STOREFRONT_SETTINGS.productCard,
+      ...(value?.productCard || {}),
+    },
+    trustSection: {
+      ...DEFAULT_STOREFRONT_SETTINGS.trustSection,
+      ...(value?.trustSection || {}),
+    },
+    testimonialsSection: {
+      ...DEFAULT_STOREFRONT_SETTINGS.testimonialsSection,
+      ...(value?.testimonialsSection || {}),
+      testimonials:
+        value?.testimonialsSection?.testimonials && value.testimonialsSection.testimonials.length
+          ? value.testimonialsSection.testimonials
+          : DEFAULT_STOREFRONT_SETTINGS.testimonialsSection.testimonials,
+    },
+    luxurySignals:
+      value?.luxurySignals && value.luxurySignals.length
+        ? value.luxurySignals
+        : DEFAULT_STOREFRONT_SETTINGS.luxurySignals,
+    trustSignals:
+      value?.trustSignals && value.trustSignals.length
+        ? value.trustSignals
+        : DEFAULT_STOREFRONT_SETTINGS.trustSignals,
+    updatedAt: value?.updatedAt || DEFAULT_STOREFRONT_SETTINGS.updatedAt,
+  };
 }
 
 async function ensureIndexes() {
@@ -121,24 +408,55 @@ async function ensureDatabase(): Promise<void> {
   const productsCollection = db.collection<Product>('products');
   const collectionsCollection = db.collection<Collection>('collections');
   const categoriesCollection = db.collection<DbCategory>('categories');
+  const storefrontCollection = db.collection<DbStorefrontSettings>('storefront');
 
-  const [usersCount, productsCount, collectionsCount, categoriesCount] = await Promise.all([
+  const [usersCount, productsCount, collectionsCount, categoriesCount, storefrontCount] = await Promise.all([
     usersCollection.estimatedDocumentCount(),
     productsCollection.estimatedDocumentCount(),
     collectionsCollection.estimatedDocumentCount(),
     categoriesCollection.estimatedDocumentCount(),
+    storefrontCollection.estimatedDocumentCount(),
   ]);
 
+  const configuredAdminHash = await hashPassword(ADMIN_LOGIN_PASSWORD);
+
   if (usersCount === 0) {
-    const adminHash = await hashPassword('Admin@123');
     await usersCollection.insertOne({
       id: randomUUID(),
-      name: 'Platform Admin',
-      email: 'admin@gijayi.com',
-      passwordHash: adminHash,
+      name: ADMIN_NAME,
+      email: ADMIN_LOGIN_EMAIL,
+      passwordHash: configuredAdminHash,
       role: 'admin',
+      phone: '',
       createdAt: new Date().toISOString(),
     });
+  } else {
+    const existingAdmin =
+      (await usersCollection.findOne({ role: 'admin' })) || (await usersCollection.findOne({ email: ADMIN_LOGIN_EMAIL }));
+
+    if (existingAdmin) {
+      await usersCollection.updateOne(
+        { id: existingAdmin.id },
+        {
+          $set: {
+            name: existingAdmin.name || ADMIN_NAME,
+            email: ADMIN_LOGIN_EMAIL,
+            passwordHash: configuredAdminHash,
+            role: 'admin',
+          },
+        },
+      );
+    } else {
+      await usersCollection.insertOne({
+        id: randomUUID(),
+        name: ADMIN_NAME,
+        email: ADMIN_LOGIN_EMAIL,
+        passwordHash: configuredAdminHash,
+        role: 'admin',
+        phone: '',
+        createdAt: new Date().toISOString(),
+      });
+    }
   }
 
   if (productsCount === 0 && seedProducts.length) {
@@ -150,7 +468,7 @@ async function ensureDatabase(): Promise<void> {
   }
 
   if (categoriesCount === 0) {
-    const categories = Array.from(new Set(seedProducts.map((product) => product.category).filter(Boolean))).map((name) => ({
+    const categories = DEFAULT_PRODUCT_CATEGORIES.map((name) => ({
       id: randomUUID(),
       name,
       slug: slugify(name),
@@ -161,29 +479,44 @@ async function ensureDatabase(): Promise<void> {
       await categoriesCollection.insertMany(categories);
     }
   }
+
+  if (storefrontCount === 0) {
+    await storefrontCollection.insertOne(DEFAULT_STOREFRONT_SETTINGS);
+  }
 }
 
 export async function readDatabase(): Promise<DatabaseState> {
-  await ensureDatabase();
-  const db = await getMongoDb();
+  try {
+    await ensureDatabase();
+    const db = await getMongoDb();
 
-  const [users, products, collections, categories, contacts, orders] = await Promise.all([
-    db.collection<DbUser>('users').find({}).toArray(),
-    db.collection<Product>('products').find({}).toArray(),
-    db.collection<Collection>('collections').find({}).toArray(),
-    db.collection<DbCategory>('categories').find({}).toArray(),
-    db.collection<DbContact>('contacts').find({}).toArray(),
-    db.collection<DbOrder>('orders').find({}).toArray(),
-  ]);
+    const [users, products, collections, categories, contacts, orders, storefront] = await Promise.all([
+      db.collection<DbUser>('users').find({}).toArray(),
+      db.collection<Product>('products').find({}).toArray(),
+      db.collection<Collection>('collections').find({}).toArray(),
+      db.collection<DbCategory>('categories').find({}).toArray(),
+      db.collection<DbContact>('contacts').find({}).toArray(),
+      db.collection<DbOrder>('orders').find({}).toArray(),
+      db.collection<DbStorefrontSettings>('storefront').findOne({ id: 'storefront-config' }),
+    ]);
 
-  return {
-    users: users.map((user) => withoutMongoId<DbUser>(user)),
-    products: products.map((product) => withoutMongoId<Product>(product)),
-    collections: collections.map((collection) => withoutMongoId<Collection>(collection)),
-    categories: categories.map((category) => withoutMongoId<DbCategory>(category)),
-    contacts: contacts.map((contact) => withoutMongoId<DbContact>(contact)),
-    orders: orders.map((order) => withoutMongoId<DbOrder>(order)),
-  };
+    const storefrontSettings = storefront
+      ? normalizeStorefrontSettings(withoutMongoId<DbStorefrontSettings>(storefront as DbStorefrontSettings & Document))
+      : DEFAULT_STOREFRONT_SETTINGS;
+
+    return {
+      users: users.map((user) => withoutMongoId<DbUser>(user)),
+      products: products.map((product) => withoutMongoId<Product>(product)),
+      collections: collections.map((collection) => withoutMongoId<Collection>(collection)),
+      categories: categories.map((category) => withoutMongoId<DbCategory>(category)),
+      contacts: contacts.map((contact) => withoutMongoId<DbContact>(contact)),
+      orders: orders.map((order) => withoutMongoId<DbOrder>(order)),
+      storefront: storefrontSettings,
+    };
+  } catch (error) {
+    console.warn('MongoDB unavailable. Using in-memory fallback state.', error);
+    return getFallbackState();
+  }
 }
 
 async function writeState(dbState: DatabaseState) {
@@ -204,6 +537,7 @@ async function writeState(dbState: DatabaseState) {
     replaceCollection('categories', dbState.categories as unknown as Document[]),
     replaceCollection('contacts', dbState.contacts as unknown as Document[]),
     replaceCollection('orders', dbState.orders as unknown as Document[]),
+    replaceCollection('storefront', [dbState.storefront as unknown as Document]),
   ]);
 }
 
@@ -213,7 +547,11 @@ export async function updateDatabase(updater: (db: DatabaseState) => void | Prom
   writeQueue = writeQueue.then(async () => {
     const db = await readDatabase();
     await updater(db);
-    await writeState(db);
+    try {
+      await writeState(db);
+    } catch {
+      fallbackState = cloneState(db);
+    }
     result = db;
   });
 
@@ -232,6 +570,8 @@ export function sanitizeUser(user: DbUser) {
     name: user.name,
     email: user.email,
     role: user.role,
+    phone: user.phone || '',
+    defaultAddress: user.defaultAddress,
     createdAt: user.createdAt,
   };
 }

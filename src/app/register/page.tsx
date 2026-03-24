@@ -4,13 +4,11 @@ import { Suspense } from 'react';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 
 function RegisterPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
-  const { refreshUser } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -43,8 +41,8 @@ function RegisterPageContent() {
       return;
     }
 
-    await refreshUser();
-    router.push(redirect);
+    // Redirect to login page after successful registration
+    router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
   }
 
   return (

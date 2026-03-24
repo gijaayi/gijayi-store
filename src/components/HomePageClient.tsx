@@ -1,140 +1,240 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Star, Shield, Truck, RotateCcw, Sparkles, Gem, BadgeCheck } from 'lucide-react';
+import { ArrowRight, Star, Shield, Truck, RotateCcw, Sparkles, Gem, BadgeCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { Collection, Product } from '@/lib/types';
+
+interface StorefrontSettings {
+  hero: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    primaryCtaLabel: string;
+    primaryCtaHref: string;
+    secondaryCtaLabel: string;
+    secondaryCtaHref: string;
+    heroImage: string;
+    featureLabel: string;
+    featureTitle: string;
+    featureSubtitle: string;
+    secondaryMedia: {
+      enabled: boolean;
+      image: string;
+      label: string;
+      title: string;
+      href: string;
+    };
+  };
+  luxurySignals: string[];
+  trustSection: {
+    badge: string;
+    title: string;
+    subtitle: string;
+  };
+  trustSignals: Array<{ title: string; desc: string }>;
+  testimonialsSection: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    testimonials: Array<{
+      name: string;
+      location: string;
+      text: string;
+      rating: number;
+    }>;
+  };
+  productCard: {
+    quickAddLabel: string;
+    quickViewLabel: string;
+    newBadgeLabel: string;
+    bestsellerBadgeLabel: string;
+    saleBadgeSuffix: string;
+    ratingValue: string;
+    ratingCountLabel: string;
+  };
+}
 
 interface HomePageClientProps {
   products: Product[];
   collections: Collection[];
+  storefront: StorefrontSettings;
 }
 
-const UPDATED_HERITAGE_IMAGE = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90';
+const luxuryIcons = [BadgeCheck, Gem, Truck];
+const trustIcons = [Shield, Truck, RotateCcw, Sparkles];
+const defaultSecondaryMedia = {
+  enabled: false,
+  image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=90',
+  label: 'Craft Spotlight',
+  title: 'Atelier Details',
+  href: '/about',
+};
+const defaultProductCardContent = {
+  quickAddLabel: 'Quick Add',
+  quickViewLabel: 'Quick View',
+  newBadgeLabel: 'New',
+  bestsellerBadgeLabel: 'Bestseller',
+  saleBadgeSuffix: 'Off',
+  ratingValue: '4.8',
+  ratingCountLabel: '(24 reviews)',
+};
+const defaultTrustSection = {
+  badge: 'Why Gijayi',
+  title: 'Confidence at Every Step',
+  subtitle: 'From authenticity to delivery, every stage is designed for premium confidence.',
+};
+const defaultTestimonialsSection = {
+  badge: 'Loved By Customers',
+  title: 'Trusted Across India',
+  subtitle: 'Proudly trusted by customers across India for handcrafted Indian jewelry and bridal jewelry online.',
+  testimonials: [
+    {
+      name: 'Nisha Kapoor',
+      location: 'Mumbai',
+      text: 'Beautiful handcrafted Indian jewelry and quick delivery. Perfect for my wedding functions.',
+      rating: 5,
+    },
+    {
+      name: 'Aarohi Mehta',
+      location: 'Hyderabad',
+      text: 'Loved the quality materials and finish. Bridal jewelry online that actually looks premium.',
+      rating: 5,
+    },
+    {
+      name: 'Sana Rizvi',
+      location: 'Lucknow',
+      text: 'Affordable designer jewelry with classy packaging. Great support on WhatsApp too.',
+      rating: 5,
+    },
+  ],
+};
 
-const luxurySignals = [
-  { icon: BadgeCheck, label: 'BIS Hallmark-ready Designs' },
-  { icon: Gem, label: 'Handpicked Stones & Polki' },
-  { icon: Truck, label: 'Insured Pan-India Delivery' },
-];
+function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
+  const heroSlides = [
+    {
+      image: storefront.hero.heroImage,
+      headline: 'Handcrafted Bridal Luxury',
+      subtitle: 'Statement jewelry designed for grand wedding celebrations.',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1400&q=90',
+      headline: 'Timeless Kundan & Polki',
+      subtitle: 'Classic Indian artistry with modern, wearable elegance.',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1400&q=90',
+      headline: 'Made in India Craftsmanship',
+      subtitle: 'Every detail is handcrafted with premium materials.',
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90',
+      headline: 'Affordable Designer Jewelry',
+      subtitle: 'Luxury-inspired looks at fair prices.',
+    },
+  ];
+  const [activeSlide, setActiveSlide] = useState(0);
 
-const trustSignals = [
-  { icon: Shield, title: 'Certified Authentic', desc: 'Every piece includes authenticity-backed quality checks.' },
-  { icon: Truck, title: 'Premium Shipping', desc: 'Safe and trackable delivery with complimentary packaging.' },
-  { icon: RotateCcw, title: 'Easy Returns', desc: 'Simple return support with assisted pickup flow.' },
-  { icon: Sparkles, title: 'Style Concierge', desc: 'Personal guidance for bridal, gifting, and festive edits.' },
-];
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length);
+    }, 3500);
 
-const testimonials = [
-  {
-    name: 'Priya Sharma',
-    location: 'Mumbai',
-    text: 'The Kundan necklace I ordered for my wedding was absolutely breathtaking. The craftsmanship was exquisite and arrived beautifully packaged.',
-    rating: 5,
-  },
-  {
-    name: 'Ananya Reddy',
-    location: 'Hyderabad',
-    text: 'Gijayi has the most stunning collection I have seen online. The quality is superior and every detail feels premium.',
-    rating: 5,
-  },
-  {
-    name: 'Meera Nair',
-    location: 'Kochi',
-    text: 'Beautiful pieces and great finishing. I receive compliments every time I wear them and delivery was very smooth.',
-    rating: 5,
-  },
-];
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [heroSlides.length]);
 
-function HeroSection() {
+  const goPrev = () => setActiveSlide((current) => (current - 1 + heroSlides.length) % heroSlides.length);
+  const goNext = () => setActiveSlide((current) => (current + 1) % heroSlides.length);
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#faf8f4] via-white to-[#f8f6f1]">
-      <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(#d6d3d1_1px,transparent_1px)] [background-size:24px_24px]" />
-      <div className="relative max-w-7xl mx-auto w-full px-4 sm:px-6 py-16 md:py-24">
-        <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="flex flex-col justify-center"
-          >
-            <p className="text-[10px] tracking-[0.55em] uppercase text-slate-500 mb-5 font-medium">Modern Indian Fine Jewellery</p>
-            <h1 className="font-serif text-5xl md:text-7xl leading-[1.05] text-slate-900 mb-7">
-              Legacy Pieces,
-              <br />
-              Reimagined for
-              <br />
-              Today.
-            </h1>
-            <p className="text-lg text-slate-600 leading-relaxed mb-10 max-w-xl">
-              Discover heirloom-inspired necklaces, bangles, jhumkas, and statement bridal sets handcrafted by master artisans for contemporary wardrobes.
-            </p>
+    <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
+      {heroSlides.map((slide, index) => (
+        <Image
+          key={slide.headline}
+          src={slide.image}
+          alt={slide.headline}
+          fill
+          className={`object-cover transition-opacity duration-700 ${index === activeSlide ? 'opacity-100' : 'opacity-0'}`}
+          priority={index === 0}
+          sizes="100vw"
+        />
+      ))}
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/25" />
+
+      <motion.div
+        key={heroSlides[activeSlide].headline}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+        className="absolute inset-0 z-10 flex items-end md:items-center"
+      >
+        <div className="w-full px-5 pb-20 sm:px-8 md:pb-0 lg:px-12">
+          <div className="max-w-3xl text-white">
+            <p className="mb-3 text-[10px] tracking-[0.35em] uppercase text-white/85">{storefront.hero.badge}</p>
+            <h1 className="font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">Handcrafted Bridal &amp; Statement Jewelry</h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/90 sm:text-base">Unique designs, fair prices, made in India.</p>
+            <p className="mt-4 text-xs tracking-[0.25em] uppercase text-white/80">{heroSlides[activeSlide].headline}</p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href="/shop"
-                className="inline-flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-lg hover:bg-slate-800 transition-colors font-medium tracking-wide uppercase text-sm"
+                href={storefront.hero.primaryCtaHref}
+                className="inline-flex items-center justify-center gap-3 rounded-lg bg-white px-6 py-3 text-xs font-medium tracking-widest uppercase text-slate-900 hover:bg-slate-100 transition-colors"
               >
-                Shop Bestsellers <ArrowRight size={16} />
+                Explore Collection <ArrowRight size={15} />
               </Link>
               <Link
-                href="/collections"
-                className="inline-flex items-center justify-center gap-3 border-2 border-slate-900 text-slate-900 px-8 py-4 rounded-lg hover:bg-slate-50 transition-colors font-medium tracking-wide uppercase text-sm"
+                href={storefront.hero.secondaryCtaHref}
+                className="inline-flex items-center justify-center rounded-lg border border-white/70 px-6 py-3 text-xs font-medium tracking-widest uppercase text-white hover:bg-white/15 transition-colors"
               >
-                View Collections
+                {storefront.hero.secondaryCtaLabel}
               </Link>
             </div>
-
-            <div className="grid sm:grid-cols-3 gap-3">
-              {luxurySignals.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.label} className="rounded-xl border border-slate-200 bg-white/80 backdrop-blur px-4 py-3 flex items-center gap-3">
-                    <Icon size={16} className="text-slate-800" />
-                    <p className="text-xs text-slate-700 font-medium leading-tight">{item.label}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="relative"
-          >
-            <div className="relative h-[520px] md:h-[650px] rounded-[2rem] overflow-hidden shadow-2xl">
-              <Image
-                src={UPDATED_HERITAGE_IMAGE}
-                alt="Luxury jewellery editorial"
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-              <div className="absolute left-6 right-6 bottom-6 rounded-2xl border border-white/30 bg-black/35 backdrop-blur-md p-5 text-white">
-                <p className="text-[10px] uppercase tracking-[0.35em] text-white/80 mb-2">Featured Drop</p>
-                <h3 className="font-serif text-3xl mb-1">Heritage Edit</h3>
-                <p className="text-sm text-white/85">18 statement pieces inspired by royal Indian silhouettes.</p>
-              </div>
-            </div>
-            <div className="hidden md:block absolute -bottom-8 -left-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-xl">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 mb-2">Trusted by brides</p>
-              <p className="font-serif text-3xl text-slate-900">4.9/5</p>
-              <p className="text-xs text-slate-600">Based on verified customer stories</p>
-            </div>
-          </motion.div>
+          </div>
         </div>
+      </motion.div>
+
+      <button
+        type="button"
+        onClick={goPrev}
+        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-black/25 p-2 text-white hover:bg-black/40 transition-colors"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft size={20} />
+      </button>
+
+      <button
+        type="button"
+        onClick={goNext}
+        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-black/25 p-2 text-white hover:bg-black/40 transition-colors"
+        aria-label="Next slide"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+        {heroSlides.map((slide, index) => (
+          <button
+            key={slide.headline}
+            type="button"
+            onClick={() => setActiveSlide(index)}
+            className={`h-2 rounded-full transition-all ${index === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/60'}`}
+            aria-label={`Show hero slide ${index + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
 }
 
 function CollectionsSection({ collections }: { collections: Collection[] }) {
+  const [fallbackImages, setFallbackImages] = useState<Record<string, string>>({});
+
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-slate-50 to-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -154,26 +254,42 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
           {collections.slice(0, 3).map((collection, index) => (
+            (() => {
+              const displayCollectionName = collection.name === 'Bridal Collection'
+                ? 'Bridal Luxe'
+                : collection.name === 'Everyday Luxe'
+                  ? 'Everyday Minimal'
+                  : collection.name;
+
+              return (
             <motion.div
               key={collection.id}
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
-              style={{ height: index === 0 ? '500px' : '390px' }}
+              className="group relative h-[390px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
             >
               <Image
-                src={collection.image}
+                src={fallbackImages[collection.id] || collection.image}
                 alt={collection.name}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, 33vw"
+                onError={() => {
+                  setFallbackImages((current) => {
+                    if (current[collection.id]) return current;
+                    return {
+                      ...current,
+                      [collection.id]: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
+                    };
+                  });
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/25 to-black/70" />
               <div className="absolute inset-0 flex flex-col items-start justify-end p-8 text-white">
                 <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collection.itemCount} Pieces</p>
-                <h3 className="font-serif text-3xl md:text-4xl mb-3">{collection.name}</h3>
+                <h3 className="font-serif text-3xl md:text-4xl mb-3">{displayCollectionName}</h3>
                 <p className="text-sm text-white/90 max-w-xs mb-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
                   {collection.description}
                 </p>
@@ -185,6 +301,8 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
                 </Link>
               </div>
             </motion.div>
+              );
+            })()
           ))}
         </div>
       </div>
@@ -192,7 +310,8 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
   );
 }
 
-function BestsellersSection({ products }: { products: Product[] }) {
+function BestsellersSection({ products, storefront }: { products: Product[]; storefront: StorefrontSettings }) {
+  const productCardContent = storefront.productCard || defaultProductCardContent;
   const bestsellers = products.filter((product) => product.isBestseller).slice(0, 4);
 
   return (
@@ -209,7 +328,7 @@ function BestsellersSection({ products }: { products: Product[] }) {
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {bestsellers.map((product) => <ProductCard key={product.id} product={product} />)}
+          {bestsellers.map((product) => <ProductCard key={product.id} product={product} content={productCardContent} />)}
         </div>
       </div>
     </section>
@@ -272,7 +391,8 @@ function EditorialSection() {
   );
 }
 
-function NewArrivalsSection({ products }: { products: Product[] }) {
+function NewArrivalsSection({ products, storefront }: { products: Product[]; storefront: StorefrontSettings }) {
+  const productCardContent = storefront.productCard || defaultProductCardContent;
   const newArrivals = products.filter((product) => product.isNew).slice(0, 6);
 
   return (
@@ -290,20 +410,27 @@ function NewArrivalsSection({ products }: { products: Product[] }) {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {newArrivals.map((product) => <ProductCard key={product.id} product={product} />)}
+          {newArrivals.map((product) => <ProductCard key={product.id} product={product} content={productCardContent} />)}
         </div>
       </div>
     </section>
   );
 }
 
-function TrustSection() {
+function TrustSection({ storefront }: { storefront: StorefrontSettings }) {
+  const trustSection = storefront.trustSection || defaultTrustSection;
+  const trustSignals = storefront.trustSignals.slice(0, 4).map((item, index) => ({
+    ...item,
+    icon: trustIcons[index] || Shield,
+  }));
+
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-slate-50 to-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
-          <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">Why Gijayi</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-slate-900">Confidence at Every Step</h2>
+          <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">{trustSection.badge}</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-slate-900">{trustSection.title}</h2>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-4">{trustSection.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -332,14 +459,17 @@ function TrustSection() {
   );
 }
 
-function TestimonialsSection() {
+function TestimonialsSection({ storefront }: { storefront: StorefrontSettings }) {
+  const testimonialsSection = storefront.testimonialsSection || defaultTestimonialsSection;
+  const testimonials = testimonialsSection.testimonials || [];
+
   return (
     <section className="py-20 md:py-28 bg-white border-y border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
-          <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">Loved By Customers</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-slate-900 mb-6">Customer Stories</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">Real reviews from customers who trust Gijayi for their meaningful moments.</p>
+          <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">{testimonialsSection.badge}</p>
+          <h2 className="font-serif text-5xl md:text-6xl text-slate-900 mb-6">{testimonialsSection.title}</h2>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">{testimonialsSection.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -374,7 +504,7 @@ function InstagramSection() {
   const instaPics = [
     'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80',
     'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80',
-    'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=400&q=80',
+    'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
     'https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=400&q=80',
     'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&q=80',
     'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=81',
@@ -430,17 +560,53 @@ function InstagramSection() {
   );
 }
 
-export default function HomePageClient({ products, collections }: HomePageClientProps) {
+function IndiaCraftBannerSection() {
+  return (
+    <section className="bg-white pb-14 md:pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="relative overflow-hidden rounded-3xl min-h-[420px] md:min-h-[520px]">
+          <Image
+            src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1800&q=85"
+            alt="India craftsmanship inspiration"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 1200px"
+          />
+          <div className="absolute inset-0 bg-black/35" />
+
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-6">
+            <div className="text-center text-white max-w-3xl">
+              <p className="text-xs tracking-[0.35em] uppercase text-white/85 mb-3">Inspired by India</p>
+              <h2 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight mb-4">Crafted With Indian Heritage</h2>
+              <p className="text-sm sm:text-base text-white/90 max-w-2xl mx-auto mb-8">
+                Handcrafted Bridal &amp; Statement Jewelry rooted in timeless Indian artistry.
+              </p>
+              <Link
+                href="/collections"
+                className="inline-flex items-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-lg text-xs tracking-widest uppercase font-medium hover:bg-slate-100 transition-colors"
+              >
+                Explore Collection <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default function HomePageClient({ products, collections, storefront }: HomePageClientProps) {
   return (
     <>
-      <HeroSection />
+      <HeroSection storefront={storefront} />
       <CollectionsSection collections={collections} />
-      <BestsellersSection products={products} />
+      <BestsellersSection products={products} storefront={storefront} />
       <EditorialSection />
-      <NewArrivalsSection products={products} />
-      <TrustSection />
-      <TestimonialsSection />
+      <NewArrivalsSection products={products} storefront={storefront} />
+      <TrustSection storefront={storefront} />
+      <TestimonialsSection storefront={storefront} />
       <InstagramSection />
+      <IndiaCraftBannerSection />
     </>
   );
 }

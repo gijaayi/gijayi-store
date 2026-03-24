@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingBag } from 'lucide-react';
+import { Eye, Heart, ShoppingBag, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
@@ -10,12 +10,34 @@ import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductCardProps {
   product: Product;
+  content?: {
+    quickAddLabel: string;
+    quickViewLabel: string;
+    newBadgeLabel: string;
+    bestsellerBadgeLabel: string;
+    saleBadgeSuffix: string;
+    ratingValue: string;
+    ratingCountLabel: string;
+  };
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+const defaultContent = {
+  quickAddLabel: 'Quick Add',
+  quickViewLabel: 'Quick View',
+  newBadgeLabel: 'New',
+  bestsellerBadgeLabel: 'Bestseller',
+  saleBadgeSuffix: 'Off',
+  ratingValue: '4.8',
+  ratingCountLabel: '(24 reviews)',
+};
+
+export default function ProductCard({ product, content = defaultContent }: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const wishlisted = isWishlisted(product.id);
+  const discountPercent = product.compareAtPrice
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+    : 0;
 
   return (
     <motion.div
@@ -48,17 +70,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="absolute top-3 left-3 flex flex-col gap-1">
           {product.isNew && (
             <span className="bg-[#1a1a1a] text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              New
+              {content.newBadgeLabel}
             </span>
           )}
           {product.isBestseller && (
             <span className="bg-[#b8963e] text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              Bestseller
+              {content.bestsellerBadgeLabel}
             </span>
           )}
-          {product.compareAtPrice && (
+          {discountPercent > 0 && (
             <span className="bg-red-500 text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              Sale
+              {discountPercent}% {content.saleBadgeSuffix}
             </span>
           )}
         </div>
@@ -80,8 +102,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-white text-xs tracking-widest uppercase py-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2"
         >
           <ShoppingBag size={14} />
-          Quick Add
+          {content.quickAddLabel}
         </button>
+
+        <Link
+          href={`/products/${product.slug}`}
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white/95 text-[#1a1a1a] text-[11px] tracking-widest uppercase px-4 py-2 rounded-full flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <Eye size={13} />
+          {content.quickViewLabel}
+        </Link>
       </div>
 
       <div className="mt-4 px-1">
@@ -96,6 +126,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               ₹{product.compareAtPrice.toLocaleString('en-IN')}
             </span>
           )}
+        </div>
+        <div className="flex items-center gap-1 mt-2">
+          <Star size={12} className="text-[#b8963e]" fill="currentColor" />
+          <span className="text-xs text-gray-600">{content.ratingValue}</span>
+          <span className="text-xs text-gray-400">{content.ratingCountLabel}</span>
         </div>
       </div>
     </motion.div>

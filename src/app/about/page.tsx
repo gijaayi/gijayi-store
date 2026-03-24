@@ -30,7 +30,7 @@ export default function AboutPage() {
         />
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
-          <p className="text-xs tracking-[0.4em] uppercase text-[#d4af64] mb-4">Est. 2010, Mumbai</p>
+          <p className="text-xs tracking-[0.4em] uppercase text-[#d4af64] mb-4">Est. 2010, Rampur, UP</p>
           <h1 className="font-serif text-5xl md:text-7xl text-white leading-tight max-w-2xl">
             The Story of<br />
             <em className="not-italic text-[#d4af64]">Gijayi</em>
@@ -59,8 +59,8 @@ export default function AboutPage() {
           </div>
           <div className="relative h-[480px]">
             <Image
-              src="https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=900&q=80"
-              alt="Artisan crafting jewellery"
+              src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=900&q=80"
+              alt="Indian heritage architecture symbolizing Gijayi legacy"
               fill
               className="object-cover"
               sizes="50vw"

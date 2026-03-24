@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const navLinks = [
+const defaultNavLinks = [
   {
     label: 'Shop',
     href: '/shop',
@@ -52,6 +52,69 @@ export default function Header() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [navLinks, setNavLinks] = useState(defaultNavLinks);
+  const firstName = user?.name?.trim().split(' ')[0] || 'Account';
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadNavigation() {
+      try {
+        const response = await fetch('/api/storefront', { cache: 'no-store' });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          storefront?: {
+            navigation?: {
+              shop?: { label?: string; subcategories?: string[] };
+              gijayiEdit?: { label?: string; subcategories?: string[] };
+              freshArrival?: { label?: string };
+            };
+          };
+        };
+
+        const shop = data.storefront?.navigation?.shop;
+        const gijayiEdit = data.storefront?.navigation?.gijayiEdit;
+        const freshArrival = data.storefront?.navigation?.freshArrival;
+
+        const nextLinks = [
+          {
+            label: shop?.label?.trim() || 'Shop',
+            href: '/shop',
+            children: (shop?.subcategories || [])
+              .map((name) => String(name || '').trim())
+              .filter(Boolean)
+              .map((name) => ({ label: name, href: `/shop?category=${encodeURIComponent(name)}` })),
+          },
+          {
+            label: gijayiEdit?.label?.trim() || 'Gijayi Edit',
+            href: '/shop',
+            children: (gijayiEdit?.subcategories || [])
+              .map((name) => String(name || '').trim())
+              .filter(Boolean)
+              .map((name) => ({ label: name, href: `/shop?collection=${encodeURIComponent(name)}` })),
+          },
+          {
+            label: freshArrival?.label?.trim() || 'Fresh Arrival',
+            href: '/shop?filter=new',
+            children: [],
+          },
+        ];
+
+        if (active) {
+          setNavLinks(nextLinks);
+        }
+      } catch {
+        // keep default nav links
+      }
+    }
+
+    loadNavigation();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     setSearchValue(searchParams.get('q') ?? '');
@@ -83,8 +146,10 @@ export default function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-slate-100 text-slate-800 text-center py-2.5 text-xs tracking-widest uppercase font-medium">
-        Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India
+      <div className="bg-slate-100 text-slate-800 py-2.5 text-xs tracking-widest uppercase font-medium">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <span>Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India</span>
+        </div>
       </div>
 
       <header
@@ -161,6 +226,9 @@ export default function Header() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
+                  <Link href="/profile" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors">
+                    Hi, {firstName}
+                  </Link>
                   {user.role === 'admin' && (
                     <Link href="/admin" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors">
                       Admin
@@ -177,9 +245,9 @@ export default function Header() {
                   </button>
                 </>
               ) : (
-                <div className="hidden md:flex items-center gap-3 text-[11px] tracking-widest uppercase">
-                  <Link href="/login" className="hover:text-[#b8963e] transition-colors">Login</Link>
-                  <Link href="/register" className="hover:text-[#b8963e] transition-colors">Register</Link>
+                <div className="hidden md:flex items-center gap-2 text-[11px] tracking-widest uppercase">
+                  <Link href="/login" className="border border-gray-200 px-4 py-2 rounded-full hover:border-[#b8963e] hover:text-[#b8963e] transition-colors">Login</Link>
+                  <Link href="/register" className="bg-[#1a1a1a] text-white px-4 py-2 rounded-full hover:bg-[#b8963e] transition-colors">Register</Link>
                 </div>
               )}
               <button
@@ -329,7 +397,9 @@ export default function Header() {
                           Admin
                         </Link>
                       ) : (
-                        <div className="border border-gray-200 px-4 py-3 text-center text-gray-400">Account</div>
+                        <Link href="/profile" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                          {firstName}
+                        </Link>
                       )}
                       <button
                         onClick={async () => {
@@ -347,7 +417,7 @@ export default function Header() {
                       <Link href="/login" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
                         Login
                       </Link>
-                      <Link href="/register" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                      <Link href="/register" className="bg-[#1a1a1a] text-white border border-[#1a1a1a] px-4 py-3 text-center hover:bg-[#b8963e] hover:border-[#b8963e]" onClick={() => setMobileOpen(false)}>
                         Register
                       </Link>
                     </>

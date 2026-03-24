@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
-import { updateDatabase } from '@/lib/server/database';
+import { readDatabase, updateDatabase } from '@/lib/server/database';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -15,6 +15,37 @@ export async function PUT(request: NextRequest, context: Context) {
   try {
     const { id } = await context.params;
     const body = await request.json();
+
+    if (body.category !== undefined) {
+      const category = String(body.category || '').trim();
+      if (!category) {
+        return NextResponse.json({ error: 'Category is required.' }, { status: 400 });
+      }
+
+      const dbSnapshot = await readDatabase();
+      const categoryExists = dbSnapshot.categories.some((item) => item.name === category);
+      if (!categoryExists) {
+        return NextResponse.json({ error: 'Please select a valid category from admin categories.' }, { status: 400 });
+      }
+    }
+
+    if (body.collection !== undefined) {
+      const collection = String(body.collection || '').trim();
+      if (!collection) {
+        return NextResponse.json({ error: 'Collection is required.' }, { status: 400 });
+      }
+
+      const dbSnapshot = await readDatabase();
+      const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
+        (item) => item.toLowerCase() === collection.toLowerCase()
+      );
+      if (!collectionExists) {
+        return NextResponse.json(
+          { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
+          { status: 400 }
+        );
+      }
+    }
 
     const db = await updateDatabase((state) => {
       const index = state.products.findIndex((product) => product.id === id);

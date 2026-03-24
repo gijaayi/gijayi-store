@@ -16,6 +16,7 @@ interface ShopPageClientProps {
 function ShopContent({ products, categories }: ShopPageClientProps) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('category');
+  const collectionParam = searchParams.get('collection');
   const filterParam = searchParams.get('filter');
   const queryParam = searchParams.get('q')?.trim().toLowerCase() ?? '';
 
@@ -32,6 +33,10 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
 
     if (activeCategory !== 'All') {
       result = result.filter((p) => p.category === activeCategory);
+    }
+
+    if (collectionParam) {
+      result = result.filter((p) => p.collection.toLowerCase() === collectionParam.toLowerCase());
     }
 
     if (queryParam) {
@@ -55,9 +60,9 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
     else if (sortBy === 'newest') result = result.filter((p) => p.isNew).concat(result.filter((p) => !p.isNew));
 
     return result;
-  }, [activeCategory, sortBy, filterParam, products, queryParam]);
+  }, [activeCategory, collectionParam, sortBy, filterParam, products, queryParam]);
 
-  const featuredCategories = categories.filter((category) => category !== 'All').slice(0, 6);
+  const featuredCategories = categories.filter((category) => category !== 'All');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -95,7 +100,7 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
             {featuredCategories.map((cat) => (
               <Link
                 key={cat}
-                href={`/products?category=${encodeURIComponent(cat)}`}
+                href={`/shop?category=${encodeURIComponent(cat)}`}
                 className="border border-[#dfd3bf] px-4 py-2 text-xs tracking-widest uppercase hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
               >
                 {cat}

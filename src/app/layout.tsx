@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import StoreChrome from "@/components/StoreChrome";
 
-const montserrat = Montserrat({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
-const cormorant = Cormorant_Garamond({
+const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-serif",
 });
 
 export const metadata: Metadata = {
   title: "Gijayi – Luxury Indian Jewellery",
-  description: "Discover Gijayi's curated collection of handcrafted Indian jewellery – bridal, heritage, and everyday luxe pieces crafted with love in India.",
-  keywords: "Indian jewellery, bridal jewellery, kundan, polki, gold jewellery, Gijayi",
+  description: "Discover handcrafted Indian jewelry at Gijayi, including bridal jewelry online, made in India pieces, and affordable designer jewelry collections.",
+  keywords: "handcrafted Indian jewelry, bridal jewelry online, made in India, affordable designer jewelry, kundan, polki, Gijayi",
   metadataBase: new URL("https://gijayi.com"),
   openGraph: {
     title: "Gijayi – Luxury Indian Jewellery",
@@ -38,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} ${cormorant.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <CartProvider>
           <AuthProvider>
             <WishlistProvider>

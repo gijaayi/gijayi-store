@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star } from 'lucide-react';
+import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { products } from '@/lib/data';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
@@ -18,6 +18,7 @@ interface Props {
 }
 
 export default function ProductDetailPage({ params }: Props) {
+  const whatsappUrl = 'https://wa.me/911234567890?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
   const { slug } = use(params);
   const staticProduct = products.find((item) => item.slug === slug) ?? null;
 
@@ -87,13 +88,101 @@ export default function ProductDetailPage({ params }: Props) {
     ? relatedFromApi
     : products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
   const wishlisted = isWishlisted(product.id);
+  const highlights = [
+    `Category: ${product.category}`,
+    `Collection: ${product.collection}`,
+    'Handcrafted finish by Gijayi artisans',
+    'Premium gifting-ready packaging included',
+  ];
 
   const discount = product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.images,
+    description: product.description,
+    sku: product.id,
+    category: product.category,
+    brand: {
+      '@type': 'Brand',
+      name: 'Gijayi',
+    },
+    offers: {
+      '@type': 'Offer',
+      url: `https://gijayi.com/products/${product.slug}`,
+      priceCurrency: 'INR',
+      price: product.price,
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://gijayi.com/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Shop',
+        item: 'https://gijayi.com/shop',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: product.category,
+        item: `https://gijayi.com/shop?category=${encodeURIComponent(product.category)}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: product.name,
+        item: `https://gijayi.com/products/${product.slug}`,
+      },
+    ],
+  };
+
+  const addSelectedItemToCart = () => {
+    for (let index = 0; index < quantity; index++) {
+      addItem(product, selectedSize || undefined);
+    }
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      {/* Sticky Mobile Add to Cart */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 p-4">
+        <button
+          onClick={() => addSelectedItemToCart()}
+          className="w-full bg-[#1a1a1a] text-white py-3 text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#b8963e] transition-colors duration-300 font-medium"
+        >
+          <ShoppingBag size={16} />
+          Add to Bag
+        </button>
+      </div>
+
+      {/* Add bottom padding to account for sticky button */}
+      <div className="md:hidden h-20" />
+
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -121,7 +210,7 @@ export default function ProductDetailPage({ params }: Props) {
                     selectedImage === i ? 'border-[#b8963e]' : 'border-transparent'
                   }`}
                 >
-                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" sizes="80px" />
                 </button>
               ))}
             </div>
@@ -141,7 +230,7 @@ export default function ProductDetailPage({ params }: Props) {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
+                  priority={selectedImage === 0}
                 />
               </motion.div>
 
@@ -180,6 +269,22 @@ export default function ProductDetailPage({ params }: Props) {
             </div>
 
             <div className="w-12 h-px bg-[#b8963e] mb-6" />
+
+            <div className="grid sm:grid-cols-3 gap-3 mb-8">
+              {[
+                { icon: ShieldCheck, label: '100% Authentic' },
+                { icon: Truck, label: 'Free Shipping*' },
+                { icon: RotateCcw, label: 'Easy Returns' },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="border border-[#e9dfcd] bg-[#fcfbf8] px-3 py-3 flex items-center gap-2">
+                    <Icon size={14} className="text-[#b8963e]" />
+                    <p className="text-[11px] tracking-wider uppercase text-[#3b3b3b]">{item.label}</p>
+                  </div>
+                );
+              })}
+            </div>
 
             {/* Size */}
             {product.sizes && product.sizes.length > 0 && (
@@ -234,7 +339,7 @@ export default function ProductDetailPage({ params }: Props) {
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <button
                 onClick={() => {
-                  for (let i = 0; i < quantity; i++) addItem(product, selectedSize || undefined);
+                  addSelectedItemToCart();
                 }}
                 className="flex-1 bg-[#1a1a1a] text-white py-4 text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#b8963e] transition-colors duration-300"
               >
@@ -270,6 +375,15 @@ export default function ProductDetailPage({ params }: Props) {
               Buy Now
             </Link>
 
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-8 block w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
+            >
+              Chat on WhatsApp
+            </a>
+
             {/* Tabs */}
             <div className="border-t border-gray-100">
               {(['description', 'details', 'care'] as const).map((tab) => (
@@ -291,7 +405,12 @@ export default function ProductDetailPage({ params }: Props) {
                       className="pb-4"
                     >
                       {tab === 'description' && (
-                        <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                        <div className="space-y-3">
+                          <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            This handcrafted Indian jewelry piece is designed for bridal jewelry online shoppers looking for made in India quality and affordable designer jewelry styling.
+                          </p>
+                        </div>
                       )}
                       {tab === 'details' && (
                         <ul className="space-y-2">
@@ -316,6 +435,33 @@ export default function ProductDetailPage({ params }: Props) {
                 </div>
               ))}
             </div>
+
+            <div className="mt-8 border border-[#efe6d7] bg-[#fcfbf8] p-5">
+              <h3 className="font-serif text-2xl mb-4">Product Highlights</h3>
+              <ul className="space-y-2">
+                {highlights.map((item) => (
+                  <li key={item} className="text-sm text-gray-700 flex items-start gap-2">
+                    <span className="text-[#b8963e] mt-1">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="mt-5 grid sm:grid-cols-2 gap-3">
+              <div className="border border-[#efe6d7] p-4">
+                <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Delivery</p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Dispatch within 2-3 business days. Complimentary insured shipping on prepaid orders above ₹5,000.
+                </p>
+              </div>
+              <div className="border border-[#efe6d7] p-4">
+                <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Returns</p>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Easy return assistance within 7 days for eligible products. Visit policy pages for full terms.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -333,10 +479,36 @@ export default function ProductDetailPage({ params }: Props) {
           </section>
         )}
 
+        <section className="mt-10 border border-[#efe6d7] bg-[#fcfbf8] p-6">
+          <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-3">Customer Trust</p>
+          <h3 className="font-serif text-2xl mb-4">Proudly trusted by customers across India</h3>
+          <div className="grid gap-3 md:grid-cols-3">
+            <p className="text-sm text-gray-700">“Beautiful finishing and fast delivery.” — Nisha, Mumbai</p>
+            <p className="text-sm text-gray-700">“Exactly what I wanted for bridal styling.” — Aarohi, Hyderabad</p>
+            <p className="text-sm text-gray-700">“Great quality at a fair price.” — Sana, Lucknow</p>
+          </div>
+        </section>
+
         <div className="mt-8">
           <Link href="/shop" className="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-gray-500 hover:text-[#b8963e] transition-colors">
             <ArrowLeft size={14} /> Back to Shop
           </Link>
+        </div>
+      </div>
+
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5ddcf] bg-white/95 backdrop-blur px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] tracking-widest uppercase text-gray-500">{selectedSize ? `Size ${selectedSize}` : 'Select Size'}</p>
+            <p className="font-serif text-lg leading-none">₹{product.price.toLocaleString('en-IN')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={addSelectedItemToCart}
+            className="ml-auto bg-[#1a1a1a] text-white px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors"
+          >
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>

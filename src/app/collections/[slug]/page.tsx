@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { collections, products } from '@/lib/data';
@@ -11,6 +12,41 @@ export async function generateStaticParams() {
   return collections.map((c) => ({ slug: c.slug }));
 }
 
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const collection = collections.find((c) => c.slug === slug);
+
+  if (!collection) {
+    return {
+      title: 'Collection Not Found | Gijayi',
+      description: 'The requested collection could not be found.',
+    };
+  }
+
+  const url = `https://gijayi.com/collections/${collection.slug}`;
+
+  return {
+    title: `${collection.name} Collection | Gijayi`,
+    description: collection.description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title: `${collection.name} Collection | Gijayi`,
+      description: collection.description,
+      type: 'website',
+      url,
+      images: [{ url: collection.image, alt: collection.name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${collection.name} Collection | Gijayi`,
+      description: collection.description,
+      images: [collection.image],
+    },
+  };
+}
+
 export default async function CollectionDetailPage({ params }: Props) {
   const { slug } = await params;
   const collection = collections.find((c) => c.slug === slug);
@@ -20,8 +56,51 @@ export default async function CollectionDetailPage({ params }: Props) {
     (p) => p.collection.toLowerCase().replace(/\s+/g, '-') === slug
   );
 
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${collection.name} Collection`,
+    description: collection.description,
+    url: `https://gijayi.com/collections/${collection.slug}`,
+    image: collection.image,
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://gijayi.com/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Collections',
+        item: 'https://gijayi.com/collections',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: collection.name,
+        item: `https://gijayi.com/collections/${collection.slug}`,
+      },
+    ],
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       {/* Hero */}
       <div className="relative h-[50vh] min-h-[320px] flex items-center">
         <Image

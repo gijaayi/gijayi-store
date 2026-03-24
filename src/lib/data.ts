@@ -54,7 +54,7 @@ export const products: Product[] = [
     price: 4200,
     compareAtPrice: 5000,
     images: [
-      'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80',
+      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
       'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80',
     ],
     category: 'Earrings',
@@ -101,7 +101,7 @@ export const products: Product[] = [
     compareAtPrice: 7500,
     images: [
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80',
-      'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80',
+      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
     ],
     category: 'Maang Tikka',
     collection: 'Heritage',
@@ -165,7 +165,7 @@ export const products: Product[] = [
     compareAtPrice: 3200,
     images: [
       'https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=800&q=80',
-      'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=800&q=80',
+      'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=800&q=80',
     ],
     category: 'Anklets',
     collection: 'Everyday Luxe',
@@ -183,7 +183,7 @@ export const products: Product[] = [
 export const collections: Collection[] = [
   {
     id: '1',
-    name: 'Bridal Collection',
+    name: 'Bridal Luxe',
     slug: 'bridal',
     image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
     description: 'Opulent jewellery crafted for your most cherished moments. Every piece tells a story of love and tradition.',
@@ -199,9 +199,9 @@ export const collections: Collection[] = [
   },
   {
     id: '3',
-    name: 'Everyday Luxe',
+    name: 'Everyday Minimal',
     slug: 'everyday-luxe',
-    image: 'https://images.unsplash.com/photo-1652812376524-67a7b9490e0e?w=900&q=80',
+    image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=80',
     description: 'Refined pieces to elevate every day. Effortlessly luxurious for the woman who appreciates beauty in simplicity.',
     itemCount: 32,
   },

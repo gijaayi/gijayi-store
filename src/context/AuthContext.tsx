@@ -7,6 +7,18 @@ export interface AuthUser {
   name: string;
   email: string;
   role: 'admin' | 'user';
+  phone?: string;
+  defaultAddress?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+    country: string;
+  };
   createdAt: string;
 }
 
