@@ -24,7 +24,6 @@ export const metadata: Metadata = {
   keywords: "handcrafted Indian jewelry, bridal jewelry online, made in India, kundan jewelry, polki jewelry, designer jewelry, Indian earrings, necklaces, bangles",
   metadataBase: new URL("https://gijayi-store-woad.vercel.app"),
   viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
-  charset: "utf-8",
   openGraph: {
     title: "Gijayi – Handcrafted Indian Jewellery & Bridal Sets",
     description: "Authentic handcrafted Indian jewelry and bridal collections with premium quality and fast shipping.",
