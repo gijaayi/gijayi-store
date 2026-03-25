@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { getAllCollections } from '@/lib/shopify';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Collections – Gijayi',
   description: 'Explore Gijayi collections including bridal jewellery, heritage designs, and everyday luxe essentials.',
