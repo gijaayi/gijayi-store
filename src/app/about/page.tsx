@@ -3,8 +3,21 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
-  title: 'About Us – Gijayi',
-  description: 'The story behind Gijayi – India\'s luxury handcrafted jewellery brand.',
+  title: 'About Gijayi | Handcrafted Indian Jewelry Since 2010',
+  description: 'Learn the story behind Gijayi, India\'s luxury handcrafted jewelry brand. Celebrating artistry, tradition, and timeless beauty for over 15 years.',
+  keywords: 'about Gijayi, Indian jewelry brand, handcrafted jewelry story, luxury jewelry maker, Mumbai jewelry artisans',
+  openGraph: {
+    title: 'About Gijayi – India\'s Luxury Handcrafted Jewelry Brand',
+    description: 'Discover how Gijayi brings together traditional Indian jewelry craftsmanship with modern design since 2010.',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=1200&q=90',
+        width: 1200,
+        height: 630,
+        alt: 'Gijayi Jewelry Artisans',
+      },
+    ],
+  },
 };
 
 const milestones = [

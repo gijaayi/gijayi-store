@@ -6,8 +6,21 @@ import { getAllCollections } from '@/lib/shopify';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Collections – Gijayi',
-  description: 'Explore Gijayi collections including bridal jewellery, heritage designs, and everyday luxe essentials.',
+  title: 'Exclusive Collections | Bridal, Heritage & Everyday Jewellery – Gijayi',
+  description: 'Discover Gijayi\'s curated collections of handcrafted Indian jewelry including bridal sets, heritage designs, and luxe everyday pieces.',
+  keywords: 'jewelry collections, bridal jewelry collections, heritage jewelry, designer collections, Indian jewelry curated edit',
+  openGraph: {
+    title: 'Exclusive Jewelry Collections – Gijayi',
+    description: 'Signature collections of handcrafted Indian jewelry shaped around ceremonies and heirloom craft.',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&q=90',
+        width: 1200,
+        height: 630,
+        alt: 'Gijayi Collections',
+      },
+    ],
+  },
 };
 
 export default async function CollectionsPage() {

@@ -1,8 +1,13 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'FAQ – Gijayi',
-  description: 'Frequently asked questions about Gijayi orders, shipping, customisations, jewellery care, and returns.',
+  title: 'FAQ | Gijayi Jewelry – Shipping, Returns, Care & Customization',
+  description: 'Find answers to frequently asked questions about Gijayi jewelry orders, shipping, customizations, care instructions, and returns policy.',
+  keywords: 'FAQ, frequently asked questions, jewelry shipping, returns policy, jewelry care, custom orders, jewelry customization',
+  openGraph: {
+    title: 'Gijayi Jewelry FAQ – Orders, Shipping & Care',
+    description: 'Get answers to common questions about ordering, shipping, care, and customization of handcrafted Indian jewelry from Gijayi.',
+  },
 };
 
 const faqSections = [

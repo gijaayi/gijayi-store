@@ -20,6 +20,14 @@
   --color-charcoal: var(--charcoal);
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -28,8 +36,39 @@ body {
   letter-spacing: 0.01em;
 }
 
-h1, h2, h3, h4, h5 {
+/* Mobile-first typography */
+h1 {
   font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5em;
+}
+
+h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  line-height: 1.3;
+  margin-bottom: 0.5em;
+}
+
+h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  line-height: 1.4;
+  margin-bottom: 0.4em;
+}
+
+h4, h5 {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.5;
+  margin-bottom: 0.3em;
+}
+
+p {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  line-height: 1.6;
 }
 
 .font-serif {
@@ -51,6 +90,7 @@ h1, h2, h3, h4, h5 {
 /* Hover underline animation */
 .hover-underline {
   position: relative;
+  cursor: pointer;
 }
 .hover-underline::after {
   content: '';
@@ -62,8 +102,33 @@ h1, h2, h3, h4, h5 {
   background: var(--gold);
   transition: width 0.3s ease;
 }
-.hover-underline:hover::after {
+.hover-underline:hover::after,
+.hover-underline:focus-visible::after {
   width: 100%;
+}
+
+/* Responsive container */
+.container-responsive {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 80rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 /* Custom scrollbar */
@@ -95,4 +160,50 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Touch-friendly buttons and links */
+button,
+a[role="button"],
+input[type="button"],
+input[type="submit"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Mobile menu improvements */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .text-xs {
+    font-size: 0.75rem;
+  }
+  
+  .text-sm {
+    font-size: 0.875rem;
+  }
+  
+  /* Better spacing on mobile */
+  section {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
 }

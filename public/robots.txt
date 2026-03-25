@@ -1,0 +1,28 @@
+# Robots.txt for Gijayi Store
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /shop?*
+Allow: /products/*
+Allow: /collections
+Allow: /about
+Allow: /contact
+
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile
+Disallow: /admin-login
+Disallow: /api/
+Disallow: /.env
+Disallow: /private
+
+# Allow search engines to index
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemap
+Sitemap: https://gijayi-store-woad.vercel.app/sitemap.xml

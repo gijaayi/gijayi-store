@@ -146,9 +146,9 @@ export default function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-slate-100 text-slate-800 py-2.5 text-xs tracking-widest uppercase font-medium">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
-          <span>Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India</span>
+      <div className="bg-slate-100 text-slate-800 py-2 sm:py-2.5 text-[10px] sm:text-xs tracking-widest uppercase font-medium overflow-hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 text-center">
+          <span className="inline-block">Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India</span>
         </div>
       </div>
 
@@ -157,26 +157,26 @@ export default function Header() {
           scrolled ? 'bg-white shadow-lg' : 'bg-white'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16 md:h-20">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2"
+              className="md:hidden p-2 flex-shrink-0"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
-              <Menu size={22} />
+              <Menu size={20} className="sm:w-6 sm:h-6" />
             </button>
 
             {/* Logo */}
-            <Link href="/" className="shrink-0">
-              <span className="font-serif text-2xl md:text-3xl tracking-[0.2em] text-[#1a1a1a] uppercase">
+            <Link href="/" className="shrink-0 mx-auto sm:mx-0">
+              <span className="font-serif text-lg sm:text-2xl md:text-3xl tracking-[0.2em] text-[#1a1a1a] uppercase">
                 Gijayi
               </span>
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
               {navLinks.map((link) => (
                 <div
                   key={link.label}
@@ -186,7 +186,7 @@ export default function Header() {
                 >
                   <Link
                     href={link.href}
-                    className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#1a1a1a] hover:text-[#b8963e] transition-colors duration-200"
+                    className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#1a1a1a] hover:text-[#b8963e] transition-colors duration-200 py-2"
                   >
                     {link.label}
                     {link.children && link.children.length > 0 && (
@@ -208,7 +208,7 @@ export default function Header() {
                               <Link
                                 key={child.label}
                                 href={child.href}
-                                className="block px-3 py-2 text-[11px] tracking-widest uppercase text-[#555] hover:text-[#b8963e] hover:bg-[#faf8f4] transition-colors"
+                                className="block px-3 py-2 text-[11px] tracking-widest uppercase text-[#555] hover:text-[#b8963e] hover:bg-[#faf8f4] transition-colors rounded"
                               >
                                 {child.label}
                               </Link>
@@ -223,14 +223,14 @@ export default function Header() {
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
-                  <Link href="/profile" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors">
+                  <Link href="/profile" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors py-1">
                     Hi, {firstName}
                   </Link>
                   {user.role === 'admin' && (
-                    <Link href="/admin" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors">
+                    <Link href="/admin" className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors py-1">
                       Admin
                     </Link>
                   )}
@@ -239,7 +239,7 @@ export default function Header() {
                       await logout();
                       router.refresh();
                     }}
-                    className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors"
+                    className="hidden md:inline text-[11px] tracking-widest uppercase hover:text-[#b8963e] transition-colors py-1"
                   >
                     Logout
                   </button>
@@ -252,17 +252,17 @@ export default function Header() {
               )}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 hover:text-[#b8963e] transition-colors"
+                className="p-2 hover:text-[#b8963e] transition-colors flex-shrink-0"
                 aria-label="Search"
               >
-                <Search size={20} />
+                <Search size={18} className="sm:w-5 sm:h-5" />
               </button>
               <Link
                 href="/wishlist"
-                className="p-2 hover:text-[#b8963e] transition-colors relative"
+                className="p-2 hover:text-[#b8963e] transition-colors relative flex-shrink-0"
                 aria-label="Wishlist"
               >
-                <Heart size={20} />
+                <Heart size={18} className="sm:w-5 sm:h-5" />
                 {count > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#1a1a1a] text-white text-[10px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-medium">
                     {count}
@@ -271,10 +271,10 @@ export default function Header() {
               </Link>
               <button
                 onClick={toggleCart}
-                className="p-2 hover:text-[#b8963e] transition-colors relative"
+                className="p-2 hover:text-[#b8963e] transition-colors relative flex-shrink-0"
                 aria-label="Cart"
               >
-                <ShoppingBag size={20} />
+                <ShoppingBag size={18} className="sm:w-5 sm:h-5" />
                 {totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-[#b8963e] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
                     {totalItems}
@@ -293,24 +293,24 @@ export default function Header() {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden border-t border-gray-100"
               >
-                <form onSubmit={handleSearchSubmit} className="py-4 flex items-center gap-3">
-                  <Search size={18} className="text-gray-400" />
+                <form onSubmit={handleSearchSubmit} className="py-3 sm:py-4 flex items-center gap-2 sm:gap-3">
+                  <Search size={16} className="text-gray-400 sm:w-4.5" />
                   <input
                     autoFocus
                     type="text"
                     value={searchValue}
                     onChange={(event) => setSearchValue(event.target.value)}
-                    placeholder="Search for jewellery, collections, or categories..."
-                    className="flex-1 outline-none text-sm tracking-wide"
+                    placeholder="Search for jewellery..."
+                    className="flex-1 outline-none text-sm tracking-wide placeholder:text-gray-400"
                   />
                   <button
                     type="submit"
-                    className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a] transition-colors"
+                    className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a] transition-colors flex-shrink-0"
                   >
                     Search
                   </button>
-                  <button type="button" onClick={() => setSearchOpen(false)}>
-                    <X size={18} className="text-gray-400" />
+                  <button type="button" onClick={() => setSearchOpen(false)} className="flex-shrink-0">
+                    <X size={16} className="text-gray-400 sm:w-4.5" />
                   </button>
                 </form>
               </motion.div>
@@ -335,43 +335,43 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 left-0 h-full w-80 bg-white z-50 overflow-y-auto"
+              className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-white z-50 overflow-y-auto shadow-lg"
             >
-              <div className="flex items-center justify-between p-6 border-b">
-                <span className="font-serif text-2xl tracking-widest uppercase">Gijayi</span>
-                <button onClick={() => setMobileOpen(false)}>
-                  <X size={22} />
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
+                <span className="font-serif text-xl sm:text-2xl tracking-widest uppercase">Gijayi</span>
+                <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-gray-100 rounded">
+                  <X size={20} />
                 </button>
               </div>
-              <nav className="p-6 space-y-4">
-                <div className="pb-6 border-b border-gray-100">
-                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 border border-gray-200 px-3 py-3">
-                    <Search size={16} className="text-gray-400" />
+              <nav className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="pb-4 sm:pb-6 border-b border-gray-100">
+                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 border border-gray-200 px-3 py-2.5 rounded">
+                    <Search size={14} className="text-gray-400" />
                     <input
                       type="text"
                       value={searchValue}
                       onChange={(event) => setSearchValue(event.target.value)}
                       placeholder="Search the store"
-                      className="flex-1 text-sm outline-none"
+                      className="flex-1 text-sm outline-none placeholder:text-gray-400"
                     />
                   </form>
                 </div>
                 {navLinks.map((link) => (
-                  <div key={link.label}>
+                  <div key={link.label} className="space-y-1">
                     <Link
                       href={link.href}
-                      className="block text-sm tracking-widest uppercase font-medium text-[#1a1a1a] py-2 hover:text-[#b8963e]"
+                      className="block text-sm sm:text-base tracking-widest uppercase font-medium text-[#1a1a1a] py-2 hover:text-[#b8963e] transition-colors"
                       onClick={() => setMobileOpen(false)}
                     >
                       {link.label}
                     </Link>
                     {link.children && link.children.length > 0 && (
-                      <div className="pl-4 space-y-2 mt-1">
+                      <div className="pl-4 space-y-2">
                         {link.children.map((child) => (
                           <Link
                             key={child.label}
                             href={child.href}
-                            className="block text-xs tracking-widest uppercase text-[#777] hover:text-[#b8963e] py-1"
+                            className="block text-xs sm:text-sm tracking-widest uppercase text-[#777] hover:text-[#b8963e] py-1.5 transition-colors"
                             onClick={() => setMobileOpen(false)}
                           >
                             {child.label}
@@ -381,23 +381,23 @@ export default function Header() {
                     )}
                   </div>
                 ))}
-                <div className="pt-4 border-t border-gray-100 grid grid-cols-2 gap-3 text-xs tracking-widest uppercase">
-                  <Link href="/wishlist" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                <div className="pt-3 sm:pt-4 border-t border-gray-100 grid grid-cols-2 gap-2 sm:gap-3 text-xs tracking-widest uppercase">
+                  <Link href="/wishlist" className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                     Wishlist
                   </Link>
-                  <Link href="/track-order" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                  <Link href="/track-order" className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                     Track Order
                   </Link>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-xs tracking-widest uppercase">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs tracking-widest uppercase">
                   {user ? (
                     <>
                       {user.role === 'admin' ? (
-                        <Link href="/admin" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                        <Link href="/admin" className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                           Admin
                         </Link>
                       ) : (
-                        <Link href="/profile" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                        <Link href="/profile" className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                           {firstName}
                         </Link>
                       )}
@@ -407,17 +407,17 @@ export default function Header() {
                           setMobileOpen(false);
                           router.refresh();
                         }}
-                        className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]"
+                        className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded"
                       >
                         Logout
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link href="/login" className="border border-gray-200 px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                      <Link href="/login" className="border border-gray-200 px-3 sm:px-4 py-3 text-center hover:border-[#b8963e] hover:text-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                         Login
                       </Link>
-                      <Link href="/register" className="bg-[#1a1a1a] text-white border border-[#1a1a1a] px-4 py-3 text-center hover:bg-[#b8963e] hover:border-[#b8963e]" onClick={() => setMobileOpen(false)}>
+                      <Link href="/register" className="bg-[#1a1a1a] text-white border border-[#1a1a1a] px-3 sm:px-4 py-3 text-center hover:bg-[#b8963e] hover:border-[#b8963e] transition-colors rounded" onClick={() => setMobileOpen(false)}>
                         Register
                       </Link>
                     </>
