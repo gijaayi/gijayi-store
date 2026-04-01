@@ -56,16 +56,16 @@ export async function GET(request: NextRequest) {
   const productSales: Record<string, { name: string; quantity: number; revenue: number }> = {};
   db.orders.forEach(order => {
     order.items.forEach(item => {
-      if (!productSales[item.id]) {
-        const product = db.products.find(p => p.id === item.id);
-        productSales[item.id] = {
+      if (!productSales[item.productId]) {
+        const product = db.products.find(p => p.id === item.productId);
+        productSales[item.productId] = {
           name: product?.name || 'Unknown',
           quantity: 0,
           revenue: 0,
         };
       }
-      productSales[item.id].quantity += item.quantity;
-      productSales[item.id].revenue += item.totalPrice;
+      productSales[item.productId].quantity += item.quantity;
+      productSales[item.productId].revenue += item.price * item.quantity;
     });
   });
 
