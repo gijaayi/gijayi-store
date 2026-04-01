@@ -8,6 +8,7 @@ export interface AuthUser {
   email: string;
   role: 'admin' | 'user';
   phone?: string;
+  hasPlacedOrder?: boolean;
   defaultAddress?: {
     firstName: string;
     lastName: string;

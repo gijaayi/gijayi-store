@@ -29,7 +29,7 @@ export default async function CollectionsPage() {
   return (
     <div className="bg-white">
       <section className="relative overflow-hidden bg-[#1a1a1a] text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(212,175,100,0.3),_transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,100,0.3),transparent_35%)]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 md:py-28 text-center">
           <p className="text-xs tracking-[0.4em] uppercase text-[#d4af64] mb-4">Curated Edit</p>
           <h1 className="font-serif text-5xl md:text-6xl">Collections</h1>
@@ -46,7 +46,7 @@ export default async function CollectionsPage() {
               key={collection.id}
               className="grid overflow-hidden border border-[#efe6d7] bg-[#fcfbf8] md:grid-cols-[1.2fr_1fr]"
             >
-              <div className={`relative min-h-[320px] ${index % 2 === 1 ? 'md:order-2' : ''}`}>
+              <div className={`relative min-h-80 ${index % 2 === 1 ? 'md:order-2' : ''}`}>
                 <Image
                   src={collection.image}
                   alt={collection.name}

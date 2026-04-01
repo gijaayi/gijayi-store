@@ -4,9 +4,34 @@ import Link from 'next/link';
 import { Heart } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function WishlistPage() {
   const { items, clearWishlist } = useWishlist();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-[40vh] flex flex-col items-center justify-center text-center border border-dashed border-[#d8c8a1] bg-[#fcfbf8] px-6">
+        <Heart size={42} className="text-[#b8963e] mb-4" />
+        <h2 className="font-serif text-3xl mb-3">Login to view your wishlist</h2>
+        <p className="text-sm text-gray-600 mb-8 max-w-md">
+          Sign in to your account to save and view your favorite pieces.
+        </p>
+        <Link href="/login?redirect=/wishlist" className="bg-[#1a1a1a] text-white px-8 py-4 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors">
+          Sign in
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">

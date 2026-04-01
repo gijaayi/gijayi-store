@@ -161,7 +161,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2 flex-shrink-0"
+              className="md:hidden p-2 shrink-0"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
@@ -252,7 +252,7 @@ export default function Header() {
               )}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2 hover:text-[#b8963e] transition-colors flex-shrink-0"
+                className="p-2 hover:text-[#b8963e] transition-colors shrink-0"
                 aria-label="Search"
               >
                 <Search size={18} className="sm:w-5 sm:h-5" />
@@ -305,11 +305,11 @@ export default function Header() {
                   />
                   <button
                     type="submit"
-                    className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a] transition-colors flex-shrink-0"
+                    className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a] transition-colors shrink-0"
                   >
                     Search
                   </button>
-                  <button type="button" onClick={() => setSearchOpen(false)} className="flex-shrink-0">
+                  <button type="button" onClick={() => setSearchOpen(false)} className="shrink-0">
                     <X size={16} className="text-gray-400 sm:w-4.5" />
                   </button>
                 </form>

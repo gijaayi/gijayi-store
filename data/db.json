@@ -1,14 +1,5 @@
 {
-  "users": [
-    {
-      "id": "ec2882b5-10c6-4e87-983f-0f5b8769389f",
-      "name": "Platform Admin",
-      "email": "admin@gijayi.com",
-      "passwordHash": "5a3946fc060ce77f239ed0b2a9dae66e:e446491b9f5656e9ba31dd8d822feccb19b1feb285701b685fca481d7dbca5abd3970045b920f4f94cff2c313afe02523decad90221aaf8ef71d27e1e9a0313a",
-      "role": "admin",
-      "createdAt": "2026-03-13T07:37:22.108Z"
-    }
-  ],
+  "users": [],
   "products": [
     {
       "id": "1",

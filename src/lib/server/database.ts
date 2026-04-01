@@ -15,6 +15,7 @@ export interface DbUser {
   role: 'admin' | 'user';
   phone?: string;
   defaultAddress?: DbUserAddress;
+  hasPlacedOrder: boolean;
   createdAt: string;
 }
 
@@ -75,11 +76,18 @@ export interface DbOrder {
     country: string;
   };
   paymentMethod: string;
+  paymentDetails?: {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    currency: string;
+    exchangeRate: number;
+  };
   status: 'Confirmed' | 'Preparing for Dispatch' | 'In Transit' | 'Delivered';
   timeline: DbTimelineEvent[];
   subtotal: number;
   shippingCost: number;
   totalAmount: number;
+  estimatedDeliveryDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -337,6 +345,7 @@ async function getFallbackState(): Promise<DatabaseState> {
           passwordHash: adminHash,
           role: 'admin',
           phone: '',
+          hasPlacedOrder: false,
           createdAt: new Date().toISOString(),
         },
       ],
@@ -354,7 +363,7 @@ async function getFallbackState(): Promise<DatabaseState> {
     };
   }
 
-  return cloneState(fallbackState);
+  return cloneState(fallbackState!)
 }
 
 function slugify(value: string) {
@@ -479,6 +488,7 @@ async function ensureDatabase(): Promise<void> {
       passwordHash: configuredAdminHash,
       role: 'admin',
       phone: '',
+      hasPlacedOrder: false,
       createdAt: new Date().toISOString(),
     });
   } else {
@@ -505,6 +515,7 @@ async function ensureDatabase(): Promise<void> {
         passwordHash: configuredAdminHash,
         role: 'admin',
         phone: '',
+        hasPlacedOrder: false,
         createdAt: new Date().toISOString(),
       });
     }

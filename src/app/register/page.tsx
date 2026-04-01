@@ -46,11 +46,11 @@ function RegisterPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-16 bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-16 bg-linear-to-br from-slate-50 to-slate-100">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
           {/* Header */}
-          <div className="px-8 py-10 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div className="px-8 py-10 border-b border-slate-200 bg-linear-to-r from-slate-50 to-white">
             <p className="text-xs tracking-[0.35em] uppercase text-slate-500 font-medium mb-2">Join Gijayi</p>
             <h1 className="font-serif text-3xl text-slate-900">Create Account</h1>
           </div>
@@ -103,7 +103,7 @@ function RegisterPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-white py-3 rounded-lg text-sm font-medium tracking-widest uppercase hover:from-slate-700 hover:to-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                className="w-full bg-linear-to-r from-slate-800 to-slate-700 text-white py-3 rounded-lg text-sm font-medium tracking-widest uppercase hover:from-slate-700 hover:to-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
               >
                 {loading ? 'Creating...' : 'Create Account'}
               </button>

@@ -3,11 +3,34 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
+  const router = useRouter();
   const { state, removeItem, updateQty, totalPrice, clearCart } = useCart();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">
+        Checking your account...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6">
+        <h2 className="font-serif text-3xl mb-4">Login to view your cart</h2>
+        <Link href="/login?redirect=/cart" className="text-[#b8963e] text-xs tracking-widest uppercase hover:underline">
+          Sign in to your account
+        </Link>
+      </div>
+    );
+  }
 
   if (state.items.length === 0) {
     return (

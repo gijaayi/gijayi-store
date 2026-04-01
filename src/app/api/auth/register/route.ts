@@ -32,6 +32,7 @@ export async function POST(request: Request) {
         email,
         passwordHash,
         role: 'user',
+        hasPlacedOrder: false,
         createdAt: new Date().toISOString(),
       });
     });

@@ -5,6 +5,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import StoreChrome from "@/components/StoreChrome";
+import PopupManager from "@/components/PopupManager";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -100,6 +101,7 @@ export default function RootLayout({
         <CartProvider>
           <AuthProvider>
             <WishlistProvider>
+              <PopupManager />
               <StoreChrome>{children}</StoreChrome>
             </WishlistProvider>
           </AuthProvider>

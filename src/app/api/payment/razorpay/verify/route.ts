@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/server/auth';
 import crypto from 'crypto';
 
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+function getRazorpaySecret() {
+  return String(
+    process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_TEST_KEY_SECRET || ''
+  ).trim();
+}
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -10,7 +14,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
 
-  if (!RAZORPAY_KEY_SECRET) {
+  const razorpayKeySecret = getRazorpaySecret();
+
+  if (!razorpayKeySecret) {
     return NextResponse.json(
       { error: 'Payment gateway not configured' },
       { status: 500 }
@@ -29,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify signature
-    const hmac = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET);
+    const hmac = crypto.createHmac('sha256', razorpayKeySecret);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = hmac.digest('hex');
 

@@ -62,6 +62,15 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [hydrated, setHydrated] = useState(false);
+  
+  // Password change state
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
 
   const joinedDate = useMemo(
     () => (user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : ''),
@@ -177,6 +186,58 @@ export default function ProfilePage() {
     setBusy(false);
   }
 
+  async function updatePassword() {
+    setPasswordBusy(true);
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('All fields are required');
+      setPasswordBusy(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      setPasswordBusy(false);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      setPasswordBusy(false);
+      return;
+    }
+
+    const response = await fetch('/api/auth/update-password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      }),
+    });
+
+    const data = (await response.json()) as { error?: string; message?: string };
+
+    if (!response.ok) {
+      setPasswordError(data.error || 'Unable to update password.');
+      setPasswordBusy(false);
+      return;
+    }
+
+    setPasswordSuccess(data.message || 'Password updated successfully.');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordBusy(false);
+    setTimeout(() => {
+      setShowPasswordForm(false);
+      setPasswordSuccess('');
+    }, 2000);
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 md:py-16">
       <div className="mb-10">
@@ -273,36 +334,111 @@ export default function ProfilePage() {
           </button>
         </section>
 
-        <section className="border border-[#efe6d7] bg-white p-6 md:p-8">
-          <h2 className="font-serif text-2xl mb-2">Your Orders</h2>
-          <p className="text-sm text-gray-600 mb-5">View your order history and track each shipment.</p>
+        <section className="space-y-6">
+          <div className="border border-[#efe6d7] bg-[#fcfbf8] p-6 md:p-8">
+            <h2 className="font-serif text-2xl mb-2">Security</h2>
+            <p className="text-sm text-gray-600 mb-5">Manage your password and account security.</p>
 
-          {!orders.length ? (
-            <div className="border border-[#efe6d7] bg-[#fcfbf8] p-5 text-center">
-              <p className="text-sm text-gray-600 mb-3">No orders yet.</p>
-              <Link href="/shop" className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]">
-                Start Shopping
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <div key={order.id} className="border border-[#efe6d7] p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs tracking-[0.25em] uppercase text-[#b8963e]">{order.orderCode}</p>
-                    <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString('en-IN')}</span>
-                  </div>
-                  <p className="text-sm mt-2">{order.itemsCount} item(s) · ₹{order.totalAmount.toLocaleString('en-IN')}</p>
-                  <p className="text-sm text-gray-600 mt-1">Status: {order.status}</p>
-                  <div className="mt-3">
-                    <Link href={`/track-order?code=${encodeURIComponent(order.orderCode)}`} className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]">
-                      Track Order
-                    </Link>
-                  </div>
+            {!showPasswordForm ? (
+              <button
+                onClick={() => setShowPasswordForm(true)}
+                className="bg-[#1a1a1a] text-white px-8 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors"
+              >
+                Change Password
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs tracking-widest uppercase mb-1.5">Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full border border-[#e5ddcf] bg-white px-4 py-3 text-sm outline-none focus:border-[#b8963e]"
+                    placeholder="Enter current password"
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+                <div>
+                  <label className="block text-xs tracking-widest uppercase mb-1.5">New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full border border-[#e5ddcf] bg-white px-4 py-3 text-sm outline-none focus:border-[#b8963e]"
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs tracking-widest uppercase mb-1.5">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full border border-[#e5ddcf] bg-white px-4 py-3 text-sm outline-none focus:border-[#b8963e]"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+
+                {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
+                {passwordSuccess && <p className="text-sm text-emerald-700">{passwordSuccess}</p>}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={updatePassword}
+                    disabled={passwordBusy}
+                    className="bg-[#1a1a1a] text-white px-6 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors disabled:opacity-50"
+                  >
+                    {passwordBusy ? 'Updating...' : 'Update Password'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPasswordForm(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setPasswordError('');
+                      setPasswordSuccess('');
+                    }}
+                    className="bg-gray-200 text-gray-700 px-6 py-3 text-xs tracking-widest uppercase hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="border border-[#efe6d7] bg-white p-6 md:p-8">
+            <h2 className="font-serif text-2xl mb-2">Your Orders</h2>
+            <p className="text-sm text-gray-600 mb-5">View your order history and track each shipment.</p>
+
+            {!orders.length ? (
+              <div className="border border-[#efe6d7] bg-[#fcfbf8] p-5 text-center">
+                <p className="text-sm text-gray-600 mb-3">No orders yet.</p>
+                <Link href="/shop" className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]">
+                  Start Shopping
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="border border-[#efe6d7] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs tracking-[0.25em] uppercase text-[#b8963e]">{order.orderCode}</p>
+                      <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString('en-IN')}</span>
+                    </div>
+                    <p className="text-sm mt-2">{order.itemsCount} item(s) · ₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                    <p className="text-sm text-gray-600 mt-1">Status: {order.status}</p>
+                    <div className="mt-3">
+                      <Link href={`/track-order?code=${encodeURIComponent(order.orderCode)}`} className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]">
+                        Track Order
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </div>

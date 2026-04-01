@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -34,10 +35,27 @@ const defaultContent = {
 export default function ProductCard({ product, content = defaultContent }: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
+  const { user } = useAuth();
   const wishlisted = isWishlisted(product.id);
   const discountPercent = product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
+
+  const handleAddToCart = () => {
+    if (!user) {
+      window.location.href = '/login?redirect=/shop';
+      return;
+    }
+    addItem(product);
+  };
+
+  const handleToggleWishlist = () => {
+    if (!user) {
+      window.location.href = '/login?redirect=/shop';
+      return;
+    }
+    toggleItem(product);
+  };
 
   return (
     <motion.div
@@ -87,18 +105,19 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
         {/* Wishlist */}
         <button
-          onClick={() => toggleItem(product)}
+          onClick={handleToggleWishlist}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-3 right-3 w-8 h-8 bg-white flex items-center justify-center transition-opacity hover:text-red-500 shadow-sm ${
-            wishlisted ? 'opacity-100 text-red-500' : 'opacity-0 group-hover:opacity-100'
+          className={`absolute top-3 right-3 w-10 h-10 bg-white flex items-center justify-center transition-all hover:scale-110 shadow-md rounded-full ${
+            wishlisted ? 'text-red-500 ring-2 ring-red-300' : 'text-gray-700 hover:text-red-500'
           }`}
+          title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} />
+          <Heart size={18} fill={wishlisted ? 'currentColor' : 'none'} strokeWidth={wishlisted ? 0 : 2} />
         </button>
 
         {/* Quick Add */}
         <button
-          onClick={() => addItem(product)}
+          onClick={handleAddToCart}
           className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-white text-xs tracking-widest uppercase py-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex items-center justify-center gap-2"
         >
           <ShoppingBag size={14} />
@@ -106,7 +125,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
         </button>
 
         <Link
-          href={`/products/${product.slug}`}
+          href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`}
           className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white/95 text-[#1a1a1a] text-[11px] tracking-widest uppercase px-4 py-2 rounded-full flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         >
           <Eye size={13} />
@@ -116,7 +135,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
       <div className="mt-4 px-1">
         <p className="text-[10px] tracking-widest uppercase text-[#b8963e] mb-1">{product.category}</p>
-        <Link href={`/products/${product.slug}`} className="hover:text-[#b8963e] transition-colors">
+        <Link href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`} className="hover:text-[#b8963e] transition-colors">
           <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
         </Link>
         <div className="flex items-center gap-2 mt-1">

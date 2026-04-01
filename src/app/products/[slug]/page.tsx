@@ -3,28 +3,23 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useParams, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
-import { products } from '@/lib/data';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 import ProductCard from '@/components/ProductCard';
-import { use } from 'react';
-
-interface Props {
-  params: Promise<{ slug: string }>;
-}
-
-export default function ProductDetailPage({ params }: Props) {
+export default function ProductDetailPage() {
   const whatsappUrl = 'https://wa.me/911234567890?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
-  const { slug } = use(params);
-  const staticProduct = products.find((item) => item.slug === slug) ?? null;
-
-  const [product, setProduct] = useState<Product | null>(staticProduct);
+  const params = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const slug = String(params?.slug || '');
+  const pid = String(searchParams.get('pid') || '').trim();
+  const [product, setProduct] = useState<Product | null>(null);
   const [relatedFromApi, setRelatedFromApi] = useState<Product[]>([]);
-  const [isLoadingProduct, setIsLoadingProduct] = useState(!staticProduct);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(true);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState('');
@@ -32,18 +27,45 @@ export default function ProductDetailPage({ params }: Props) {
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'care'>('description');
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
+  const { user } = useAuth();
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (!user) {
+      window.location.href = `/login?redirect=/products/${slug}`;
+      return;
+    }
+    addItem(product, selectedSize || undefined);
+  };
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    if (!user) {
+      window.location.href = `/login?redirect=/products/${slug}`;
+      return;
+    }
+    toggleItem(product);
+  };
+
+  const addSelectedItemToCart = () => {
+    if (!product) return;
+    if (!user) {
+      window.location.href = `/login?redirect=/products/${slug}`;
+      return;
+    }
+    for (let index = 0; index < quantity; index++) {
+      addItem(product, selectedSize || undefined);
+    }
+  };
 
   useEffect(() => {
     let active = true;
 
     async function loadProduct() {
-      if (staticProduct) {
-        setIsLoadingProduct(false);
-        return;
-      }
+      setIsLoadingProduct(true);
 
       try {
-        const response = await fetch(`/api/products/${slug}`, { cache: 'no-store' });
+        const response = await fetch(`/api/products/${slug}${pid ? `?pid=${encodeURIComponent(pid)}` : ''}`, { cache: 'no-store' });
         if (!response.ok) {
           if (active) {
             setProduct(null);
@@ -71,12 +93,14 @@ export default function ProductDetailPage({ params }: Props) {
     return () => {
       active = false;
     };
-  }, [slug, staticProduct]);
+  }, [slug, pid]);
 
   useEffect(() => {
     if (!product) return;
+    setSelectedImage(0);
     setSelectedSize(product.sizes?.[0] || '');
-  }, [product]);
+    setQuantity(1);
+  }, [product?.id, product?.slug]);
 
   if (isLoadingProduct) {
     return <div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">Loading product...</div>;
@@ -84,9 +108,7 @@ export default function ProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const related = relatedFromApi.length
-    ? relatedFromApi
-    : products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 4);
+  const related = relatedFromApi;
   const wishlisted = isWishlisted(product.id);
   const highlights = [
     `Category: ${product.category}`,
@@ -150,12 +172,6 @@ export default function ProductDetailPage({ params }: Props) {
         item: `https://gijayi.com/products/${product.slug}`,
       },
     ],
-  };
-
-  const addSelectedItemToCart = () => {
-    for (let index = 0; index < quantity; index++) {
-      addItem(product, selectedSize || undefined);
-    }
   };
 
   return (
@@ -348,11 +364,35 @@ export default function ProductDetailPage({ params }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => toggleItem(product)}
-                className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
+                onClick={() => handleToggleWishlist()}
+                className={`border py-4 px-4 transition-all ${
+                  wishlisted
+                    ? 'bg-[#b8963e] border-[#b8963e] text-white'
+                    : 'border-gray-200 hover:border-[#b8963e] hover:text-[#b8963e]'
+                }`}
                 aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               >
-                <Heart size={18} fill={wishlisted ? 'currentColor' : 'none'} className={wishlisted ? 'text-red-500' : ''} />
+                <Heart size={18} fill={wishlisted ? 'currentColor' : 'none'} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!product) return;
+                  if (!user) {
+                    window.location.href = `/login?redirect=/products/${slug}`;
+                    return;
+                  }
+                  toggleItem(product);
+                }}
+                className={`flex-1 border text-sm tracking-widest uppercase font-semibold rounded transition-all py-4 px-4 ${
+                  wishlisted
+                    ? 'bg-[#b8963e] text-white border-[#b8963e] hover:bg-[#a0824a]'
+                    : 'bg-white text-[#1a1a1a] border-[#e5ddcf] hover:border-[#b8963e] hover:text-[#b8963e]'
+                }`}
+                title={wishlisted ? 'Saved for Later' : 'Save for Later'}
+              >
+                {wishlisted ? '✓ Saved' : 'Buy Later'}
               </button>
               <button
                 type="button"
@@ -361,6 +401,7 @@ export default function ProductDetailPage({ params }: Props) {
                   navigator.clipboard.writeText(window.location.href);
                 }}
                 className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
+                title="Share product"
               >
                 <Share2 size={18} />
               </button>
@@ -369,7 +410,7 @@ export default function ProductDetailPage({ params }: Props) {
             {/* Buy Now */}
             <Link
               href="/checkout"
-              onClick={() => addItem(product, selectedSize || undefined)}
+              onClick={() => handleAddToCart()}
               className="block w-full text-center border border-[#1a1a1a] py-4 text-xs tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300 mb-8"
             >
               Buy Now

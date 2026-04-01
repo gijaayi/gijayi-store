@@ -169,7 +169,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
   const goNext = () => setActiveSlide((current) => (current + 1) % heroSlides.length);
 
   return (
-    <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
+    <section className="relative h-[88vh] min-h-140 w-full overflow-hidden">
       {heroSlides.map((slide, index) => (
         <Image
           key={slide.id}
@@ -182,7 +182,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
         />
       ))}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/25" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-black/25" />
 
       <motion.div
         key={heroSlides[activeSlide].headline}
@@ -240,9 +240,14 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
             key={slide.headline}
             type="button"
             onClick={() => setActiveSlide(index)}
-            className={`h-2 rounded-full transition-all ${index === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/60'}`}
+            className="min-h-0! min-w-0! bg-transparent p-0"
             aria-label={`Show hero slide ${index + 1}`}
-          />
+            aria-current={index === activeSlide}
+          >
+            <span
+              className={`block h-2 rounded-full transition-all ${index === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/60'}`}
+            />
+          </button>
         ))}
       </div>
     </section>
@@ -285,7 +290,7 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="group relative h-[390px] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+              className="group relative h-97.5 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
             >
               <Image
                 src={fallbackImages[collection.id] || collection.image}
@@ -303,7 +308,7 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
                   });
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/25 to-black/70" />
+              <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/25 to-black/70" />
               <div className="absolute inset-0 flex flex-col items-start justify-end p-8 text-white">
                 <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collection.itemCount} Pieces</p>
                 <h3 className="font-serif text-3xl md:text-4xl mb-3">{displayCollectionName}</h3>
@@ -360,7 +365,7 @@ function BridalLuxeSection({ products, storefront }: { products: Product[]; stor
   if (bridalProducts.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-br from-rose-50 to-white border-y border-rose-200">
+    <section className="py-20 md:py-28 bg-linear-to-br from-rose-50 to-white border-y border-rose-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-end justify-between mb-14 gap-8">
           <div className="flex-1">
@@ -443,7 +448,7 @@ function EditorialSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative min-h-[350px] md:min-h-[620px] order-2 md:order-1"
+          className="relative min-h-87.5 md:min-h-155 order-2 md:order-1"
         >
           <Image
             src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=1200&q=90"
@@ -452,7 +457,7 @@ function EditorialSection() {
             className="object-cover"
             sizes="50vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-white/30 to-transparent" />
         </motion.div>
 
         <motion.div
@@ -460,7 +465,7 @@ function EditorialSection() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center px-8 md:px-16 py-16 md:py-24 order-1 md:order-2"
+          className="bg-linear-to-br from-slate-900 to-slate-800 text-white flex items-center px-8 md:px-16 py-16 md:py-24 order-1 md:order-2"
         >
           <div>
             <p className="text-[10px] tracking-[0.5em] uppercase text-slate-300 mb-6 font-medium">Our House Story</p>
@@ -471,7 +476,7 @@ function EditorialSection() {
               <br />
               Looks Iconic
             </h2>
-            <div className="w-12 h-1 bg-gradient-to-r from-slate-200 to-transparent mb-8" />
+            <div className="w-12 h-1 bg-linear-to-r from-slate-200 to-transparent mb-8" />
             <div className="space-y-6 mb-10">
               <p className="text-base text-slate-200 leading-relaxed">
                 Inspired by the timeless language of Indian adornment, Gijayi transforms ceremonial design cues into pieces that remain wearable, versatile, and deeply expressive.
@@ -663,7 +668,7 @@ function IndiaCraftBannerSection() {
   return (
     <section className="bg-white pb-14 md:pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl min-h-[420px] md:min-h-[520px]">
+        <div className="relative overflow-hidden rounded-3xl min-h-105 md:min-h-130">
           <Image
             src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1800&q=85"
             alt="India craftsmanship inspiration"

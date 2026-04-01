@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/server/auth';
-import crypto from 'crypto';
 
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
+function getRazorpayCredentials() {
+  const keyId = String(
+    process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_LIVE_KEY_ID || process.env.RAZORPAY_TEST_KEY_ID || ''
+  ).trim();
+
+  const keySecret = String(
+    process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_TEST_KEY_SECRET || ''
+  ).trim();
+
+  return { keyId, keySecret };
+}
 
 interface RazorpayOrderResponse {
   id: string;
@@ -20,13 +28,26 @@ interface RazorpayOrderResponse {
   created_at: number;
 }
 
+interface RazorpayErrorResponse {
+  error?: {
+    code?: string;
+    description?: string;
+    reason?: string;
+    field?: string;
+    source?: string;
+    step?: string;
+  };
+}
+
 export async function POST(request: NextRequest) {
   const auth = await requireAuth(request);
   if ('error' in auth) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
 
-  if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+  const { keyId, keySecret } = getRazorpayCredentials();
+
+  if (!keyId || !keySecret) {
     return NextResponse.json(
       { error: 'Payment gateway not configured' },
       { status: 500 }
@@ -47,13 +68,13 @@ export async function POST(request: NextRequest) {
     // Calculate amount in paise (Razorpay expects integer paise)
     const amountInPaise = Math.round(amount * 100);
 
-    // Create request options
+    // Use Razorpay Orders API supported fields only.
     const options = {
       amount: amountInPaise,
       currency,
-      description: description || 'Gijayi Order',
-      customer_notify: 1,
+      receipt: `gijayi_${Date.now()}`.slice(0, 40),
       notes: {
+        description: String(description || 'Gijayi Order'),
         userId: auth.user.id,
         userName: auth.user.name,
         email: auth.user.email,
@@ -62,7 +83,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Make request to Razorpay API
-    const auth_string = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
+    const auth_string = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
 
     const response = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
@@ -74,10 +95,22 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Razorpay API Error:', error);
+      const raw = await response.text();
+      let parsedError: RazorpayErrorResponse | null = null;
+
+      try {
+        parsedError = JSON.parse(raw) as RazorpayErrorResponse;
+      } catch {
+        parsedError = null;
+      }
+
+      const providerMessage = parsedError?.error?.description || parsedError?.error?.reason || raw || 'Failed to create payment order';
+      const finalMessage = providerMessage.toLowerCase().includes('authentication failed')
+        ? 'Razorpay authentication failed. Please verify Key ID and Key Secret are a matching pair in the same mode (Live/Test).'
+        : providerMessage;
+      console.error('Razorpay API Error:', providerMessage);
       return NextResponse.json(
-        { error: 'Failed to create payment order' },
+        { error: finalMessage },
         { status: response.status }
       );
     }
@@ -88,7 +121,7 @@ export async function POST(request: NextRequest) {
       orderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
-      keyId: RAZORPAY_KEY_ID,
+      keyId,
     });
   } catch (error) {
     console.error('Payment order error:', error);

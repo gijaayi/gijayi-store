@@ -5,6 +5,7 @@ import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
 function LoginPageContent() {
   const router = useRouter();
@@ -14,6 +15,7 @@ function LoginPageContent() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -41,11 +43,20 @@ function LoginPageContent() {
   }
 
   return (
-    <div className="min-h-[screen] flex items-center justify-center px-4 sm:px-6 py-16 bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-16 bg-linear-to-br from-slate-50 to-slate-100">
       <div className="w-full max-w-md">
+        {/* Logo - Clickable */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block hover:opacity-80 transition">
+            <span className="font-serif text-3xl md:text-4xl tracking-widest uppercase text-[#1a1a1a] cursor-pointer">
+              Gijayi
+            </span>
+          </Link>
+        </div>
+
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
           {/* Header */}
-          <div className="px-8 py-10 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
+          <div className="px-8 py-10 border-b border-slate-200 bg-linear-to-r from-slate-50 to-white">
             <p className="text-xs tracking-[0.35em] uppercase text-slate-500 font-medium mb-2">Welcome Back</p>
             <h1 className="font-serif text-3xl text-slate-900">Login</h1>
           </div>
@@ -68,14 +79,27 @@ function LoginPageContent() {
               </div>
               <div>
                 <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2 font-medium">Password</label>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="••••••••"
-                  className="w-full border border-slate-300 rounded-lg px-4 py-3 text-sm outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/20 transition-all"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="••••••••"
+                    className="w-full border border-slate-300 rounded-lg px-4 py-3 pr-10 text-sm outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/20 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -87,7 +111,7 @@ function LoginPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-slate-800 to-slate-700 text-white py-3 rounded-lg text-sm font-medium tracking-widest uppercase hover:from-slate-700 hover:to-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                className="w-full bg-linear-to-r from-slate-800 to-slate-700 text-white py-3 rounded-lg text-sm font-medium tracking-widest uppercase hover:from-slate-700 hover:to-slate-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>

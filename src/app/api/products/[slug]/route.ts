@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { readDatabase } from '@/lib/server/database';
+import { getAllProducts } from '@/lib/shopify';
 
 interface Context {
   params: Promise<{ slug: string }>;
@@ -7,15 +7,19 @@ interface Context {
 
 export async function GET(_: Request, context: Context) {
   const { slug } = await context.params;
+  const requestUrl = new URL(_.url);
+  const pid = String(requestUrl.searchParams.get('pid') || '').trim();
 
-  const db = await readDatabase();
-  const product = db.products.find((item) => item.slug === slug);
+  const products = await getAllProducts();
+  const product = pid
+    ? products.find((item) => item.id === pid) ?? products.find((item) => item.slug === slug)
+    : products.find((item) => item.slug === slug);
 
   if (!product) {
     return NextResponse.json({ error: 'Product not found.' }, { status: 404 });
   }
 
-  const related = db.products
+  const related = products
     .filter((item) => item.id !== product.id && item.category === product.category)
     .slice(0, 4);
 
