@@ -605,28 +605,62 @@ function TestimonialsSection({ storefront }: { storefront: StorefrontSettings })
 }
 
 function InstagramSection() {
-  const instaPics = [
-    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80',
-    'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80',
-    'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
-    'https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=400&q=80',
-    'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&q=80',
-    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=81',
-  ];
+  const [imageData, setImageData] = useState<{ handle: string; profileUrl: string; images: Array<{ id: string; url: string }> } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    async function fetchGallery() {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/admin/instagram-gallery');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.instagramGallery) {
+            setImageData({
+              handle: data.instagramGallery.handle || 'begijayi',
+              profileUrl: data.instagramGallery.profileUrl || 'https://instagram.com/begijayi',
+              images: Array.isArray(data.instagramGallery.images) ? data.instagramGallery.images : [],
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch Instagram gallery:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGallery();
+  }, []);
+
+  if (loading || error || !imageData || imageData.images.length === 0) {
+    return null;
+  }
+
+  const { handle, profileUrl, images } = imageData;
 
   return (
     <section className="py-20 md:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
           <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">Follow The Journey</p>
-          <h2 className="font-serif text-5xl md:text-6xl text-slate-900 mb-6">@gijayi.official</h2>
+          <motion.a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.05 }}
+            className="inline-block"
+          >
+            <h2 className="font-serif text-5xl md:text-6xl text-slate-900 mb-6 hover:text-[#b8963e] transition-colors cursor-pointer">@{handle}</h2>
+          </motion.a>
         </div>
 
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-          {instaPics.map((src, index) => (
+          {images.map((pic, index) => (
             <motion.a
-              key={index}
-              href="https://instagram.com/gijayi.official"
+              key={pic.id}
+              href={profileUrl}
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -636,28 +670,35 @@ function InstagramSection() {
               className="relative aspect-square rounded-xl overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300"
             >
               <Image
-                src={src}
-                alt={`Instagram ${index + 1}`}
+                src={pic.url}
+                alt={`Instagram post ${index + 1}`}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes="(max-width: 768px) 33vw, 16vw"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Image';
+                }}
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                <span className="text-white opacity-0 group-hover:opacity-100 text-sm font-medium transition-opacity">View Post</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4">
+                <span className="text-white text-sm font-medium flex items-center gap-2">
+                  <span>View Post</span>
+                  <ArrowRight size={14} />
+                </span>
               </div>
             </motion.a>
           ))}
         </div>
 
         <div className="mt-12 text-center">
-          <a
-            href="https://instagram.com/gijayi.official"
+          <motion.a
+            href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border-2 border-slate-900 text-slate-900 px-8 py-4 rounded-lg hover:bg-slate-900 hover:text-white transition-colors font-medium tracking-widest uppercase text-sm"
+            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center gap-2 border-2 border-slate-900 text-slate-900 px-8 py-4 rounded-lg hover:bg-slate-900 hover:text-white transition-all duration-300 font-medium tracking-widest uppercase text-sm shadow-lg hover:shadow-xl"
           >
             Follow Us <ArrowRight size={14} />
-          </a>
+          </motion.a>
         </div>
       </div>
     </section>

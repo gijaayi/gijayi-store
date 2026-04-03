@@ -187,6 +187,22 @@ export interface DatabaseState {
   contacts: DbContact[];
   orders: DbOrder[];
   storefront: DbStorefrontSettings;
+  instagramGallery: DbInstagramGallery;
+}
+
+export interface DbInstagramImage {
+  id: string;
+  url: string;
+  uploadedAt: string;
+}
+
+export interface DbInstagramGallery {
+  id: string;
+  images: DbInstagramImage[];
+  handle: string;
+  profileUrl: string;
+  maxImages: number;
+  updatedAt: string;
 }
 
 export interface DbCategory {
@@ -328,6 +344,46 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
   updatedAt: new Date().toISOString(),
 };
 
+export const DEFAULT_INSTAGRAM_GALLERY: DbInstagramGallery = {
+  id: 'instagram-gallery-config',
+  handle: 'begijayi',
+  profileUrl: 'https://instagram.com/begijayi',
+  maxImages: 6,
+  images: [
+    {
+      id: '1',
+      url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80',
+      uploadedAt: new Date().toISOString(),
+    },
+    {
+      id: '2',
+      url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80',
+      uploadedAt: new Date().toISOString(),
+    },
+    {
+      id: '3',
+      url: 'https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=400&q=80',
+      uploadedAt: new Date().toISOString(),
+    },
+    {
+      id: '4',
+      url: 'https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=400&q=80',
+      uploadedAt: new Date().toISOString(),
+    },
+    {
+      id: '5',
+      url: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=400&q=80',
+      uploadedAt: new Date().toISOString(),
+    },
+    {
+      id: '6',
+      url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=81',
+      uploadedAt: new Date().toISOString(),
+    },
+  ],
+  updatedAt: new Date().toISOString(),
+};
+
 function cloneState<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -360,6 +416,7 @@ async function getFallbackState(): Promise<DatabaseState> {
       contacts: [],
       orders: [],
       storefront: cloneState(DEFAULT_STOREFRONT_SETTINGS),
+      instagramGallery: cloneState(DEFAULT_INSTAGRAM_GALLERY),
     };
   }
 
@@ -554,6 +611,14 @@ async function ensureDatabase(): Promise<void> {
       );
     }
   }
+
+  const instagramGalleryCollection = db.collection<DbInstagramGallery>('instagramGallery');
+  const instagramCount = await instagramGalleryCollection.estimatedDocumentCount();
+
+  if (instagramCount === 0) {
+    const defaultGallery = cloneState(DEFAULT_INSTAGRAM_GALLERY);
+    await instagramGalleryCollection.insertOne(defaultGallery);
+  }
 }
 
 export async function readDatabase(): Promise<DatabaseState> {
@@ -561,7 +626,7 @@ export async function readDatabase(): Promise<DatabaseState> {
     await ensureDatabase();
     const db = await getMongoDb();
 
-    const [users, products, collections, categories, contacts, orders, storefront] = await Promise.all([
+    const [users, products, collections, categories, contacts, orders, storefront, instagramGallery] = await Promise.all([
       db.collection<DbUser>('users').find({}).toArray(),
       db.collection<Product>('products').find({}).toArray(),
       db.collection<Collection>('collections').find({}).toArray(),
@@ -569,11 +634,16 @@ export async function readDatabase(): Promise<DatabaseState> {
       db.collection<DbContact>('contacts').find({}).toArray(),
       db.collection<DbOrder>('orders').find({}).toArray(),
       db.collection<DbStorefrontSettings>('storefront').findOne({ id: 'storefront-config' }),
+      db.collection<DbInstagramGallery>('instagramGallery').findOne({ id: 'instagram-gallery-config' }),
     ]);
 
     const storefrontSettings = storefront
       ? normalizeStorefrontSettings(withoutMongoId<DbStorefrontSettings>(storefront as DbStorefrontSettings & Document))
       : DEFAULT_STOREFRONT_SETTINGS;
+
+    const instagramGallerySettings = instagramGallery
+      ? withoutMongoId<DbInstagramGallery>(instagramGallery as DbInstagramGallery & Document)
+      : DEFAULT_INSTAGRAM_GALLERY;
 
     return {
       users: users.map((user) => withoutMongoId<DbUser>(user)),
@@ -583,6 +653,7 @@ export async function readDatabase(): Promise<DatabaseState> {
       contacts: contacts.map((contact) => withoutMongoId<DbContact>(contact)),
       orders: orders.map((order) => withoutMongoId<DbOrder>(order)),
       storefront: storefrontSettings,
+      instagramGallery: instagramGallerySettings,
     };
   } catch (error) {
     console.warn('MongoDB unavailable. Using in-memory fallback state.', error);
@@ -609,6 +680,7 @@ async function writeState(dbState: DatabaseState) {
     replaceCollection('contacts', dbState.contacts as unknown as Document[]),
     replaceCollection('orders', dbState.orders as unknown as Document[]),
     replaceCollection('storefront', [dbState.storefront as unknown as Document]),
+    replaceCollection('instagramGallery', [dbState.instagramGallery as unknown as Document]),
   ]);
 }
 

@@ -43,7 +43,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
   const handleAddToCart = () => {
     if (!user) {
-      window.location.href = '/login?redirect=/shop';
+      window.location.href = '/login?redirect=/';
       return;
     }
     addItem(product);
@@ -51,7 +51,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
   const handleToggleWishlist = () => {
     if (!user) {
-      window.location.href = '/login?redirect=/shop';
+      window.location.href = '/login?redirect=/';
       return;
     }
     toggleItem(product);

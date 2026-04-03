@@ -185,9 +185,15 @@ const PRODUCT_FRAGMENT = `
 `;
 
 export async function getAllProducts(): Promise<Product[]> {
-  if (!hasShopifyConfig()) {
-    const db = await readDatabase();
+  // Always prioritize database products first
+  const db = await readDatabase();
+  if (db.products && db.products.length > 0) {
     return db.products;
+  }
+
+  // Fall back to Shopify if no database products
+  if (!hasShopifyConfig()) {
+    return fallbackProducts;
   }
 
   try {
@@ -206,15 +212,21 @@ export async function getAllProducts(): Promise<Product[]> {
 
     return data.products.edges.map((edge) => mapShopifyProduct(edge.node));
   } catch {
-    const db = await readDatabase();
-    return db.products.length ? db.products : fallbackProducts;
+    return fallbackProducts;
   }
 }
 
 export async function getProductByHandle(handle: string): Promise<Product | null> {
+  // Always prioritize database first
+  const db = await readDatabase();
+  const dbProduct = db.products.find((product) => product.slug === handle);
+  if (dbProduct) {
+    return dbProduct;
+  }
+
+  // Fall back to Shopify if not in database
   if (!hasShopifyConfig()) {
-    const db = await readDatabase();
-    return db.products.find((product) => product.slug === handle) ?? null;
+    return null;
   }
 
   try {
@@ -229,15 +241,20 @@ export async function getProductByHandle(handle: string): Promise<Product | null
 
     return data.productByHandle ? mapShopifyProduct(data.productByHandle) : null;
   } catch {
-    const db = await readDatabase();
-    return db.products.find((product) => product.slug === handle) ?? null;
+    return null;
   }
 }
 
 export async function getAllCollections(): Promise<Collection[]> {
-  if (!hasShopifyConfig()) {
-    const db = await readDatabase();
+  // Always prioritize database collections first
+  const db = await readDatabase();
+  if (db.collections && db.collections.length > 0) {
     return db.collections;
+  }
+
+  // Fall back to Shopify if no database collections
+  if (!hasShopifyConfig()) {
+    return fallbackCollections;
   }
 
   try {
@@ -265,15 +282,21 @@ export async function getAllCollections(): Promise<Collection[]> {
 
     return data.collections.edges.map((edge) => mapShopifyCollection(edge.node));
   } catch {
-    const db = await readDatabase();
-    return db.collections.length ? db.collections : fallbackCollections;
+    return fallbackCollections;
   }
 }
 
 export async function getCollectionByHandle(handle: string): Promise<Collection | null> {
+  // Always prioritize database first
+  const db = await readDatabase();
+  const dbCollection = db.collections.find((collection) => collection.slug === handle);
+  if (dbCollection) {
+    return dbCollection;
+  }
+
+  // Fall back to Shopify if not in database
   if (!hasShopifyConfig()) {
-    const db = await readDatabase();
-    return db.collections.find((collection) => collection.slug === handle) ?? null;
+    return null;
   }
 
   try {
@@ -297,8 +320,7 @@ export async function getCollectionByHandle(handle: string): Promise<Collection 
 
     return data.collectionByHandle ? mapShopifyCollection(data.collectionByHandle) : null;
   } catch {
-    const db = await readDatabase();
-    return db.collections.find((collection) => collection.slug === handle) ?? null;
+    return null;
   }
 }
 

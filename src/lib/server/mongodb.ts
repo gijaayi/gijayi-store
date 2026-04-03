@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { MongoClient, Db } from 'mongodb';
-
 const RAW_MONGODB_URI = process.env.MONGODB_URI;
 const RAW_MONGODB_DB = process.env.MONGODB_DB;
 
@@ -93,37 +92,55 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
     }
   }
 
-  try {
-    const client = new MongoClient(MONGODB_URI, {
-      maxPoolSize: 10,
-      minPoolSize: 2,
-      maxIdleTimeMS: 45000,
-      socketTimeoutMS: 45000,
-      serverSelectionTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      retryWrites: true,
-      retryReads: true,
-    });
+  let lastError: Error | null = null;
+  const maxRetries = 3;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`MongoDB connection attempt ${attempt}/${maxRetries}...`);
+      
+      const client = new MongoClient(MONGODB_URI, {
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        maxIdleTimeMS: 45000,
+        socketTimeoutMS: 60000,
+        serverSelectionTimeoutMS: 20000,
+        connectTimeoutMS: 20000,
+        retryWrites: true,
+        retryReads: true,
+      });
 
-    await client.connect();
-    
-    // Verify connection with a ping
-    await client.db('admin').command({ ping: 1 });
+      await client.connect();
+      
+      // Verify connection with a ping
+      await client.db('admin').command({ ping: 1 });
 
-    const db = client.db(MONGODB_DB);
-    
-    cachedClient = client;
-    cachedDb = db;
+      const db = client.db(MONGODB_DB);
+      
+      cachedClient = client;
+      cachedDb = db;
 
-    if (process.env.NODE_ENV !== 'production') {
-      global.__gijayiMongoClient = client;
+      if (process.env.NODE_ENV !== 'production') {
+        global.__gijayiMongoClient = client;
+      }
+
+      console.log('MongoDB connected successfully');
+      return { client, db };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.warn(`MongoDB connection attempt ${attempt} failed:`, lastError.message);
+      
+      if (attempt < maxRetries) {
+        // Wait before retrying (exponential backoff)
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
-
-    return { client, db };
-  } catch (error) {
-    console.error('MongoDB connection failed:', error);
-    throw error;
   }
+
+  console.error('MongoDB connection failed after all retries:', lastError?.message);
+  throw lastError || new Error('Failed to connect to MongoDB');
 }
 
 export async function getMongoDb(): Promise<Db> {

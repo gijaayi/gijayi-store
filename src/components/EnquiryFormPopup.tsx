@@ -2,25 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Sparkles } from 'lucide-react';
 
-export default function EnquiryFormPopup() {
-  const [isOpen, setIsOpen] = useState(false);
+interface EnquiryFormPopupProps {
+  onClose?: () => void;
+  shouldShow?: boolean;
+}
+
+export default function EnquiryFormPopup({ onClose, shouldShow = true }: EnquiryFormPopupProps) {
+  const [isOpen, setIsOpen] = useState(shouldShow);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
-    const hasSeenEnquiry = localStorage.getItem('enquiryFormShown');
-    if (!hasSeenEnquiry) {
-      const timer = setTimeout(() => setIsOpen(true), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+    setIsOpen(shouldShow);
+  }, [shouldShow]);
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('enquiryFormShown', 'true');
+    if (onClose) onClose();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -61,32 +62,28 @@ export default function EnquiryFormPopup() {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-120 flex items-start sm:items-center justify-center bg-black/40 p-4 pt-24 sm:pt-6 overflow-y-auto">
+        <div className="fixed inset-0 z-120 flex items-center justify-center bg-black/50 p-2 sm:p-3 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[calc(100vh-7rem)] sm:max-h-[90vh] overflow-y-auto"
+            className="relative bg-gradient-to-b from-[#fffbf5] to-[#faf6f0] rounded-xl shadow-2xl max-w-xs w-full max-h-[95vh] overflow-y-auto border-2 border-[#e9dfcd]"
           >
-            {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-serif">Get in Touch</h2>
-                <p className="text-xs text-gray-600 mt-1">We'd love to help you find the perfect piece</p>
-              </div>
-              <button
-                onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            {/* Gold accent top stripe */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#b8963e] via-[#d4af7a] to-[#b8963e] rounded-t-xl"></div>
+            {/* Close button */}
+            <button
+              onClick={handleClose}
+              className="absolute top-3 right-3 bg-white/80 hover:bg-[#b8963e]/20 text-gray-600 hover:text-[#b8963e] z-10 transition-all rounded-full p-1 shadow-sm"
+            >
+              <X size={20} />
+            </button>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Content */}
+            <div className="px-4 py-5 mt-1">
               {submitStatus === 'success' ? (
                 <div className="text-center py-8">
-                  <div className="text-3xl mb-2">✓</div>
+                  <div className="text-5xl mb-2">✓</div>
                   <p className="text-sm text-green-600 font-medium">Thank you for reaching out!</p>
                   <p className="text-xs text-gray-600 mt-2">We'll be in touch shortly.</p>
                 </div>
@@ -96,74 +93,97 @@ export default function EnquiryFormPopup() {
                   <button
                     type="button"
                     onClick={() => setSubmitStatus('idle')}
-                    className="text-xs text-[#b8963e] underline"
+                    className="text-xs text-[#b8963e] underline hover:text-[#d4af64]"
                   >
                     Try again
                   </button>
                 </div>
               ) : (
                 <>
-                  <div>
-                    <label className="block text-xs tracking-widest uppercase mb-2 font-medium">Name *</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#b8963e]"
-                      placeholder="Your name"
-                    />
+                  {/* Icon and Header */}
+                  <div className="text-center mb-4">
+                    <motion.div
+                      animate={{ scale: [1, 1.15, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex justify-center mb-3"
+                    >
+                      <div className="bg-gradient-to-br from-[#d4af7a] to-[#b8963e] p-2.5 rounded-full">
+                        <Sparkles size={30} className="text-white" />
+                      </div>
+                    </motion.div>
+                    <h2 className="text-lg font-serif font-bold mb-1 text-[#1a1a1a] leading-tight">
+                      Jewellery that reflects your inner glow
+                    </h2>
+                    <p className="text-xs text-[#666] font-medium">
+                      Join Gijayi & unlock exclusive designs
+                    </p>
                   </div>
 
-                  <div>
-                    <label className="block text-xs tracking-widest uppercase mb-2 font-medium">Email *</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#b8963e]"
-                      placeholder="your@email.com"
-                    />
-                  </div>
+                  {/* Form */}
+                  <form onSubmit={handleSubmit} className="space-y-2">
+                    <div>
+                      <input
+                        type="text"
+                        name="name"
+                        placeholder="Your Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        name="email"
+                        placeholder="Your Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="Your Phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
+                      />
+                    </div>
+                    <div>
+                      <textarea
+                        name="message"
+                        placeholder="Tell us what you're looking for..."
+                        value={formData.message}
+                        onChange={handleChange}
+                        rows={1}
+                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs resize-none bg-white/80 backdrop-blur-sm transition-all"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-xs tracking-widest uppercase mb-2 font-medium">Phone *</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#b8963e]"
-                      placeholder="+91 9XXXXXXXXX"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs tracking-widest uppercase mb-2 font-medium">Message</label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      className="w-full border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-[#b8963e] resize-none"
-                      rows={3}
-                      placeholder="Tell us what you're looking for..."
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-[#1a1a1a] text-white py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors duration-300 font-medium disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Sending...' : 'Send Enquiry'}
-                  </button>
+                    <div className="space-y-2 pt-2.5">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-gradient-to-r from-[#1a1a1a] to-[#333] text-white py-2 text-xs tracking-widest uppercase font-semibold hover:from-[#b8963e] hover:to-[#d4af7a] transition-all duration-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                      >
+                        {isSubmitting ? 'Sending...' : '✨ Get Exclusive Designs'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        className="w-full border-2 border-[#b8963e] text-[#b8963e] py-1.5 text-xs tracking-widest uppercase font-medium hover:bg-gradient-to-r hover:from-[#b8963e]/10 hover:to-[#d4af7a]/10 transition-all duration-300 rounded-lg hover:border-[#d4af7a]"
+                      >
+                        Maybe Later
+                      </button>
+                    </div>
+                  </form>
                 </>
               )}
-            </form>
+            </div>
           </motion.div>
         </div>
       )}

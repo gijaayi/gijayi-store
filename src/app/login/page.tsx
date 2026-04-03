@@ -10,7 +10,8 @@ import { Eye, EyeOff } from 'lucide-react';
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/';
+  const redirectParam = searchParams.get('redirect');
+  const redirect = redirectParam && redirectParam.trim() ? redirectParam.trim() : '/';
   const { refreshUser } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -39,7 +40,9 @@ function LoginPageContent() {
     }
 
     await refreshUser();
-    router.push(redirect);
+    // Always redirect to homepage by default unless explicitly specified
+    const finalRedirect = (redirectParam && redirectParam.trim() && redirectParam !== '/login') ? redirectParam.trim() : '/';
+    router.push(finalRedirect);
   }
 
   return (

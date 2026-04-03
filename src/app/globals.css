@@ -28,6 +28,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Instant scroll on navigation for better UX */
+html.scroll-instant {
+  scroll-behavior: auto;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -129,6 +134,11 @@ p {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* Popup z-index */
+.z-120 {
+  z-index: 120;
 }
 
 /* Custom scrollbar */

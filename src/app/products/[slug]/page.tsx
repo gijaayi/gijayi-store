@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams, useSearchParams } from 'next/navigation';
@@ -28,6 +28,23 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
+
+  // Scroll to top synchronously before render (useLayoutEffect runs before paint)
+  useLayoutEffect(() => {
+    // Temporarily disable smooth scrolling for this navigation
+    document.documentElement.classList.add('scroll-instant');
+    
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Re-enable smooth scrolling after a short delay
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('scroll-instant');
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [slug, pid]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -176,6 +193,9 @@ export default function ProductDetailPage() {
 
   return (
     <div>
+      {/* Scroll anchor */}
+      <div id="product-top" style={{ position: 'absolute', top: 0 }} />
+      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}

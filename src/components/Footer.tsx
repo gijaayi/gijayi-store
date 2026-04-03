@@ -5,23 +5,6 @@ import { Instagram, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react'
 export default function Footer() {
   return (
     <footer className="bg-[#1a1a1a] text-white">
-      <div className="border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          <div className="border border-white/15 p-3 sm:p-4">
-            <p className="text-[10px] tracking-[0.25em] uppercase text-[#b8963e] mb-2 font-medium">Shipping Time</p>
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">Dispatch in 2–3 business days for ready pieces; bridal made-to-order takes 10–21 days.</p>
-          </div>
-          <div className="border border-white/15 p-3 sm:p-4">
-            <p className="text-[10px] tracking-[0.25em] uppercase text-[#b8963e] mb-2 font-medium">Return / Exchange</p>
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">Eligible products can be returned or exchanged within 15 days in original condition.</p>
-          </div>
-          <div className="border border-white/15 p-3 sm:p-4">
-            <p className="text-[10px] tracking-[0.25em] uppercase text-[#b8963e] mb-2 font-medium">Payment Methods</p>
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">UPI, Visa, Mastercard, Net Banking, and secure prepaid checkout.</p>
-          </div>
-        </div>
-      </div>
-
       {/* Newsletter */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 sm:py-14 text-center">

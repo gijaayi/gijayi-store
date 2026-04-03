@@ -10,8 +10,9 @@ import SocialContactToggle from '@/components/SocialContactToggle';
 export default function StoreChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin');
+  const isAuthRoute = pathname?.startsWith('/login') || pathname?.startsWith('/register');
 
-  if (isAdminRoute) {
+  if (isAdminRoute || isAuthRoute) {
     return <main>{children}</main>;
   }
 

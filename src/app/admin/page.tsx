@@ -43,6 +43,7 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="space-y-8">
+
       {/* Hero Section */}
       <section className="rounded-2xl p-6 md:p-8 bg-linear-to-r from-blue-700 via-indigo-700 to-slate-900 text-white">
         <div className="flex items-start justify-between">
