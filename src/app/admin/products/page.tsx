@@ -28,6 +28,9 @@ interface AdminProduct {
   bridalLuxe?: boolean;
   heritage?: boolean;
   everydayMinimal?: boolean;
+  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display';
+  descriptionFont?: 'serif' | 'sans-serif' | 'mono';
+  detailsFont?: 'serif' | 'sans-serif' | 'mono';
 }
 
 const defaultForm = {
@@ -44,6 +47,9 @@ const defaultForm = {
   image5: '',
   image6: '',
   details: '',
+  nameFont: 'serif' as 'serif' | 'sans-serif' | 'mono' | 'display',
+  descriptionFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono',
+  detailsFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono',
   isNew: false,
   mostWanted: false,
   bridalLuxe: false,
@@ -112,6 +118,9 @@ export default function AdminProductsPage() {
       image5: productImages[4] || '',
       image6: productImages[5] || '',
       details: '',
+      nameFont: (selectedProduct.nameFont || 'serif') as 'serif' | 'sans-serif' | 'mono' | 'display',
+      descriptionFont: (selectedProduct.descriptionFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono',
+      detailsFont: (selectedProduct.detailsFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono',
       isNew: Boolean(selectedProduct.isNew),
       mostWanted: Boolean(selectedProduct.mostWanted),
       bridalLuxe: Boolean(selectedProduct.bridalLuxe),
@@ -182,6 +191,9 @@ export default function AdminProductsPage() {
       description: form.description || 'Handcrafted by Gijayi artisans.',
       images: images.length ? images : undefined,
       details: form.details ? form.details.split(',').map((item) => item.trim()).filter(Boolean) : undefined,
+      nameFont: form.nameFont,
+      descriptionFont: form.descriptionFont,
+      detailsFont: form.detailsFont,
       isNew: Boolean(form.isNew),
       mostWanted: Boolean(form.mostWanted),
       bridalLuxe: Boolean(form.bridalLuxe),
@@ -244,7 +256,18 @@ export default function AdminProductsPage() {
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Product name" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+          <div className="space-y-2">
+            <label className="block text-xs tracking-widest uppercase text-slate-600">Product Name</label>
+            <div className="grid grid-cols-3 gap-2">
+              <input required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Product name" className="col-span-2 border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+              <select value={form.nameFont} onChange={(event) => setForm({ ...form, nameFont: event.target.value as any })} className="border border-slate-300 rounded-xl bg-white px-3 py-3 text-sm outline-none focus:border-blue-600">
+                <option value="serif">Serif</option>
+                <option value="sans-serif">Sans-Serif</option>
+                <option value="mono">Monospace</option>
+                <option value="display">Display</option>
+              </select>
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <input required type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="Price (₹)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
@@ -364,8 +387,28 @@ export default function AdminProductsPage() {
               })}
             </div>
           </div>
-          <input value={form.details} onChange={(event) => setForm({ ...form, details: event.target.value })} placeholder="Details (comma separated)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
-          <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} placeholder="Description" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+          <div className="space-y-2">
+            <label className="block text-xs tracking-widest uppercase text-slate-600">Product Details</label>
+            <div className="grid grid-cols-3 gap-2">
+              <input value={form.details} onChange={(event) => setForm({ ...form, details: event.target.value })} placeholder="Details (comma separated)" className="col-span-2 border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+              <select value={form.detailsFont} onChange={(event) => setForm({ ...form, detailsFont: event.target.value as any })} className="border border-slate-300 rounded-xl bg-white px-3 py-3 text-sm outline-none focus:border-blue-600">
+                <option value="serif">Serif</option>
+                <option value="sans-serif">Sans-Serif</option>
+                <option value="mono">Monospace</option>
+              </select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="block text-xs tracking-widest uppercase text-slate-600">Product Description</label>
+            <div className="space-y-2">
+              <select value={form.descriptionFont} onChange={(event) => setForm({ ...form, descriptionFont: event.target.value as any })} className="w-full border border-slate-300 rounded-xl bg-white px-3 py-3 text-sm outline-none focus:border-blue-600">
+                <option value="serif">Serif Font</option>
+                <option value="sans-serif">Sans-Serif Font</option>
+                <option value="mono">Monospace Font</option>
+              </select>
+              <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} placeholder="Description" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+            </div>
+          </div>
 
           <div className="flex gap-3">
             <button disabled={busy} type="submit" className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-xs tracking-widest uppercase hover:bg-blue-700 disabled:opacity-50">

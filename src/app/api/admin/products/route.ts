@@ -91,6 +91,9 @@ export async function POST(request: NextRequest) {
         bridalLuxe: Boolean(body.bridalLuxe),
         heritage: Boolean(body.heritage),
         everydayMinimal: Boolean(body.everydayMinimal),
+        nameFont: body.nameFont || 'serif',
+        descriptionFont: body.descriptionFont || 'sans-serif',
+        detailsFont: body.detailsFont || 'sans-serif',
       };
 
       state.products.unshift(product);

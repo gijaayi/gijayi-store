@@ -72,6 +72,9 @@ export async function PUT(request: NextRequest, context: Context) {
         bridalLuxe: body.bridalLuxe !== undefined ? Boolean(body.bridalLuxe) : current.bridalLuxe,
         heritage: body.heritage !== undefined ? Boolean(body.heritage) : current.heritage,
         everydayMinimal: body.everydayMinimal !== undefined ? Boolean(body.everydayMinimal) : current.everydayMinimal,
+        nameFont: body.nameFont ?? current.nameFont ?? 'serif',
+        descriptionFont: body.descriptionFont ?? current.descriptionFont ?? 'sans-serif',
+        detailsFont: body.detailsFont ?? current.detailsFont ?? 'sans-serif',
       };
     });
 

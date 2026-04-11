@@ -17,6 +17,9 @@ export interface Product {
   bridalLuxe?: boolean;
   heritage?: boolean;
   everydayMinimal?: boolean;
+  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display';
+  descriptionFont?: 'serif' | 'sans-serif' | 'mono';
+  detailsFont?: 'serif' | 'sans-serif' | 'mono';
 }
 
 export interface CartItem {
