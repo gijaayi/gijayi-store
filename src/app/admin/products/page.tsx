@@ -37,7 +37,12 @@ const defaultForm = {
   category: '',
   collection: '',
   description: '',
-  image: '',
+  image1: '',
+  image2: '',
+  image3: '',
+  image4: '',
+  image5: '',
+  image6: '',
   details: '',
   isNew: false,
   mostWanted: false,
@@ -53,7 +58,7 @@ export default function AdminProductsPage() {
   const [selectedProductId, setSelectedProductId] = useState('');
   const [form, setForm] = useState(defaultForm);
   const [busy, setBusy] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null, null, null, null]);
   const [error, setError] = useState('');
 
   const selectedProduct = useMemo(
@@ -92,6 +97,7 @@ export default function AdminProductsPage() {
   useEffect(() => {
     if (!selectedProduct) return;
 
+    const productImages = selectedProduct.images || [];
     setForm({
       name: selectedProduct.name,
       price: String(selectedProduct.price),
@@ -99,7 +105,12 @@ export default function AdminProductsPage() {
       category: selectedProduct.category,
       collection: selectedProduct.collection,
       description: '',
-      image: selectedProduct.images?.[0] || '',
+      image1: productImages[0] || '',
+      image2: productImages[1] || '',
+      image3: productImages[2] || '',
+      image4: productImages[3] || '',
+      image5: productImages[4] || '',
+      image6: productImages[5] || '',
       details: '',
       isNew: Boolean(selectedProduct.isNew),
       mostWanted: Boolean(selectedProduct.mostWanted),
@@ -107,7 +118,7 @@ export default function AdminProductsPage() {
       heritage: Boolean(selectedProduct.heritage),
       everydayMinimal: Boolean(selectedProduct.everydayMinimal),
     });
-    setImageFile(null);
+    setImageFiles([null, null, null, null, null, null]);
   }, [selectedProduct]);
 
   async function uploadImageToCloudinary(file: File) {
@@ -133,14 +144,32 @@ export default function AdminProductsPage() {
     setBusy(true);
     setError('');
 
-    let imageUrl = form.image.trim();
-    if (imageFile) {
-      try {
-        imageUrl = await uploadImageToCloudinary(imageFile);
-      } catch (uploadError) {
-        setError(uploadError instanceof Error ? uploadError.message : 'Image upload failed.');
-        setBusy(false);
-        return;
+    const images: string[] = [];
+    
+    // Process all 6 images
+    for (let i = 0; i < 6; i++) {
+      if (imageFiles[i]) {
+        try {
+          const url = await uploadImageToCloudinary(imageFiles[i]!);
+          images.push(url);
+        } catch (uploadError) {
+          setError(uploadError instanceof Error ? uploadError.message : 'Image upload failed.');
+          setBusy(false);
+          return;
+        }
+      } else {
+        const imageSources: Record<number, string> = {
+          0: form.image1,
+          1: form.image2,
+          2: form.image3,
+          3: form.image4,
+          4: form.image5,
+          5: form.image6,
+        };
+        const imageUrl = imageSources[i].trim();
+        if (imageUrl) {
+          images.push(imageUrl);
+        }
       }
     }
 
@@ -151,7 +180,7 @@ export default function AdminProductsPage() {
       category: form.category,
       collection: form.collection,
       description: form.description || 'Handcrafted by Gijayi artisans.',
-      images: imageUrl ? [imageUrl] : undefined,
+      images: images.length ? images : undefined,
       details: form.details ? form.details.split(',').map((item) => item.trim()).filter(Boolean) : undefined,
       isNew: Boolean(form.isNew),
       mostWanted: Boolean(form.mostWanted),
@@ -187,7 +216,7 @@ export default function AdminProductsPage() {
 
     setForm(defaultForm);
     setSelectedProductId('');
-    setImageFile(null);
+    setImageFiles([null, null, null, null, null, null]);
     await fetchData();
     setBusy(false);
   }
@@ -289,15 +318,51 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(event) => setImageFile(event.target.files?.[0] || null)}
-              className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
-            />
-            <input value={form.image} onChange={(event) => setForm({ ...form, image: event.target.value })} placeholder="Primary image URL (optional, if not uploading file)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
-            {imageFile && <p className="text-xs text-slate-500">Selected file: {imageFile.name}</p>}
+          <div className="space-y-3 border-t border-slate-200 pt-4">
+            <p className="text-xs tracking-widest uppercase text-slate-600 mb-2 font-medium">Product Images (0-6 images)</p>
+            <div className="grid grid-cols-2 gap-3">
+              {[1, 2, 3, 4, 5, 6].map((imageNum) => {
+                const imageSources: Record<number, string> = {
+                  1: form.image1,
+                  2: form.image2,
+                  3: form.image3,
+                  4: form.image4,
+                  5: form.image5,
+                  6: form.image6,
+                };
+                const imageSetters: Record<number, (url: string) => void> = {
+                  1: (url) => setForm({ ...form, image1: url }),
+                  2: (url) => setForm({ ...form, image2: url }),
+                  3: (url) => setForm({ ...form, image3: url }),
+                  4: (url) => setForm({ ...form, image4: url }),
+                  5: (url) => setForm({ ...form, image5: url }),
+                  6: (url) => setForm({ ...form, image6: url }),
+                };
+                const imageIndex = imageNum - 1;
+                return (
+                  <div key={imageNum} className="space-y-1">
+                    <label className="text-xs font-medium text-slate-600">Image {imageNum}</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        const newFiles = [...imageFiles];
+                        newFiles[imageIndex] = event.target.files?.[0] || null;
+                        setImageFiles(newFiles);
+                      }}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-600"
+                    />
+                    <input
+                      value={imageSources[imageNum]}
+                      onChange={(event) => imageSetters[imageNum](event.target.value)}
+                      placeholder="or paste image URL"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-600"
+                    />
+                    {imageFiles[imageIndex] && <p className="text-xs text-emerald-600">✓ {imageFiles[imageIndex]!.name}</p>}
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <input value={form.details} onChange={(event) => setForm({ ...form, details: event.target.value })} placeholder="Details (comma separated)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
           <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} placeholder="Description" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
@@ -334,7 +399,7 @@ export default function AdminProductsPage() {
             </div>
           </div>
         </div>
-        <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
           {products.map((product) => {
             const sections = [];
             if (product.isNew) sections.push('Fresh');

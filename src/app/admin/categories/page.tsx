@@ -34,6 +34,34 @@ export default function AdminCategoriesPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  async function handleSyncCategories() {
+    setBusy(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/admin/sync-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = (await response.json()) as { error?: string; message?: string; added?: number };
+      
+      if (!response.ok) {
+        setError(data.error || 'Failed to sync categories.');
+        setBusy(false);
+        return;
+      }
+
+      await fetchCategories();
+      setError(''); // Clear error
+      alert(`✓ ${data.message}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sync categories.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function fetchCategories() {
     const [categoriesResponse, storefrontResponse] = await Promise.all([
       fetch('/api/admin/categories', { cache: 'no-store' }),
@@ -178,8 +206,21 @@ export default function AdminCategoriesPage() {
 
   return (
     <section className="bg-white border border-slate-200 rounded-2xl p-6">
-      <h2 className="font-serif text-3xl mb-1 text-slate-900">Category Manager</h2>
-      <p className="text-sm text-slate-500 mb-6">Manage storefront product categories used across shop and product creation.</p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h2 className="font-serif text-3xl mb-1 text-slate-900">Category Manager</h2>
+          <p className="text-sm text-slate-500">Manage storefront product categories used across shop and product creation.</p>
+        </div>
+        <button
+          onClick={handleSyncCategories}
+          disabled={busy}
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 disabled:opacity-50"
+        >
+          {busy ? 'Syncing...' : 'Sync Categories'}
+        </button>
+      </div>
+
+      {error && <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">{error}</p>}
 
       {navigation && (
         <form onSubmit={handleSaveNavigationSettings} className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-4">
