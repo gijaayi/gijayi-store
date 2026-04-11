@@ -1,0 +1,26 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": [
+    "MONGODB_URI",
+    "MONGODB_DB",
+    "CLOUDINARY_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "ADMIN_LOGIN_EMAIL",
+    "ADMIN_LOGIN_PASSWORD",
+    "ADMIN_RESET_SECRET",
+    "RAZORPAY_KEY_ID",
+    "RAZORPAY_KEY_SECRET",
+    "PAYPAL_API_KEY",
+    "PAYPAL_SECRET_KEY",
+    "RESEND_API_KEY",
+    "ORDER_CONFIRMATION_FROM_EMAIL",
+    "ORDER_CONFIRMATION_CC_EMAIL"
+  ],
+  "regions": ["iad1"]
+}
