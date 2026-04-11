@@ -17,9 +17,9 @@ export interface Product {
   bridalLuxe?: boolean;
   heritage?: boolean;
   everydayMinimal?: boolean;
-  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display';
-  descriptionFont?: 'serif' | 'sans-serif' | 'mono';
-  detailsFont?: 'serif' | 'sans-serif' | 'mono';
+  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium';
+  descriptionFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium';
+  detailsFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium';
 }
 
 export interface CartItem {

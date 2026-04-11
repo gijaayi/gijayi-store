@@ -2,14 +2,14 @@
  * Utility functions for applying font styles to product typography
  */
 
-export type FontType = 'serif' | 'sans-serif' | 'mono' | 'display';
+export type FontType = 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium';
 
 interface FontClasses {
   name: string;
   classes: string;
 }
 
-const FONT_CLASSES: Record<FontType | 'serif' | 'sans-serif' | 'mono' | 'display', FontClasses> = {
+const FONT_CLASSES: Record<FontType, FontClasses> = {
   serif: {
     name: 'Serif',
     classes: 'font-serif',
@@ -24,7 +24,39 @@ const FONT_CLASSES: Record<FontType | 'serif' | 'sans-serif' | 'mono' | 'display
   },
   display: {
     name: 'Display',
-    classes: 'font-serif tracking-wider',
+    classes: 'font-serif tracking-wider font-bold',
+  },
+  elegant: {
+    name: 'Elegant',
+    classes: 'font-serif italic tracking-wide',
+  },
+  'modern-sans': {
+    name: 'Modern Sans',
+    classes: 'font-sans font-light tracking-tight',
+  },
+  geometric: {
+    name: 'Geometric',
+    classes: 'font-sans font-semibold tracking-wider',
+  },
+  bold: {
+    name: 'Bold',
+    classes: 'font-sans font-extrabold tracking-tight',
+  },
+  light: {
+    name: 'Light',
+    classes: 'font-sans font-light tracking-wide',
+  },
+  script: {
+    name: 'Script',
+    classes: 'font-serif italic font-semibold',
+  },
+  georgia: {
+    name: 'Georgia',
+    classes: 'font-serif text-lg leading-relaxed',
+  },
+  premium: {
+    name: 'Premium',
+    classes: 'font-serif font-semibold tracking-wide',
   },
 };
 

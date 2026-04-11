@@ -28,9 +28,9 @@ interface AdminProduct {
   bridalLuxe?: boolean;
   heritage?: boolean;
   everydayMinimal?: boolean;
-  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display';
-  descriptionFont?: 'serif' | 'sans-serif' | 'mono';
-  detailsFont?: 'serif' | 'sans-serif' | 'mono';
+  nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium';
+  descriptionFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium';
+  detailsFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium';
 }
 
 const defaultForm = {
@@ -47,15 +47,15 @@ const defaultForm = {
   image5: '',
   image6: '',
   details: '',
-  nameFont: 'serif' as 'serif' | 'sans-serif' | 'mono' | 'display',
-  descriptionFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono',
-  detailsFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono',
+  nameFont: 'serif' as 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium',
+  descriptionFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium',
+  detailsFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium',
   isNew: false,
   mostWanted: false,
   bridalLuxe: false,
   heritage: false,
   everydayMinimal: false,
-};
+}
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
@@ -118,9 +118,9 @@ export default function AdminProductsPage() {
       image5: productImages[4] || '',
       image6: productImages[5] || '',
       details: '',
-      nameFont: (selectedProduct.nameFont || 'serif') as 'serif' | 'sans-serif' | 'mono' | 'display',
-      descriptionFont: (selectedProduct.descriptionFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono',
-      detailsFont: (selectedProduct.detailsFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono',
+      nameFont: (selectedProduct.nameFont || 'serif') as 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium',
+      descriptionFont: (selectedProduct.descriptionFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium',
+      detailsFont: (selectedProduct.detailsFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium',
       isNew: Boolean(selectedProduct.isNew),
       mostWanted: Boolean(selectedProduct.mostWanted),
       bridalLuxe: Boolean(selectedProduct.bridalLuxe),
@@ -265,6 +265,14 @@ export default function AdminProductsPage() {
                 <option value="sans-serif">Sans-Serif</option>
                 <option value="mono">Monospace</option>
                 <option value="display">Display</option>
+                <option value="elegant">Elegant</option>
+                <option value="modern-sans">Modern Sans</option>
+                <option value="geometric">Geometric</option>
+                <option value="bold">Bold</option>
+                <option value="light">Light</option>
+                <option value="script">Script</option>
+                <option value="georgia">Georgia</option>
+                <option value="premium">Premium</option>
               </select>
             </div>
           </div>
@@ -395,6 +403,11 @@ export default function AdminProductsPage() {
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-Serif</option>
                 <option value="mono">Monospace</option>
+                <option value="elegant">Elegant</option>
+                <option value="modern-sans">Modern Sans</option>
+                <option value="geometric">Geometric</option>
+                <option value="light">Light</option>
+                <option value="premium">Premium</option>
               </select>
             </div>
           </div>
@@ -405,6 +418,11 @@ export default function AdminProductsPage() {
                 <option value="serif">Serif Font</option>
                 <option value="sans-serif">Sans-Serif Font</option>
                 <option value="mono">Monospace Font</option>
+                <option value="elegant">Elegant Font</option>
+                <option value="modern-sans">Modern Sans Font</option>
+                <option value="geometric">Geometric Font</option>
+                <option value="light">Light Font</option>
+                <option value="premium">Premium Font</option>
               </select>
               <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} placeholder="Description" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
             </div>
