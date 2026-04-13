@@ -20,7 +20,8 @@
     "PAYPAL_SECRET_KEY": "@paypal_secret_key",
     "RESEND_API_KEY": "@resend_api_key",
     "ORDER_CONFIRMATION_FROM_EMAIL": "@order_confirmation_from_email",
-    "ORDER_CONFIRMATION_CC_EMAIL": "@order_confirmation_cc_email"
+    "ORDER_CONFIRMATION_CC_EMAIL": "@order_confirmation_cc_email",
+    "NEXT_PUBLIC_BASE_URL": "@next_public_base_url"
   },
   "regions": ["iad1"]
 }
