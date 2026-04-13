@@ -148,7 +148,7 @@ export default function Header() {
       {/* Announcement Bar */}
       <div className="bg-slate-100 text-slate-800 py-2 sm:py-2.5 text-[10px] sm:text-xs tracking-widest uppercase font-medium overflow-hidden">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 text-center">
-          <span className="inline-block">Free Shipping on Orders Above ₹5,000 &nbsp;|&nbsp; Handcrafted in India</span>
+          <span className="inline-block">Worldwide Shipping &nbsp;|&nbsp; Delivery in 7–12 days</span>
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 # Connecting gijayi.com (Hostinger) to Vercel - Step-by-Step Guide
 
 ## Your Setup
+
 - **Domain**: gijayi.com
 - **Registrar**: Hostinger
 - **Hosting**: Vercel (Next.js)
@@ -111,6 +112,7 @@ After DNS propagates (24-48 hours):
 ## 🔒 SSL Certificate Setup
 
 **No action needed!** Vercel automatically:
+
 - ✅ Issues FREE SSL certificate from Let's Encrypt
 - ✅ Auto-renews before expiration
 - ✅ Covers both `gijayi.com` and `www.gijayi.com`
@@ -123,6 +125,7 @@ After DNS propagates (24-48 hours):
 ### While waiting for DNS to propagate:
 
 **Check DNS status:**
+
 ```bash
 # In PowerShell/Terminal
 nslookup gijayi.com
@@ -133,6 +136,7 @@ nslookup gijayi.com
 ```
 
 **Expected result after propagation:**
+
 ```
 Name:    gijayi.com
 Address: 76.76.19.165
@@ -143,27 +147,35 @@ Address: 76.76.19.165
 ## Common Issues & Solutions
 
 ### Issue 1: Domain still shows "Pending" after 24 hours
+
 **Solution:**
+
 1. Verify nameservers in Hostinger are correct
 2. Clear browser cache (Ctrl+Shift+Delete)
 3. Try from different device/network
 4. Wait additional 24 hours (DNS propagation can be slow)
 
 ### Issue 2: "SSL Certificate Pending" or "ERROR"
+
 **Solution:**
+
 1. Ensure DNS records are correct
 2. Wait 24-48 hours after DNS propagation
 3. Go to Vercel: Settings → Domains → Refresh
 4. If still failing, remove and re-add domain
 
 ### Issue 3: www.gijayi.com not redirecting
+
 **Solution:**
+
 1. In Vercel domain settings, enable redirect
 2. Or add both APEXdomain and www as separate domains
 3. Vercel will auto-redirect www to root
 
 ### Issue 4: Getting "This site can't provide a secure connection"
+
 **Solution:**
+
 1. Wait 24-48 hours for SSL certificate
 2. Clear browser SSL cache
 3. Don't use localhost or IP directly
@@ -180,7 +192,7 @@ Update `next.config.ts` to recognize your domain:
 ```typescript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  domains: ['gijayi.com', 'www.gijayi.com'],
+  domains: ["gijayi.com", "www.gijayi.com"],
 };
 
 export default nextConfig;
@@ -208,25 +220,27 @@ curl -I https://gijayi.com
 
 ## Timeline
 
-| Time | Status | Action |
-|------|--------|--------|
-| Now | Start | Change nameservers/add CNAME |
-| 15 mins - 2 hours | Propagating | Monitor DNS |
-| 2 - 24 hours | Syncing | Vercel detects DNS |
-| 24 - 48 hours | Verifying | SSL certificate issued |
-| 48+ hours | Live ✅ | Domain fully active |
+| Time              | Status      | Action                       |
+| ----------------- | ----------- | ---------------------------- |
+| Now               | Start       | Change nameservers/add CNAME |
+| 15 mins - 2 hours | Propagating | Monitor DNS                  |
+| 2 - 24 hours      | Syncing     | Vercel detects DNS           |
+| 24 - 48 hours     | Verifying   | SSL certificate issued       |
+| 48+ hours         | Live ✅     | Domain fully active          |
 
 ---
 
 ## Quick Reference
 
 **Your Project Details:**
+
 - Vercel Project: gijayi-store
 - Domain: gijayi.com
 - Registrar: Hostinger
 - DNS Method: Nameservers (recommended)
 
 **Next Steps:**
+
 1. ✅ Go to Hostinger dashboard
 2. ✅ Update nameservers to Vercel
 3. ✅ Add domain to Vercel
@@ -239,6 +253,7 @@ curl -I https://gijayi.com
 ## Need Help?
 
 If you encounter any issues:
+
 1. Check DNS propagation: https://dnschecker.org/
 2. Verify nameservers are correct in Hostinger
 3. Check Vercel domain settings aren't in error state

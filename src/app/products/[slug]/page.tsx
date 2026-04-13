@@ -5,12 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw, MessageCircle, Instagram, Facebook, Twitter, Copy, X } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
 import ProductCard from '@/components/ProductCard';
+import LowStockAlert from '@/components/LowStockAlert';
+import ProductLoadingSkeleton from '@/components/ProductLoadingSkeleton';
 export default function ProductDetailPage() {
   const whatsappUrl = 'https://wa.me/911234567890?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
   const params = useParams<{ slug: string }>();
@@ -25,6 +27,7 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'care'>('description');
+  const [shareOpen, setShareOpen] = useState(false);
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
@@ -82,7 +85,7 @@ export default function ProductDetailPage() {
       setIsLoadingProduct(true);
 
       try {
-        const response = await fetch(`/api/products/${slug}${pid ? `?pid=${encodeURIComponent(pid)}` : ''}`, { cache: 'no-store' });
+        const response = await fetch(`/api/products/${slug}${pid ? `?pid=${encodeURIComponent(pid)}` : ''}`, { cache: 'force-cache' });
         if (!response.ok) {
           if (active) {
             setProduct(null);
@@ -120,7 +123,7 @@ export default function ProductDetailPage() {
   }, [product?.id, product?.slug]);
 
   if (isLoadingProduct) {
-    return <div className="min-h-[60vh] flex items-center justify-center text-sm text-gray-500">Loading product...</div>;
+    return <ProductLoadingSkeleton />;
   }
 
   if (!product) notFound();
@@ -304,6 +307,17 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Delivery Info */}
+            <div className="mb-6 space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-gray-700">
+                <Truck size={14} className="text-[#b8963e]" />
+                <span>🚚 Delivery in 7–12 days worldwide</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <span>🇮🇳 3–5 days within India</span>
+              </div>
+            </div>
+
             <div className="w-12 h-px bg-[#b8963e] mb-6" />
 
             <div className="grid sm:grid-cols-3 gap-3 mb-8">
@@ -371,6 +385,9 @@ export default function ProductDetailPage() {
               )}
             </div>
 
+            {/* Low Stock Alert */}
+            <LowStockAlert stock={product.stock} />
+
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 mb-8">
               <button
@@ -416,14 +433,85 @@ export default function ProductDetailPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (typeof window === 'undefined') return;
-                  navigator.clipboard.writeText(window.location.href);
-                }}
-                className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
+                onClick={() => setShareOpen(!shareOpen)}
+                className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors relative"
                 title="Share product"
               >
                 <Share2 size={18} />
+                
+                {/* Share Menu */}
+                {shareOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute bottom-full right-0 mb-2 min-w-max bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                  >
+                    <div className="p-3 space-y-2">
+                      {/* WhatsApp */}
+                      <a
+                        href={`https://wa.me/?text=Check%20out%20this%20beautiful%20${encodeURIComponent(product?.name || 'product')}%20from%20Gijayi%3A%20${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShareOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-[#25D366] transition-colors rounded"
+                      >
+                        <MessageCircle size={16} className="text-[#25D366]" />
+                        WhatsApp
+                      </a>
+
+                      {/* Instagram */}
+                      <a
+                        href="https://www.instagram.com/gijayi.official"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShareOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-[#E1306C] transition-colors rounded"
+                      >
+                        <Instagram size={16} className="text-[#E1306C]" />
+                        Instagram
+                      </a>
+
+                      {/* Facebook */}
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShareOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1877F2] transition-colors rounded"
+                      >
+                        <Facebook size={16} className="text-[#1877F2]" />
+                        Facebook
+                      </a>
+
+                      {/* Twitter/X */}
+                      <a
+                        href={`https://twitter.com/intent/tweet?text=Check%20out%20${encodeURIComponent(product?.name || 'this amazing product')}%20from%20Gijayi&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShareOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#000] transition-colors rounded"
+                      >
+                        <Twitter size={16} className="text-[#000]" />
+                        Twitter
+                      </a>
+
+                      {/* Copy Link */}
+                      <button
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            navigator.clipboard.writeText(window.location.href);
+                          }
+                          setShareOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded w-full"
+                      >
+                        <Copy size={16} className="text-[#b8963e]" />
+                        Copy Link
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </button>
             </div>
 
@@ -530,8 +618,7 @@ export default function ProductDetailPage() {
         {related.length > 0 && (
           <section className="mt-24">
             <div className="text-center mb-12">
-              <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">You May Also Like</p>
-              <h2 className="font-serif text-3xl md:text-4xl">Related Pieces</h2>
+              <h2 className="font-serif text-4xl md:text-5xl">You May Also Love</h2>
               <div className="gold-divider mt-4" />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">

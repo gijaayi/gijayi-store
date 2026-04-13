@@ -7,9 +7,10 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { CheckCircle, Shield, Truck, ChevronDown } from 'lucide-react';
+import { CheckCircle, Shield, Truck, ChevronDown, CreditCard } from 'lucide-react';
 
 type Step = 'shipping' | 'currency' | 'review';
+type PaymentMethod = 'razorpay' | 'paypal';
 
 declare global {
   interface Window {
@@ -42,6 +43,7 @@ export default function CheckoutPage() {
   const [exchangeRate, setExchangeRate] = useState(1);
   const [exchangeLoading, setExchangeLoading] = useState(false);
   const [exchangeError, setExchangeError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('razorpay');
 
   const shippingCost = user && !user.hasPlacedOrder ? 0 : 99;
   const total = totalPrice + shippingCost;
@@ -53,6 +55,28 @@ export default function CheckoutPage() {
       router.push('/login?redirect=/checkout');
     }
   }, [loading, user, router]);
+
+  // Handle PayPal callback
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const paymentStatus = searchParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      const pendingOrder = sessionStorage.getItem('paypal_order_pending');
+      if (pendingOrder) {
+        try {
+          const orderData = JSON.parse(pendingOrder);
+          handlePayPalVerification(orderData.paypalOrderId);
+        } catch (err) {
+          setError('Failed to verify PayPal payment');
+        }
+      }
+    } else if (paymentStatus === 'cancelled') {
+      setError('PayPal payment was cancelled');
+      setPlacingOrder(false);
+      sessionStorage.removeItem('paypal_order_pending');
+    }
+  }, []);
 
   useEffect(() => {
     if (currency === 'INR') {
@@ -96,6 +120,15 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (paymentMethod === 'paypal') {
+      handlePayPalPayment();
+    } else {
+      handleRazorpayPayment();
+    }
+  };
+
+  const handleRazorpayPayment = async () => {
+    setError('');
     try {
       const totalAmountPaise = Math.round(total * exchangeRate * 100);
 
@@ -219,8 +252,125 @@ export default function CheckoutPage() {
       };
       document.body.appendChild(script);
     } catch (err) {
+      setError((err as Error).message || 'Razorpay setup failed.');
+      setPlacingOrder(false);
+    }
+  };
+
+  const handlePayPalPayment = async () => {
+    setError('');
+    try {
+      const paypalOrderResponse = await fetch('/api/payment/paypal/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total * exchangeRate,
+          currency,
+          description: `Gijayi Order - ${state.items.length} items`,
+          customerDetails: {
+            firstName: shipping.firstName,
+            lastName: shipping.lastName,
+            email: shipping.email,
+            phone: shipping.phone,
+          },
+        }),
+      });
+
+      const paypalOrder = (await paypalOrderResponse.json()) as any;
+
+      if (!paypalOrderResponse.ok) {
+        setError(paypalOrder.error || 'Failed to create PayPal order.');
+        setPlacingOrder(false);
+        return;
+      }
+
+      // Redirect to PayPal approval URL
+      if (paypalOrder.approvalUrl) {
+        // Store order details in session/localStorage for verification after return
+        sessionStorage.setItem(
+          'paypal_order_pending',
+          JSON.stringify({
+            paypalOrderId: paypalOrder.orderId,
+            timestamp: Date.now(),
+          })
+        );
+        window.location.href = paypalOrder.approvalUrl;
+      } else {
+        setError('Invalid PayPal approval URL');
+        setPlacingOrder(false);
+      }
+    } catch (err) {
+      setError((err as Error).message || 'PayPal setup failed.');
+      setPlacingOrder(false);
+    }
+  };
+
+  const handlePayPalVerification = async (paypalOrderId: string) => {
+    try {
+      setPlacingOrder(true);
+      
+      // Verify PayPal payment
+      const verifyResponse = await fetch('/api/payment/paypal/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: paypalOrderId }),
+      });
+
+      const verifyData = (await verifyResponse.json()) as any;
+
+      if (!verifyResponse.ok) {
+        setError(verifyData.error || 'PayPal payment verification failed.');
+        setPlacingOrder(false);
+        sessionStorage.removeItem('paypal_order_pending');
+        return;
+      }
+
+      // Create order in database
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: state.items.map((item) => ({
+            productId: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+            size: item.size,
+            image: item.product.images[0],
+          })),
+          shipping,
+          paymentMethod: 'paypal',
+          paymentDetails: {
+            paypalOrderId: paypalOrderId,
+            paypalPaymentId: verifyData.paymentId,
+            status: verifyData.status,
+            currency: verifyData.currency,
+            amount: verifyData.amount,
+          },
+        }),
+      });
+
+      const orderData = (await orderResponse.json()) as any;
+
+      if (!orderResponse.ok) {
+        setError(orderData.error || 'Unable to place order.');
+        setPlacingOrder(false);
+        return;
+      }
+
+      setOrderCode(orderData.orderCode || '');
+      setEstimatedDelivery(orderData.estimatedDeliveryDate || '');
+      setOrderPlaced(true);
+      clearCart();
+      setPlacingOrder(false);
+      sessionStorage.removeItem('paypal_order_pending');
+      
+      // Clean up URL
+      window.history.replaceState({}, '', '/checkout');
+    } catch (err) {
       setError((err as Error).message || 'Order processing failed.');
       setPlacingOrder(false);
+      sessionStorage.removeItem('paypal_order_pending');
     }
   };
 
@@ -410,6 +560,62 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
+
+              <div className="mb-8">
+                <h3 className="text-xs tracking-widest uppercase font-medium mb-4">Payment Method</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setPaymentMethod('razorpay')}
+                    className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                      paymentMethod === 'razorpay'
+                        ? 'border-[#b8963e] bg-[#faf8f4]'
+                        : 'border-gray-200 hover:border-[#b8963e]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          paymentMethod === 'razorpay'
+                            ? 'border-[#b8963e] bg-[#b8963e]'
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {paymentMethod === 'razorpay' && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Razorpay</p>
+                        <p className="text-xs text-gray-500">Credit Card, Debit Card, UPI (India only)</p>
+                      </div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setPaymentMethod('paypal')}
+                    className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                      paymentMethod === 'paypal'
+                        ? 'border-[#b8963e] bg-[#faf8f4]'
+                        : 'border-gray-200 hover:border-[#b8963e]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          paymentMethod === 'paypal'
+                            ? 'border-[#b8963e] bg-[#b8963e]'
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {paymentMethod === 'paypal' && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">PayPal</p>
+                        <p className="text-xs text-gray-500">International payment method</p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div className="flex gap-4">
                 <button onClick={() => setStep('currency')} className="flex-1 border border-gray-200 py-4 text-xs tracking-widest uppercase hover:border-[#b8963e] transition-colors">
                   Back
@@ -460,7 +666,7 @@ export default function CheckoutPage() {
             </div>
             <div className="mt-5 space-y-2">
               <div className="flex items-center gap-2 text-xs text-gray-400">
-                <Shield size={12} /> Secure payment via Razorpay
+                <Shield size={12} /> Secure payment via {paymentMethod === 'paypal' ? 'PayPal' : 'Razorpay'}
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <Truck size={12} /> {shippingCost === 0 ? 'Free shipping on first order' : 'Shipping: ₹99 for India'}

@@ -5,8 +5,6 @@ import { DbOrderItem, updateDatabase } from '@/lib/server/database';
 import crypto from 'crypto';
 import { sendOrderConfirmationEmail } from '@/lib/server/email';
 
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
-
 function addBusinessDays(fromDate: Date, days: number) {
   const date = new Date(fromDate);
   let added = 0;
@@ -43,12 +41,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cash on delivery is not available.' }, { status: 400 });
     }
 
-    if (paymentMethod !== 'razorpay') {
-      return NextResponse.json({ error: 'Only Razorpay payments are supported.' }, { status: 400 });
+    const validPaymentMethods = ['razorpay', 'paypal'];
+    if (!validPaymentMethods.includes(paymentMethod.toLowerCase())) {
+      return NextResponse.json({ error: 'Invalid payment method. Supported methods: Razorpay, PayPal.' }, { status: 400 });
     }
 
     if (!shipping.firstName || !shipping.email || !shipping.address || !shipping.city || !shipping.pincode || !shipping.phone) {
       return NextResponse.json({ error: 'Shipping details are incomplete.' }, { status: 400 });
+    }
+
+    // Validate based on payment method
+    if (paymentMethod.toLowerCase() === 'razorpay') {
+      const RAZORPAY_KEY_SECRET_CONFIG = process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_TEST_KEY_SECRET || '';
+      
+      if (!RAZORPAY_KEY_SECRET_CONFIG) {
+        return NextResponse.json({ error: 'Razorpay not configured.' }, { status: 500 });
+      }
+
+      const razorpayOrderId = String(paymentDetails?.razorpayOrderId || '').trim();
+      const razorpayPaymentId = String(paymentDetails?.razorpayPaymentId || '').trim();
+      const razorpaySignature = String(paymentDetails?.razorpaySignature || '').trim();
+
+      if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+        return NextResponse.json({ error: 'Razorpay payment details are missing.' }, { status: 400 });
+      }
+
+      const hmac = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET_CONFIG);
+      hmac.update(`${razorpayOrderId}|${razorpayPaymentId}`);
+      const digest = hmac.digest('hex');
+
+      if (digest !== razorpaySignature) {
+        return NextResponse.json({ error: 'Razorpay payment verification failed.' }, { status: 400 });
+      }
+    } else if (paymentMethod.toLowerCase() === 'paypal') {
+      const paypalOrderId = String(paymentDetails?.paypalOrderId || '').trim();
+      const paypalPaymentId = String(paymentDetails?.paypalPaymentId || '').trim();
+      const paypalStatus = String(paymentDetails?.status || '').trim();
+
+      if (!paypalOrderId || !paypalPaymentId || paypalStatus !== 'COMPLETED') {
+        return NextResponse.json({ error: 'PayPal payment verification failed.' }, { status: 400 });
+      }
     }
 
     const razorpayOrderId = String(paymentDetails?.razorpayOrderId || '').trim();
@@ -56,22 +88,6 @@ export async function POST(request: NextRequest) {
     const razorpaySignature = String(paymentDetails?.razorpaySignature || '').trim();
     const currency = String(paymentDetails?.currency || 'INR').toUpperCase();
     const exchangeRate = Number(paymentDetails?.exchangeRate || 1);
-
-    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-      return NextResponse.json({ error: 'Payment details are missing.' }, { status: 400 });
-    }
-
-    if (!RAZORPAY_KEY_SECRET) {
-      return NextResponse.json({ error: 'Payment gateway not configured.' }, { status: 500 });
-    }
-
-    const hmac = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET);
-    hmac.update(`${razorpayOrderId}|${razorpayPaymentId}`);
-    const digest = hmac.digest('hex');
-
-    if (digest !== razorpaySignature) {
-      return NextResponse.json({ error: 'Payment verification failed.' }, { status: 400 });
-    }
 
     let createdOrderCode = '';
     let createdTotalAmount = 0;

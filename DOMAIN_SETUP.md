@@ -1,6 +1,7 @@
 # Domain Setup Guide for Gijayi Store on Vercel
 
 ## Current Project Info
+
 - **Project Name**: gijayi-store
 - **Vercel URL**: https://gijayi-store.vercel.app (or similar)
 - **Framework**: Next.js
@@ -22,14 +23,14 @@
 
 3. **Configure DNS**
    Choose one of the following:
-   
+
    **Option A: Vercel Nameservers (Recommended)**
    - Use Vercel as DNS provider
    - Copy the nameservers provided
    - Go to your domain registrar
    - Update nameservers to point to Vercel
    - Wait 24-48 hours for propagation
-   
+
    **Option B: CNAME Records (If keeping current DNS)**
    - Add CNAME record: `www` → `cname.vercel-dns.com`
    - Add CNAME record: `@` (root) → `cname.vercel-dns.com`
@@ -58,12 +59,14 @@ vercel domains add yourdomain.com
 ## Domain Registrar Instructions
 
 ### If using GoDaddy:
+
 1. Log in to GoDaddy account
 2. Go to "My Products" > "Domains"
 3. Click your domain > "DNS"
 4. Update nameservers or add CNAME records
 
 ### If using Namecheap:
+
 1. Log in to Namecheap
 2. Go to "Domain List"
 3. Click "Manage" on your domain
@@ -71,6 +74,7 @@ vercel domains add yourdomain.com
 5. Update to Vercel nameservers
 
 ### If using Cloudflare:
+
 1. Log in to Cloudflare
 2. Select your domain
 3. Go to "DNS" tab
@@ -78,7 +82,9 @@ vercel domains add yourdomain.com
 5. Set SSL/TLS to "Full"
 
 ## Environment Variables Check
+
 ✅ All required environment variables are set in your .env.local:
+
 - MongoDB credentials
 - Cloudinary API keys
 - Admin credentials
@@ -86,7 +92,9 @@ vercel domains add yourdomain.com
 - Email service (Resend)
 
 ## SSL Certificate
+
 ✅ Automatic:
+
 - Vercel provides FREE SSL/TLS certificate
 - Auto-renews every 30 days
 - Covers root domain and www subdomain
@@ -94,6 +102,7 @@ vercel domains add yourdomain.com
 ## Last Steps
 
 1. **Test the Domain**
+
    ```bash
    # Once domain is verified
    curl https://yourdomain.com
@@ -108,27 +117,31 @@ vercel domains add yourdomain.com
    ```typescript
    /** @type {import('next').NextConfig} */
    const nextConfig = {
-     domains: ['yourdomain.com', 'www.yourdomain.com'],
+     domains: ["yourdomain.com", "www.yourdomain.com"],
    };
    ```
 
 ## Troubleshooting
 
 **Domain shows error after pointing:**
+
 - Wait 24-48 hours for DNS propagation
 - Use online tools to check: https://dnschecker.org/
 - Clear browser cache (Ctrl+Shift+Delete)
 
 **SSL certificate not auto-provisioning:**
+
 - Ensure DNS is correctly configured
 - Verify domain resolves in Vercel dashboard
 - May take up to 24 hours
 
 **Need to redirect old domain:**
+
 - Use URL redirects at domain registrar
 - Or configure in Vercel environment
 
 ## Next Steps
+
 1. Decide which domain you want to use
 2. Confirm domain registrar location
 3. Choose DNS configuration method (Vercel or CNAME)
@@ -136,6 +149,7 @@ vercel domains add yourdomain.com
 5. Test domain after propagation
 
 **Need help?** Reply with:
+
 - Your desired domain name
 - Current domain registrar (if you have one)
 - Whether you already own the domain

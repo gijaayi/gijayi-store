@@ -42,3 +42,10 @@ export interface NavItem {
   href: string;
   children?: { label: string; href: string }[];
 }
+
+export interface ShippingZone {
+  zone: string;
+  countries: string[];
+  price: number;
+  delivery_time: string;
+}

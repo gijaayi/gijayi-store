@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import RichTextEditor from '@/components/RichTextEditor';
+import LowStockDashboard from '@/components/LowStockDashboard';
 
 interface AdminCategory {
   id: string;
@@ -201,13 +203,16 @@ export default function AdminProductsPage() {
       everydayMinimal: Boolean(form.everydayMinimal),
     };
 
-    const hasCollection = navigation?.gijayiEdit.subcategories.some(
-      (value) => value.toLowerCase() === form.collection.trim().toLowerCase()
-    );
-    if (!hasCollection) {
-      setError('Collection must be one of the configured Gijayi Edit subcategories.');
-      setBusy(false);
-      return;
+    // Collection is now optional - only validate if provided
+    if (form.collection.trim()) {
+      const hasCollection = navigation?.gijayiEdit.subcategories.some(
+        (value) => value.toLowerCase() === form.collection.trim().toLowerCase()
+      );
+      if (!hasCollection) {
+        setError('Collection must be one of the configured Gijayi Edit subcategories.');
+        setBusy(false);
+        return;
+      }
     }
 
     const endpoint = selectedProductId ? `/api/admin/products/${selectedProductId}` : '/api/admin/products';
@@ -233,9 +238,45 @@ export default function AdminProductsPage() {
     setBusy(false);
   }
 
+  async function handleDelete() {
+    if (!selectedProductId || !confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      return;
+    }
+
+    setBusy(true);
+    setError('');
+
+    try {
+      const response = await fetch(`/api/admin/products/${selectedProductId}`, {
+        method: 'DELETE',
+      });
+
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        setError(data.error || 'Failed to delete product.');
+        setBusy(false);
+        return;
+      }
+
+      setForm(defaultForm);
+      setSelectedProductId('');
+      setImageFiles([null, null, null, null, null, null]);
+      await fetchData();
+      setBusy(false);
+    } catch (err) {
+      setError('Failed to delete product.');
+      setBusy(false);
+    }
+  }
+
   return (
-    <div className="grid xl:grid-cols-[1.1fr,1fr] gap-6">
-      <section className="bg-white border border-slate-200 rounded-2xl p-6">
+    <div className="space-y-6">
+      <div className="mb-6">
+        <LowStockDashboard />
+      </div>
+
+      <div className="grid xl:grid-cols-[1.1fr,1fr] gap-6">
+        <section className="bg-white border border-slate-200 rounded-2xl p-6">
         <h2 className="font-serif text-3xl mb-1 text-slate-900">Product Manager</h2>
         <p className="text-sm text-slate-500 mb-5">Create and update catalog items from one clean workflow.</p>
 
@@ -289,8 +330,8 @@ export default function AdminProductsPage() {
                 <option key={category.id} value={category.name}>{category.name}</option>
               ))}
             </select>
-            <select required value={form.collection} onChange={(event) => setForm({ ...form, collection: event.target.value })} className="w-full border border-slate-300 rounded-xl bg-white px-4 py-3 text-sm outline-none focus:border-blue-600">
-              <option value="">Select Gijayi Edit subcategory</option>
+            <select value={form.collection} onChange={(event) => setForm({ ...form, collection: event.target.value })} className="w-full border border-slate-300 rounded-xl bg-white px-4 py-3 text-sm outline-none focus:border-blue-600">
+              <option value="">Select Gijayi Edit subcategory (optional)</option>
               {(navigation?.gijayiEdit.subcategories || []).map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
@@ -424,7 +465,11 @@ export default function AdminProductsPage() {
                 <option value="light">Light Font</option>
                 <option value="premium">Premium Font</option>
               </select>
-              <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} placeholder="Description" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+              <RichTextEditor 
+                value={form.description} 
+                onChange={(value) => setForm({ ...form, description: value })} 
+                placeholder="Enter product description with formatting..."
+              />
             </div>
           </div>
 
@@ -433,9 +478,14 @@ export default function AdminProductsPage() {
               {busy ? 'Saving...' : selectedProductId ? 'Update Product' : 'Add Product'}
             </button>
             {selectedProductId && (
-              <button type="button" onClick={() => { setSelectedProductId(''); setForm(defaultForm); }} className="px-4 py-3 border border-slate-300 rounded-xl text-xs tracking-widest uppercase hover:bg-slate-50">
-                Reset
-              </button>
+              <>
+                <button type="button" onClick={() => { setSelectedProductId(''); setForm(defaultForm); }} className="px-4 py-3 border border-slate-300 rounded-xl text-xs tracking-widest uppercase hover:bg-slate-50">
+                  Reset
+                </button>
+                <button type="button" onClick={handleDelete} disabled={busy} className="px-4 py-3 border border-red-300 text-red-600 rounded-xl text-xs tracking-widest uppercase hover:bg-red-50 disabled:opacity-50">
+                  {busy ? 'Deleting...' : 'Delete'}
+                </button>
+              </>
             )}
           </div>
         </form>
@@ -494,6 +544,7 @@ export default function AdminProductsPage() {
           {!products.length && <p className="text-sm text-slate-500">No products yet.</p>}
         </div>
       </section>
+      </div>
     </div>
   );
 }

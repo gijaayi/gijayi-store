@@ -2,7 +2,7 @@ import 'server-only';
 
 import { randomUUID } from 'crypto';
 import type { Document } from 'mongodb';
-import { Collection, Product } from '@/lib/types';
+import { Collection, Product, ShippingZone } from '@/lib/types';
 import { collections as seedCollections, products as seedProducts } from '@/lib/data';
 import { hashPassword } from './password';
 import { getMongoDb } from './mongodb';
@@ -188,6 +188,7 @@ export interface DatabaseState {
   orders: DbOrder[];
   storefront: DbStorefrontSettings;
   instagramGallery: DbInstagramGallery;
+  shippingZones: ShippingZone[];
 }
 
 export interface DbInstagramImage {
@@ -413,6 +414,27 @@ export const DEFAULT_INSTAGRAM_GALLERY: DbInstagramGallery = {
   updatedAt: new Date().toISOString(),
 };
 
+export const DEFAULT_SHIPPING_ZONES: ShippingZone[] = [
+  {
+    zone: 'India',
+    countries: ['IN'],
+    price: 100,
+    delivery_time: '3-5 days',
+  },
+  {
+    zone: 'USA',
+    countries: ['US'],
+    price: 2500,
+    delivery_time: '7-12 days',
+  },
+  {
+    zone: 'Rest of World',
+    countries: ['*'],
+    price: 3000,
+    delivery_time: '10-15 days',
+  },
+];
+
 function cloneState<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -446,6 +468,7 @@ async function getFallbackState(): Promise<DatabaseState> {
       orders: [],
       storefront: cloneState(DEFAULT_STOREFRONT_SETTINGS),
       instagramGallery: cloneState(DEFAULT_INSTAGRAM_GALLERY),
+      shippingZones: cloneState(DEFAULT_SHIPPING_ZONES),
     };
   }
 
@@ -648,6 +671,16 @@ async function ensureDatabase(): Promise<void> {
     const defaultGallery = cloneState(DEFAULT_INSTAGRAM_GALLERY);
     await instagramGalleryCollection.insertOne(defaultGallery);
   }
+
+  const shippingZonesCollection = db.collection<ShippingZone>('shippingZones');
+  const shippingZonesCount = await shippingZonesCollection.estimatedDocumentCount();
+
+  if (shippingZonesCount === 0) {
+    const defaultZones = cloneState(DEFAULT_SHIPPING_ZONES);
+    if (defaultZones.length) {
+      await shippingZonesCollection.insertMany(defaultZones);
+    }
+  }
 }
 
 export async function readDatabase(): Promise<DatabaseState> {
@@ -655,7 +688,7 @@ export async function readDatabase(): Promise<DatabaseState> {
     await ensureDatabase();
     const db = await getMongoDb();
 
-    const [users, products, collections, categories, contacts, orders, storefront, instagramGallery] = await Promise.all([
+    const [users, products, collections, categories, contacts, orders, storefront, instagramGallery, shippingZones] = await Promise.all([
       db.collection<DbUser>('users').find({}).toArray(),
       db.collection<Product>('products').find({}).toArray(),
       db.collection<Collection>('collections').find({}).toArray(),
@@ -664,6 +697,7 @@ export async function readDatabase(): Promise<DatabaseState> {
       db.collection<DbOrder>('orders').find({}).toArray(),
       db.collection<DbStorefrontSettings>('storefront').findOne({ id: 'storefront-config' }),
       db.collection<DbInstagramGallery>('instagramGallery').findOne({ id: 'instagram-gallery-config' }),
+      db.collection<ShippingZone>('shippingZones').find({}).toArray(),
     ]);
 
     const storefrontSettings = storefront
@@ -683,6 +717,7 @@ export async function readDatabase(): Promise<DatabaseState> {
       orders: orders.map((order) => withoutMongoId<DbOrder>(order)),
       storefront: storefrontSettings,
       instagramGallery: instagramGallerySettings,
+      shippingZones: shippingZones.map((zone) => withoutMongoId<ShippingZone>(zone)),
     };
   } catch (error) {
     console.warn('MongoDB unavailable. Using in-memory fallback state.', error);
@@ -710,6 +745,7 @@ async function writeState(dbState: DatabaseState) {
     replaceCollection('orders', dbState.orders as unknown as Document[]),
     replaceCollection('storefront', [dbState.storefront as unknown as Document]),
     replaceCollection('instagramGallery', [dbState.instagramGallery as unknown as Document]),
+    replaceCollection('shippingZones', dbState.shippingZones as unknown as Document[]),
   ]);
 }
 

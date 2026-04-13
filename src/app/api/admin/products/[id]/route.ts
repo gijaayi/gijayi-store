@@ -31,19 +31,18 @@ export async function PUT(request: NextRequest, context: Context) {
 
     if (body.collection !== undefined) {
       const collection = String(body.collection || '').trim();
-      if (!collection) {
-        return NextResponse.json({ error: 'Collection is required.' }, { status: 400 });
-      }
-
-      const dbSnapshot = await readDatabase();
-      const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
-        (item) => item.toLowerCase() === collection.toLowerCase()
-      );
-      if (!collectionExists) {
-        return NextResponse.json(
-          { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
-          { status: 400 }
+      // Collection is now optional - only validate if provided
+      if (collection) {
+        const dbSnapshot = await readDatabase();
+        const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
+          (item) => item.toLowerCase() === collection.toLowerCase()
         );
+        if (!collectionExists) {
+          return NextResponse.json(
+            { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
+            { status: 400 }
+          );
+        }
       }
     }
 
@@ -85,5 +84,32 @@ export async function PUT(request: NextRequest, context: Context) {
     }
 
     return NextResponse.json({ error: 'Unable to update product.' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, context: Context) {
+  const auth = await requireAdmin(request);
+  if ('error' in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.error === 'Forbidden' ? 403 : 401 });
+  }
+
+  try {
+    const { id } = await context.params;
+
+    const db = await updateDatabase((state) => {
+      const index = state.products.findIndex((product) => product.id === id);
+      if (index === -1) {
+        throw new Error('NOT_FOUND');
+      }
+      state.products.splice(index, 1);
+    });
+
+    return NextResponse.json({ products: db.products, message: 'Product deleted successfully.' });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'NOT_FOUND') {
+      return NextResponse.json({ error: 'Product not found.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: 'Unable to delete product.' }, { status: 500 });
   }
 }

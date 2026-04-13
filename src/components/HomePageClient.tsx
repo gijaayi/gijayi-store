@@ -506,7 +506,7 @@ function NewArrivalsSection({ products, storefront }: { products: Product[]; sto
           <div className="flex-1">
             <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">Fresh From The Atelier</p>
             <h2 className="font-serif text-5xl md:text-6xl text-slate-900">New Arrivals</h2>
-            <p className="text-slate-600 mt-4 max-w-md">Latest drops designed for wedding season, festive gifting, and elevated daily styling.</p>
+            <p className="text-slate-600 mt-4 max-w-md">Fresh designs, Crafted for your moments.</p>
           </div>
           <Link href="/shop?filter=new" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
             View All <ArrowRight size={14} />

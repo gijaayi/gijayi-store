@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
+  showRating?: boolean;
   content?: {
     quickAddLabel: string;
     quickViewLabel: string;
@@ -32,7 +33,7 @@ const defaultContent = {
   ratingCountLabel: '(24 reviews)',
 };
 
-export default function ProductCard({ product, content = defaultContent }: ProductCardProps) {
+export default function ProductCard({ product, showRating = false, content = defaultContent }: ProductCardProps) {
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
@@ -84,24 +85,8 @@ export default function ProductCard({ product, content = defaultContent }: Produ
           />
         )}
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1">
-          {product.isNew && (
-            <span className="bg-[#1a1a1a] text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              {content.newBadgeLabel}
-            </span>
-          )}
-          {product.isBestseller && (
-            <span className="bg-[#b8963e] text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              {content.bestsellerBadgeLabel}
-            </span>
-          )}
-          {discountPercent > 0 && (
-            <span className="bg-red-500 text-white text-[10px] tracking-widest uppercase px-2 py-1">
-              {discountPercent}% {content.saleBadgeSuffix}
-            </span>
-          )}
-        </div>
+        {/* Badges - Hidden from card for better image visibility */}
+        {/* Badges are shown on product detail page instead */}
 
         {/* Wishlist */}
         <button
@@ -126,6 +111,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
         <Link
           href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`}
+          prefetch={true}
           className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white/95 text-[#1a1a1a] text-[11px] tracking-widest uppercase px-4 py-2 rounded-full flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         >
           <Eye size={13} />
@@ -135,7 +121,7 @@ export default function ProductCard({ product, content = defaultContent }: Produ
 
       <div className="mt-4 px-1">
         <p className="text-[10px] tracking-widest uppercase text-[#b8963e] mb-1">{product.category}</p>
-        <Link href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`} className="hover:text-[#b8963e] transition-colors">
+        <Link href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`} prefetch={true} className="hover:text-[#b8963e] transition-colors">
           <h3 className="text-sm font-medium leading-snug">{product.name}</h3>
         </Link>
         <div className="flex items-center gap-2 mt-1">
@@ -146,11 +132,13 @@ export default function ProductCard({ product, content = defaultContent }: Produ
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1 mt-2">
-          <Star size={12} className="text-[#b8963e]" fill="currentColor" />
-          <span className="text-xs text-gray-600">{content.ratingValue}</span>
-          <span className="text-xs text-gray-400">{content.ratingCountLabel}</span>
-        </div>
+        {showRating && (
+          <div className="flex items-center gap-1 mt-2">
+            <Star size={12} className="text-[#b8963e]" fill="currentColor" />
+            <span className="text-xs text-gray-600">{content.ratingValue}</span>
+            <span className="text-xs text-gray-400">{content.ratingCountLabel}</span>
+          </div>
+        )}
       </div>
     </motion.div>
   );
