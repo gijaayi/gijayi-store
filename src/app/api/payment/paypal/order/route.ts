@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/server/auth';
 
 function getPayPalCredentials() {
-  const clientId = String(process.env.PAYPAL_CLIENT_ID || '').trim();
-  const clientSecret = String(process.env.PAYPAL_CLIENT_SECRET || '').trim();
+  const clientId = String(process.env.PAYPAL_API_KEY || '').trim();
+  const clientSecret = String(process.env.PAYPAL_SECRET_KEY || '').trim();
 
   return { clientId, clientSecret };
 }
