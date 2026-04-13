@@ -17,7 +17,7 @@ export async function GET(_: Request, context: Context) {
   // If not found by handle and pid provided, search by pid
   if (!product && pid) {
     const allProducts = await getAllProducts();
-    product = allProducts.find((item) => item.id === pid);
+    product = allProducts.find((item) => item.id === pid) || null;
   }
 
   if (!product) {
