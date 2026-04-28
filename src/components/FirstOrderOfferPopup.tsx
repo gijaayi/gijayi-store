@@ -52,9 +52,9 @@ export default function FirstOrderOfferPopup({ hasPlacedOrder, onClose, isAutoma
             {/* Close button */}
             <button
               onClick={handleClose}
-              className="absolute top-3 right-3 bg-white/80 hover:bg-[#b8963e]/20 text-gray-600 hover:text-[#b8963e] z-10 transition-all rounded-full p-1 shadow-sm"
+              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/90 hover:bg-[#b8963e]/20 text-gray-500 hover:text-[#b8963e] z-10 transition-all rounded-full shadow-sm border border-gray-200"
             >
-              <X size={20} />
+              <X size={16} />
             </button>
 
             {/* Content */}

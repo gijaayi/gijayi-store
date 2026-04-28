@@ -147,7 +147,6 @@ export async function PUT(request: NextRequest) {
               headline: String(item?.headline || '').trim(),
               subtitle: String(item?.subtitle || '').trim(),
             }))
-            .filter((item) => item.image && item.headline && item.subtitle)
             .slice(0, 4),
         },
         luxurySignals: (Array.isArray(body.luxurySignals) ? body.luxurySignals : current.luxurySignals)

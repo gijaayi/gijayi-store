@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, MapPin, Phone, Clock, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Phone, Clock, ArrowRight, MessageCircle } from 'lucide-react';
 
 const supportTopics = ['Bridal styling', 'Custom orders', 'Shipping and returns', 'Product care', 'Press and partnerships'];
 
@@ -51,6 +51,25 @@ export default function ContactPage() {
                 <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mb-2">Hours</p>
                 <p className="font-medium">Mon to Sat, 10 AM to 7 PM IST</p>
               </div>
+            </div>
+
+            <div className="mt-10 border border-[#efe6d7] bg-white p-6">
+              <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-4">Fastest Response</p>
+              <a 
+                href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20with%20styling%2C%20orders%2C%20or%20shipping."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-4 border border-[#25D366] rounded-lg hover:bg-[#25D366]/5 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <MessageCircle size={20} className="text-[#25D366]" />
+                  <div>
+                    <p className="font-medium text-[#25D366]">Chat on WhatsApp</p>
+                    <p className="text-xs text-gray-500">Instant message for quick help</p>
+                  </div>
+                </div>
+                <ArrowRight size={16} className="text-[#25D366]" />
+              </a>
             </div>
 
             <div className="mt-10 border border-[#efe6d7] bg-white p-6">

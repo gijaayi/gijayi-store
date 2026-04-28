@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { Trash2, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Trash2, ArrowRight, ShoppingBag, MessageCircle } from 'lucide-react';
 
 export default function CartPage() {
   const router = useRouter();
@@ -68,7 +68,7 @@ export default function CartPage() {
               exit={{ opacity: 0 }}
               className="flex gap-5 pb-6 border-b border-gray-100"
             >
-              <Link href={`/products/${item.product.slug}`} className="relative w-24 h-28 flex-shrink-0 bg-[#faf8f4] overflow-hidden">
+              <Link href={`/products/${item.product.slug}`} className="relative w-24 h-28 shrink-0 bg-[#faf8f4] overflow-hidden">
                 <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
               </Link>
               <div className="flex-1 min-w-0">
@@ -143,10 +143,19 @@ export default function CartPage() {
 
             <Link
               href="/checkout"
-              className="block w-full bg-[#1a1a1a] text-white text-center py-4 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-[#1a1a1a] text-white text-center py-4 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors duration-300 flex items-center justify-center gap-2"
             >
               Checkout <ArrowRight size={14} />
             </Link>
+
+            <a
+              href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20with%20my%20cart%20and%20checkout."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 w-full border border-[#25D366] text-[#25D366] text-center py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300 flex items-center justify-center gap-2"
+            >
+              <MessageCircle size={14} /> Chat on WhatsApp
+            </a>
 
             <div className="mt-4 flex flex-wrap gap-2 justify-center">
               <span className="text-[10px] text-gray-400">Secure Checkout</span>

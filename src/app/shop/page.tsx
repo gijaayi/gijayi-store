@@ -3,13 +3,22 @@ import { getShopData } from '@/lib/shopify';
 
 export const dynamic = 'force-dynamic';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+
 export const metadata = {
-  title: 'Shop Indian Jewellery | Bridal & Designer Pieces – Gijayi',
-  description: 'Browse our complete collection of handcrafted Indian jewelry, bridal sets, earrings, necklaces, bangles, and designer pieces. Fast shipping across India.',
-  keywords: 'Indian jewelry shop, bridal jewelry, designer jewelry, kundan jewelry, earrings online, necklaces, bangles, handcrafted jewelry',
+  title: 'Shop Handcrafted Jewelry | Worldwide Shipping – Gijayi',
+  description: 'Browse handcrafted jewelry collections perfect for every occasion. Bridal luxury, statement pieces, and heritage designs. Free shipping in India, worldwide delivery available.',
+  keywords: 'handcrafted jewelry, bridal jewelry shop, statement jewelry, luxury jewelry, jewelry worldwide shipping, Indian jewelry international, designer jewelry online',
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: `${siteUrl}/shop`,
+  },
   openGraph: {
-    title: 'Shop Indian Jewellery Online – Gijayi',
-    description: 'Authentic handcrafted Indian jewelry and bridal collections with premium quality and free shipping.',
+    title: 'Shop Handcrafted Jewelry – Worldwide Shipping',
+    description: 'Premium handcrafted jewelry curated for bridal, celebrations, and everyday luxury. Ships to USA, Europe, Asia & more with secure checkout.',
+    url: `${siteUrl}/shop`,
+    siteName: 'Gijayi',
+    type: 'website',
     images: [
       {
         url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90',
@@ -18,6 +27,11 @@ export const metadata = {
         alt: 'Gijayi Jewelry Collection',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Shop Gijayi – Handcrafted Jewelry',
+    description: 'Premium bridal and statement jewelry with international shipping available.',
   },
 };
 

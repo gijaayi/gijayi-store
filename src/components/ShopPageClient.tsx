@@ -4,7 +4,7 @@ import { useMemo, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { SlidersHorizontal, X, ChevronDown, Search } from 'lucide-react';
+import { SlidersHorizontal, X, ChevronDown, Search, MessageCircle } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/lib/types';
 
@@ -83,6 +83,14 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
         <p className="text-sm text-gray-600 text-center max-w-2xl mx-auto leading-relaxed">
           Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.
         </p>
+        <a
+          href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20choosing%20the%20right%20jewellery."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center gap-2 border border-[#25D366] text-[#25D366] px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
+        >
+          <MessageCircle size={14} /> Need styling help on WhatsApp?
+        </a>
         {queryParam && (
           <p className="mt-5 text-sm text-gray-500 text-center">
             Showing results for <span className="text-[#1a1a1a] font-medium">&ldquo;{searchParams.get('q')}&rdquo;</span>

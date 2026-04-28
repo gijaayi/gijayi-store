@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { getProductByHandle } from '@/lib/shopify';
 
-const SITE_URL = 'https://gijayi.com';
+// Use environment variable or default to production domain
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 interface Props {
   children: React.ReactNode;
@@ -35,7 +36,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description: seoDescription,
       type: 'website',
       url,
-      images: image ? [{ url: image, alt: product.name }] : undefined,
+      siteName: 'Gijayi',
+      locale: 'en_IN',
+      images: image 
+        ? [
+            {
+              url: image,
+              alt: product.name,
+              width: 1200,
+              height: 1200,
+              type: 'image/jpeg',
+            },
+          ]
+        : [],
     },
     twitter: {
       card: 'summary_large_image',

@@ -28,6 +28,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Rich Text Editor placeholder */
+[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+  display: block;
+}
+
 /* Instant scroll on navigation for better UX */
 html.scroll-instant {
   scroll-behavior: auto;

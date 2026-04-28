@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Heading2 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -12,17 +12,55 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ value, onChange, placeholder = 'Enter description...' }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const isInitialRender = useRef(true);
+  const lastSavedContent = useRef(value);
 
-  const executeCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    editorRef.current?.focus();
-  };
-
-  const handleInput = () => {
-    if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+  // Initialize editor content only on first render
+  useEffect(() => {
+    if (isInitialRender.current && editorRef.current && !editorRef.current.innerHTML) {
+      editorRef.current.innerHTML = value || '';
+      lastSavedContent.current = value;
+      isInitialRender.current = false;
     }
-  };
+  }, []);
+
+  const executeCommand = useCallback((command: string, value?: string) => {
+    editorRef.current?.focus();
+    document.execCommand(command, false, value);
+    handleInput();
+  }, []);
+
+  const handleInput = useCallback(() => {
+    if (editorRef.current) {
+      const newContent = editorRef.current.innerHTML;
+      // Only trigger onChange if content actually changed
+      if (newContent !== lastSavedContent.current) {
+        lastSavedContent.current = newContent;
+        onChange(newContent);
+      }
+    }
+  }, [onChange]);
+
+  // Sync external value changes (e.g., when selecting a different product)
+  useEffect(() => {
+    if (editorRef.current && value !== lastSavedContent.current) {
+      // Only update if the external value is different from current editor content
+      const currentContent = editorRef.current.innerHTML;
+      if (value !== currentContent) {
+        // Save cursor position before updating
+        const selection = window.getSelection();
+        const hasFocus = document.activeElement === editorRef.current;
+        
+        editorRef.current.innerHTML = value || '';
+        lastSavedContent.current = value || '';
+        
+        // Restore focus if editor was focused
+        if (hasFocus) {
+          editorRef.current.focus();
+        }
+      }
+    }
+  }, [value]);
 
   return (
     <div className="border border-slate-300 rounded-xl overflow-hidden">
@@ -130,7 +168,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         suppressContentEditableWarning
-        dangerouslySetInnerHTML={{ __html: value }}
+        data-placeholder={placeholder}
         className={`min-h-32 p-4 outline-none text-sm focus:ring-2 focus:ring-blue-500 ${
           isFocused ? 'ring-2 ring-blue-500' : ''
         }`}

@@ -5,13 +5,22 @@ import { getAllCollections } from '@/lib/shopify';
 
 export const dynamic = 'force-dynamic';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+
 export const metadata = {
-  title: 'Exclusive Collections | Bridal, Heritage & Everyday Jewellery – Gijayi',
-  description: 'Discover Gijayi\'s curated collections of handcrafted Indian jewelry including bridal sets, heritage designs, and luxe everyday pieces.',
-  keywords: 'jewelry collections, bridal jewelry collections, heritage jewelry, designer collections, Indian jewelry curated edit',
+  title: 'Jewelry Collections | Bridal, Heritage & Statement – Gijayi',
+  description: 'Discover Gijayi\'s curated collections: bridal luxury, heritage designs, everyday statement pieces, and luxury moments. Handcrafted and shipped worldwide.',
+  keywords: 'jewelry collections, bridal jewelry collections, heritage jewelry, designer collections, statement jewelry, luxury jewelry collections, bridal sets',
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: `${siteUrl}/collections`,
+  },
   openGraph: {
-    title: 'Exclusive Jewelry Collections – Gijayi',
-    description: 'Signature collections of handcrafted Indian jewelry shaped around ceremonies and heirloom craft.',
+    title: 'Luxury Jewelry Collections – Gijayi',
+    description: 'Curated collections of handcrafted jewelry for bridal, heritage, and everyday luxury. Worldwide shipping and private WhatsApp styling support.',
+    url: `${siteUrl}/collections`,
+    siteName: 'Gijayi',
+    type: 'website',
     images: [
       {
         url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&q=90',
@@ -20,6 +29,11 @@ export const metadata = {
         alt: 'Gijayi Collections',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Luxury Jewelry Collections – Gijayi',
+    description: 'Curated collections for bridal, heritage, and everyday luxury moments worldwide.',
   },
 };
 

@@ -339,8 +339,8 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
   ],
   testimonialsSection: {
     badge: 'Loved By Customers',
-    title: 'Trusted Across India',
-    subtitle: 'Proudly trusted by customers across India for handcrafted Indian jewelry and bridal jewelry online.',
+    title: 'Trusted Globally',
+    subtitle: 'Gijayi customers around the world love our handcrafted jewelry, worldwide shipping, and personalized WhatsApp support for every purchase.',
     testimonials: [
       {
         name: 'Nisha Kapoor',

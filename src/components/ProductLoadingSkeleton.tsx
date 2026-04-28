@@ -1,6 +1,10 @@
 'use client';
 
-export default function ProductLoadingSkeleton() {
+interface ProductLoadingSkeletonProps {
+  title?: string;
+}
+
+export default function ProductLoadingSkeleton({ title }: ProductLoadingSkeletonProps) {
   return (
     <div className="min-h-[80vh] grid xl:grid-cols-2 gap-8 lg:gap-12 p-6 lg:p-12">
       {/* Image Skeleton */}
@@ -18,6 +22,12 @@ export default function ProductLoadingSkeleton() {
 
       {/* Content Skeleton */}
       <div className="space-y-4">
+        {title && (
+          <h1 className="font-serif text-3xl md:text-4xl text-[#1a1a1a]">
+            {title}
+          </h1>
+        )}
+
         {/* Category */}
         <div className="h-3 w-24 bg-gradient-to-r from-slate-200 to-slate-100 rounded animate-pulse" />
         

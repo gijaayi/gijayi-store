@@ -1,6 +1,36 @@
-export const metadata = {
-  title: 'About Us – Gijayi',
-  description: 'Read the story, philosophy, and promise behind Gijayi handcrafted jewellery.',
+import type { Metadata } from 'next';
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+
+export const metadata: Metadata = {
+  title: 'About Gijayi – Heritage, Artisans & Handcrafted Jewelry',
+  description: "Learn the Gijayi story: preserving India's centuries-old jewelry heritage, supporting artisan communities, and creating heirloom pieces. Founded 2010, now shipping globally.",
+  keywords: 'Gijayi brand story, handcrafted jewelry heritage, artisan jewelry, Indian craftsmanship, jewelry maker, sustainable jewelry, fair trade jewelry',
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: `${siteUrl}/about`,
+  },
+  openGraph: {
+    title: 'About Gijayi – Heritage & Artisan Jewelry',
+    description: "Discover the story of Gijayi: preserving India's jewelry heritage, supporting artisans, and creating handcrafted heirloom pieces for the world.",
+    url: `${siteUrl}/about`,
+    siteName: 'Gijayi',
+    type: 'website',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&q=90',
+        width: 1200,
+        height: 630,
+        alt: 'Gijayi – Handcrafted Jewelry',
+        type: 'image/jpeg',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Gijayi – Heritage Jewelry Makers',
+    description: "The story of preserving India's centuries-old jewelry craftsmanship and supporting artisan communities worldwide.",
+  },
 };
 
 const standForPoints = [

@@ -25,4 +25,4 @@ User-agent: Bingbot
 Allow: /
 
 # Sitemap
-Sitemap: https://gijayi-store-woad.vercel.app/sitemap.xml
+Sitemap: https://gijayi.com/sitemap.xml

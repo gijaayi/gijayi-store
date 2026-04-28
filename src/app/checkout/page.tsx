@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { CheckCircle, Shield, Truck, ChevronDown, CreditCard } from 'lucide-react';
+import { CheckCircle, Shield, Truck, ChevronDown, CreditCard, MessageCircle } from 'lucide-react';
 
 type Step = 'shipping' | 'currency' | 'review';
 type PaymentMethod = 'razorpay' | 'paypal';
@@ -671,6 +671,14 @@ export default function CheckoutPage() {
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <Truck size={12} /> {shippingCost === 0 ? 'Free shipping on first order' : 'Shipping: ₹99 for India'}
               </div>
+              <a
+                href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20with%20checkout%20or%20payment."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-[#25D366] text-[#25D366] py-3 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
+              >
+                <MessageCircle size={14} /> Need help on WhatsApp
+              </a>
             </div>
           </div>
         </div>

@@ -14,11 +14,19 @@ import ProductCard from '@/components/ProductCard';
 import LowStockAlert from '@/components/LowStockAlert';
 import ProductLoadingSkeleton from '@/components/ProductLoadingSkeleton';
 export default function ProductDetailPage() {
-  const whatsappUrl = 'https://wa.me/911234567890?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
+  const whatsappUrl = 'https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
+  const siteUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : 'https://gijayi.com';
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const slug = String(params?.slug || '');
   const pid = String(searchParams.get('pid') || '').trim();
+  const fallbackTitle = slug
+    ? slug
+        .split('-')
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+    : 'Product Details';
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedFromApi, setRelatedFromApi] = useState<Product[]>([]);
   const [isLoadingProduct, setIsLoadingProduct] = useState(true);
@@ -123,7 +131,7 @@ export default function ProductDetailPage() {
   }, [product?.id, product?.slug]);
 
   if (isLoadingProduct) {
-    return <ProductLoadingSkeleton />;
+    return <ProductLoadingSkeleton title={fallbackTitle} />;
   }
 
   if (!product) notFound();
@@ -155,7 +163,7 @@ export default function ProductDetailPage() {
     },
     offers: {
       '@type': 'Offer',
-      url: `https://gijayi.com/products/${product.slug}`,
+      url: `${siteUrl}/products/${product.slug}`,
       priceCurrency: 'INR',
       price: product.price,
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
@@ -171,25 +179,25 @@ export default function ProductDetailPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://gijayi.com/',
+        item: `${siteUrl}/`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Shop',
-        item: 'https://gijayi.com/shop',
+        item: `${siteUrl}/shop`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: product.category,
-        item: `https://gijayi.com/shop?category=${encodeURIComponent(product.category)}`,
+        item: `${siteUrl}/shop?category=${encodeURIComponent(product.category)}`,
       },
       {
         '@type': 'ListItem',
         position: 4,
         name: product.name,
-        item: `https://gijayi.com/products/${product.slug}`,
+        item: `${siteUrl}/products/${product.slug}`,
       },
     ],
   };
@@ -217,22 +225,6 @@ export default function ProductDetailPage() {
           <ShoppingBag size={16} />
           Add to Bag
         </button>
-      </div>
-
-      {/* Add bottom padding to account for sticky button */}
-      <div className="md:hidden h-20" />
-
-      {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex items-center gap-2 text-xs text-gray-400">
-          <Link href="/" className="hover:text-[#b8963e]">Home</Link>
-          <span>/</span>
-          <Link href="/shop" className="hover:text-[#b8963e]">Shop</Link>
-          <span>/</span>
-          <Link href={`/shop?category=${product.category}`} className="hover:text-[#b8963e]">{product.category}</Link>
-          <span>/</span>
-          <span className="text-[#1a1a1a]">{product.name}</span>
-        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
@@ -431,14 +423,18 @@ export default function ProductDetailPage() {
               >
                 {wishlisted ? '✓ Saved' : 'Buy Later'}
               </button>
-              <button
-                type="button"
-                onClick={() => setShareOpen(!shareOpen)}
-                className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors relative"
-                title="Share product"
-              >
-                <Share2 size={18} />
-                
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShareOpen(!shareOpen)}
+                  className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
+                  title="Share product"
+                  aria-expanded={shareOpen}
+                  aria-haspopup="menu"
+                >
+                  <Share2 size={18} />
+                </button>
+
                 {/* Share Menu */}
                 {shareOpen && (
                   <motion.div
@@ -461,16 +457,24 @@ export default function ProductDetailPage() {
                       </a>
 
                       {/* Instagram */}
-                      <a
-                        href="https://www.instagram.com/gijayi.official"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => setShareOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-[#E1306C] transition-colors rounded"
+                      <button
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            const text = `Check out this beautiful ${product?.name || 'product'} from @gijayi.official! ${window.location.href}`;
+                            const instagramIntent = `https://www.instagram.com/share?url=${encodeURIComponent(window.location.href)}`;
+                            // Instagram web share - copy to clipboard with caption
+                            navigator.clipboard.writeText(text).then(() => {
+                              // Open Instagram
+                              window.open('https://www.instagram.com', '_blank');
+                            });
+                          }
+                          setShareOpen(false);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-[#E1306C] transition-colors rounded w-full text-left"
                       >
                         <Instagram size={16} className="text-[#E1306C]" />
-                        Instagram
-                      </a>
+                        Share via Instagram
+                      </button>
 
                       {/* Facebook */}
                       <a
@@ -490,9 +494,9 @@ export default function ProductDetailPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setShareOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-[#000] transition-colors rounded"
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-black transition-colors rounded"
                       >
-                        <Twitter size={16} className="text-[#000]" />
+                        <Twitter size={16} className="text-black" />
                         Twitter
                       </a>
 
@@ -512,7 +516,7 @@ export default function ProductDetailPage() {
                     </div>
                   </motion.div>
                 )}
-              </button>
+              </div>
             </div>
 
             {/* Buy Now */}
@@ -555,10 +559,15 @@ export default function ProductDetailPage() {
                     >
                       {tab === 'description' && (
                         <div className="space-y-3">
-                          <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            This handcrafted Indian jewelry piece is designed for bridal jewelry online shoppers looking for made in India quality and affordable designer jewelry styling.
-                          </p>
+                          {product.description ? (
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              {product.description.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, '').trim()}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              This handcrafted Indian jewelry piece is designed for bridal jewelry online shoppers looking for made in India quality and affordable designer jewelry styling.
+                            </p>
+                          )}
                         </div>
                       )}
                       {tab === 'details' && (

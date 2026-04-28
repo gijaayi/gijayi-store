@@ -20,14 +20,14 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Gijayi – Handcrafted Indian Jewellery & Bridal Sets",
-  description: "Discover handcrafted Indian jewelry at Gijayi. Shop authentic bridal jewelry online, kundan, polki, and made in India designer pieces with free shipping across India.",
-  keywords: "handcrafted Indian jewelry, bridal jewelry online, made in India, kundan jewelry, polki jewelry, designer jewelry, Indian earrings, necklaces, bangles",
-  metadataBase: new URL("https://gijayi-store-woad.vercel.app"),
+  title: "Gijayi – Handcrafted Jewelry & Bridal Collections | Worldwide Shipping",
+  description: "Gijayi: Premium handcrafted jewelry and bridal collections. Shop authenticated Indian heritage pieces with worldwide shipping to USA, Europe, GCC & Asia. Private WhatsApp styling support.",
+  keywords: "handcrafted jewelry, bridal jewelry, luxury jewelry, jewelry worldwide, handmade bridal sets, Indian jewelry, statement jewelry, premium jewelry online",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com"),
   viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
   openGraph: {
-    title: "Gijayi – Handcrafted Indian Jewellery & Bridal Sets",
-    description: "Authentic handcrafted Indian jewelry and bridal collections with premium quality and fast shipping.",
+    title: "Gijayi – Handcrafted Jewelry & Bridal Collections",
+    description: "Premium handcrafted jewelry and bridal collections with worldwide shipping, secure checkout, and personalized styling support.",
     siteName: "Gijayi",
     type: "website",
     locale: "en_IN",
@@ -36,15 +36,15 @@ export const metadata: Metadata = {
         url: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90",
         width: 1200,
         height: 630,
-        alt: "Gijayi Handcrafted Indian Jewelry",
+        alt: "Gijayi Handcrafted Jewelry",
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gijayi – Handcrafted Indian Jewellery",
-    description: "Shop authentic Indian jewelry and bridal collections online.",
+    title: "Gijayi – Handcrafted Jewelry",
+    description: "Premium bridal and statement jewelry with worldwide shipping and personal WhatsApp support.",
   },
   robots: {
     index: true,
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://gijayi-store-woad.vercel.app",
+    canonical: process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com",
   },
 };
 
@@ -64,11 +64,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com";
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Gijayi",
-    url: "https://gijayi-store-woad.vercel.app",
+    url: siteUrl,
     logo: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200",
     description: "Handcrafted Indian jewelry and bridal collections",
     sameAs: [

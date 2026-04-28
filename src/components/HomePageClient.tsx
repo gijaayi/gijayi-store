@@ -102,8 +102,8 @@ const defaultTrustSection = {
 };
 const defaultTestimonialsSection = {
   badge: 'Loved By Customers',
-  title: 'Trusted Across India',
-  subtitle: 'Proudly trusted by customers across India for handcrafted Indian jewelry and bridal jewelry online.',
+  title: 'Trusted Globally',
+  subtitle: 'Gijayi customers around the world love our handcrafted jewelry, worldwide shipping, and personalized WhatsApp support for every purchase.',
   testimonials: [
     {
       name: 'Nisha Kapoor',
@@ -152,27 +152,33 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
       headline: 'Affordable Designer Jewelry',
       subtitle: 'Luxury-inspired looks at fair prices.',
     },
-  ];
+  ].filter((slide) => slide.image);
+
+  // Filter out empty slides (where image, headline, or subtitle is empty)
+  const activeSlides = heroSlides.filter((slide) => slide.image && slide.headline && slide.subtitle).length > 0
+    ? heroSlides.filter((slide) => slide.image && slide.headline && slide.subtitle)
+    : heroSlides;
+
   const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % heroSlides.length);
+      setActiveSlide((current) => (current + 1) % activeSlides.length);
     }, 3500);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, [heroSlides.length]);
+  }, [activeSlides.length]);
 
-  const goPrev = () => setActiveSlide((current) => (current - 1 + heroSlides.length) % heroSlides.length);
-  const goNext = () => setActiveSlide((current) => (current + 1) % heroSlides.length);
+  const goPrev = () => setActiveSlide((current) => (current - 1 + activeSlides.length) % activeSlides.length);
+  const goNext = () => setActiveSlide((current) => (current + 1) % activeSlides.length);
 
   return (
     <section className="relative h-[88vh] min-h-140 w-full overflow-hidden">
-      {heroSlides.map((slide, index) => (
+      {activeSlides.map((slide, index) => (
         <Image
-          key={slide.id}
+          key={`carousel-${index}`}
           src={slide.image}
           alt={slide.headline}
           fill
@@ -185,7 +191,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
       <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-black/25" />
 
       <motion.div
-        key={heroSlides[activeSlide].headline}
+        key={`content-${activeSlide}`}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
@@ -194,9 +200,15 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
         <div className="w-full px-5 pb-20 sm:px-8 md:pb-0 lg:px-12">
           <div className="max-w-3xl text-white">
             <p className="mb-3 text-[10px] tracking-[0.35em] uppercase text-white/85">{storefront.hero.badge}</p>
-            <h1 className="font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">Handcrafted Bridal &amp; Statement Jewelry</h1>
-            <p className="mt-3 max-w-2xl text-sm text-white/90 sm:text-base">Unique designs, fair prices, made in India.</p>
-            <p className="mt-4 text-xs tracking-[0.25em] uppercase text-white/80">{heroSlides[activeSlide].headline}</p>
+            <h1 className="font-serif text-4xl leading-tight sm:text-5xl md:text-6xl">
+              {storefront.hero.title || 'Handcrafted Bridal & Statement Jewelry'}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm text-white/90 sm:text-base">
+              {storefront.hero.subtitle || 'Unique designs, fair prices, made in India.'}
+            </p>
+            {activeSlides[activeSlide] && (
+              <p className="mt-4 text-xs tracking-[0.25em] uppercase text-white/80">{activeSlides[activeSlide].headline}</p>
+            )}
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
@@ -216,10 +228,11 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
         </div>
       </motion.div>
 
+
       <button
         type="button"
         onClick={goPrev}
-        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-black/25 p-2 text-white hover:bg-black/40 transition-colors"
+        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-white/70 p-2 text-black hover:bg-white/90 transition-colors shadow"
         aria-label="Previous slide"
       >
         <ChevronLeft size={20} />
@@ -228,28 +241,30 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
       <button
         type="button"
         onClick={goNext}
-        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-black/25 p-2 text-white hover:bg-black/40 transition-colors"
+        className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/60 bg-white/70 p-2 text-black hover:bg-white/90 transition-colors shadow"
         aria-label="Next slide"
       >
         <ChevronRight size={20} />
       </button>
 
-      <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
-        {heroSlides.map((slide, index) => (
-          <button
-            key={slide.headline}
-            type="button"
-            onClick={() => setActiveSlide(index)}
-            className="min-h-0! min-w-0! bg-transparent p-0"
-            aria-label={`Show hero slide ${index + 1}`}
-            aria-current={index === activeSlide}
-          >
-            <span
-              className={`block h-2 rounded-full transition-all ${index === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/60'}`}
-            />
-          </button>
-        ))}
-      </div>
+      {activeSlides.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+          {activeSlides.map((slide, index) => (
+            <button
+              key={`dot-${index}`}
+              type="button"
+              onClick={() => setActiveSlide(index)}
+              className="min-h-0! min-w-0! bg-transparent p-0"
+              aria-label={`Show hero slide ${index + 1}`}
+              aria-current={index === activeSlide}
+            >
+              <span
+                className={`block h-2 rounded-full transition-all ${index === activeSlide ? 'w-8 bg-white' : 'w-2 bg-white/60'}`}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
