@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Heading2 } from 'lucide-react';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Heading1, Heading2, Heading3, Type } from 'lucide-react';
 
 interface RichTextEditorProps {
   value: string;
@@ -12,6 +12,8 @@ interface RichTextEditorProps {
 export default function RichTextEditor({ value, onChange, placeholder = 'Enter description...' }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [selectedFontSize, setSelectedFontSize] = useState('16px');
+  const [selectedColor, setSelectedColor] = useState('#000000');
   const isInitialRender = useRef(true);
   const lastSavedContent = useRef(value);
 
@@ -41,6 +43,23 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     }
   }, [onChange]);
 
+  // Handle font size change
+  const handleFontSizeChange = (size: string) => {
+    setSelectedFontSize(size);
+    executeCommand('fontSize', '7'); // Set to max size first
+    document.querySelectorAll('font[size="7"]').forEach((element) => {
+      (element as HTMLElement).style.fontSize = size;
+    });
+    handleInput();
+  };
+
+  // Handle color change
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color);
+    executeCommand('foreColor', color);
+    handleInput();
+  };
+
   // Sync external value changes (e.g., when selecting a different product)
   useEffect(() => {
     if (editorRef.current && value !== lastSavedContent.current) {
@@ -66,6 +85,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     <div className="border border-slate-300 rounded-xl overflow-hidden">
       {/* Toolbar */}
       <div className="bg-slate-50 border-b border-slate-300 p-2 flex flex-wrap gap-1">
+        {/* Font Styling */}
         <button
           type="button"
           onClick={() => executeCommand('bold')}
@@ -93,6 +113,37 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
 
         <div className="border-l border-slate-300 mx-1" />
 
+        {/* Font Size Selector */}
+        <select
+          value={selectedFontSize}
+          onChange={(e) => handleFontSizeChange(e.target.value)}
+          title="Font Size"
+          className="px-2 py-2 text-xs border border-slate-300 rounded hover:bg-slate-200 transition-colors bg-white"
+        >
+          <option value="12px">12px</option>
+          <option value="14px">14px</option>
+          <option value="16px">16px</option>
+          <option value="18px">18px</option>
+          <option value="20px">20px</option>
+          <option value="24px">24px</option>
+          <option value="28px">28px</option>
+          <option value="32px">32px</option>
+        </select>
+
+        {/* Font Color Picker */}
+        <div className="flex items-center gap-1">
+          <input
+            type="color"
+            value={selectedColor}
+            onChange={(e) => handleColorChange(e.target.value)}
+            title="Font Color"
+            className="h-8 w-8 rounded cursor-pointer border border-slate-300"
+          />
+        </div>
+
+        <div className="border-l border-slate-300 mx-1" />
+
+        {/* Alignment */}
         <button
           type="button"
           onClick={() => executeCommand('justifyLeft')}
@@ -120,6 +171,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
 
         <div className="border-l border-slate-300 mx-1" />
 
+        {/* Lists */}
         <button
           type="button"
           onClick={() => executeCommand('insertUnorderedList')}
@@ -139,13 +191,30 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
 
         <div className="border-l border-slate-300 mx-1" />
 
+        {/* Headings */}
+        <button
+          type="button"
+          onClick={() => executeCommand('formatBlock', '<h1>')}
+          title="Heading 1"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Heading1 size={16} />
+        </button>
         <button
           type="button"
           onClick={() => executeCommand('formatBlock', '<h2>')}
-          title="Heading"
+          title="Heading 2"
           className="p-2 hover:bg-slate-200 rounded transition-colors"
         >
           <Heading2 size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => executeCommand('formatBlock', '<h3>')}
+          title="Heading 3"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Heading3 size={16} />
         </button>
 
         <div className="border-l border-slate-300 mx-1" />

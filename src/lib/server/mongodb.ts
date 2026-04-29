@@ -93,7 +93,7 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
   }
 
   let lastError: Error | null = null;
-  const maxRetries = 3;
+  const maxRetries = 2;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -103,9 +103,9 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
         maxPoolSize: 10,
         minPoolSize: 2,
         maxIdleTimeMS: 45000,
-        socketTimeoutMS: 60000,
-        serverSelectionTimeoutMS: 20000,
-        connectTimeoutMS: 20000,
+        socketTimeoutMS: 30000,
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
         retryWrites: true,
         retryReads: true,
       });
@@ -132,14 +132,25 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
       
       if (attempt < maxRetries) {
         // Wait before retrying (exponential backoff)
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000);
         console.log(`Retrying in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
 
-  console.error('MongoDB connection failed after all retries:', lastError?.message);
+  const errorMsg = `MongoDB connection failed after all retries: "${lastError?.message}"`;
+  console.error(errorMsg);
+  
+  // In development, provide helpful error message
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('\n⚠️  MONGODB CONNECTION ISSUES:');
+    console.error('1. Verify MongoDB Atlas cluster is RUNNING');
+    console.error('2. Check your IP is WHITELISTED in MongoDB Atlas (Network Access)');
+    console.error('3. Ensure MONGODB_URI is correct in .env.local');
+    console.error('4. Check your network connectivity\n');
+  }
+  
   throw lastError || new Error('Failed to connect to MongoDB');
 }
 

@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { Product } from '@/lib/types';
-import { readDatabase, updateDatabase } from '@/lib/server/database';
+import { readDatabase, updateDatabase, syncCollectionsWithProducts } from '@/lib/server/database';
 
 function slugify(value: string) {
   return value
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const description = String(body.description || '').trim();
     const stock = Number(body.stock || 0);
 
-    if (!name || !price || !category || !collection || !description) {
+    if (!name || !price || !category || !description) {
       return NextResponse.json({ error: 'Missing required product fields.' }, { status: 400 });
     }
 
@@ -53,14 +53,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please select a valid category from admin categories.' }, { status: 400 });
     }
 
-    const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
-      (item) => item.toLowerCase() === collection.toLowerCase()
-    );
-    if (!collectionExists) {
-      return NextResponse.json(
-        { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
-        { status: 400 }
+    // Collection is now optional - only validate if provided
+    if (collection) {
+      const collectionExists = dbSnapshot.storefront.navigation.gijayiEdit.subcategories.some(
+        (item) => item.toLowerCase() === collection.toLowerCase()
       );
+      if (!collectionExists) {
+        return NextResponse.json(
+          { error: 'Please select a valid Gijayi Edit subcategory for collection.' },
+          { status: 400 }
+        );
+      }
     }
 
     const db = await updateDatabase((state) => {
@@ -98,6 +101,9 @@ export async function POST(request: NextRequest) {
 
       state.products.unshift(product);
     });
+
+    // Sync collections after product creation
+    await syncCollectionsWithProducts();
 
     return NextResponse.json({ products: db.products });
   } catch {

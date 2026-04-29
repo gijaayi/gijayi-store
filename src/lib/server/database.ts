@@ -297,7 +297,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
     },
     gijayiEdit: {
       label: 'Gijayi Edit',
-      subcategories: ['Bano', 'Begum', 'Bi', 'Khatoon', 'Khanam', 'Naaz'],
+      subcategories: ['Bridal Luxe', 'Heritage', 'Everyday Minimal'],
     },
     freshArrival: {
       label: 'Fresh Arrival',
@@ -797,4 +797,48 @@ export function getPublicOrderView(order: DbOrder) {
     timeline: order.timeline,
     updatedAt: order.updatedAt,
   };
+}
+
+export async function syncCollectionsWithProducts() {
+  const db = await readDatabase();
+
+  // Get all unique collections from products
+  const productCollections = new Set(
+    db.products
+      .map((p) => p.collection)
+      .filter(Boolean)
+      .filter((c) => c !== '')
+  );
+
+  // Start with default seeded collections to ensure they're always present
+  // If db.collections is missing or corrupted, use seedCollections as base
+  const baseCollections = db.collections && db.collections.length > 0 
+    ? db.collections 
+    : cloneState(seedCollections);
+
+  // Update existing collections with product counts, preserve original definitions
+  const updatedCollections: Collection[] = baseCollections.map((collection) => {
+    const itemCount = db.products.filter((p) => p.collection === collection.name).length;
+    return { ...collection, itemCount };
+  });
+
+  // Add any new collections that don't exist yet (from products added with new collection names)
+  const existingNames = new Set(updatedCollections.map((c) => c.name));
+  const newCollections = Array.from(productCollections)
+    .filter((name) => !existingNames.has(name))
+    .map((collectionName, index) => ({
+      id: String(updatedCollections.length + index + 1),
+      name: collectionName,
+      slug: slugify(collectionName),
+      image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
+      description: `Collection: ${collectionName}`,
+      itemCount: db.products.filter((p) => p.collection === collectionName).length,
+    }));
+
+  // Update database with synced collections
+  await updateDatabase((state) => {
+    state.collections = [...updatedCollections, ...newCollections];
+  });
+
+  return [...updatedCollections, ...newCollections];
 }

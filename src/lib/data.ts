@@ -12,7 +12,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=800&q=80',
     ],
     category: 'Necklaces',
-    collection: 'Bridal',
+    collection: 'Bridal Luxe',
     description: 'An exquisite Kundan necklace handcrafted by skilled artisans, featuring traditional meenakari work and polki diamonds set in 22K gold plating. Perfect for bridal ceremonies and festive occasions.',
     details: [
       'Material: 22K Gold Plated Brass',
@@ -58,7 +58,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80',
     ],
     category: 'Earrings',
-    collection: 'Everyday Luxe',
+    collection: 'Everyday Minimal',
     description: 'Delicate pearl drop jhumka earrings with intricate filigree work. Lightweight yet luxurious, these earrings transition seamlessly from day to night.',
     details: [
       'Material: Gold-plated Silver',
@@ -80,7 +80,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=800&q=80',
     ],
     category: 'Bangles',
-    collection: 'Bridal',
+    collection: 'Bridal Luxe',
     description: 'A stunning set of 6 gold-plated bangles adorned with natural ruby stones. The rich red of the rubies against gleaming gold creates an irresistible classic Indian jewellery look.',
     details: [
       'Material: Gold-plated Brass',
@@ -125,7 +125,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1584811644165-33078f50eb15?w=800&q=80',
     ],
     category: 'Waistbands',
-    collection: 'Bridal',
+    collection: 'Bridal Luxe',
     description: 'A magnificent antique-finish gold waistband (kamarbandh) crafted in the traditional manner, featuring elaborate floral and paisley motifs. A must-have bridal accessory.',
     details: [
       'Material: Antique Gold Plated Brass',
@@ -146,7 +146,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80',
     ],
     category: 'Nose Rings',
-    collection: 'Bridal',
+    collection: 'Bridal Luxe',
     description: 'A traditional Kundan nath adorned with pearls and rubies, a bridal jewellery staple across Rajasthan and Punjab. The intricate kundan setting gives it a royal appearance.',
     details: [
       'Material: Gold-plated Silver',
@@ -184,7 +184,7 @@ export const collections: Collection[] = [
   {
     id: '1',
     name: 'Bridal Luxe',
-    slug: 'bridal',
+    slug: 'bridal-luxe',
     image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
     description: 'Opulent jewellery crafted for your most cherished moments. Every piece tells a story of love and tradition.',
     itemCount: 24,
@@ -200,7 +200,7 @@ export const collections: Collection[] = [
   {
     id: '3',
     name: 'Everyday Minimal',
-    slug: 'everyday-luxe',
+    slug: 'everyday-minimal',
     image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=80',
     description: 'Refined pieces to elevate every day. Effortlessly luxurious for the woman who appreciates beauty in simplicity.',
     itemCount: 32,

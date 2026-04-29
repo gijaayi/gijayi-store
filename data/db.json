@@ -187,7 +187,7 @@
     {
       "id": "1",
       "name": "Bridal Luxe",
-      "slug": "bridal",
+      "slug": "bridal-luxe",
       "image": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80",
       "description": "Opulent jewellery crafted for your most cherished moments. Every piece tells a story of love and tradition.",
       "itemCount": 24
@@ -203,7 +203,7 @@
     {
       "id": "3",
       "name": "Everyday Minimal",
-      "slug": "everyday-luxe",
+      "slug": "everyday-minimal",
       "image": "https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=80",
       "description": "Refined pieces to elevate every day. Effortlessly luxurious for the woman who appreciates beauty in simplicity.",
       "itemCount": 32

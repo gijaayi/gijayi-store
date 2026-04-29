@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { collections, products } from '@/lib/data';
+import { getAllCollections, getProductsByCollectionHandle } from '@/lib/shopify';
 import ProductCard from '@/components/ProductCard';
 
 interface Props {
@@ -9,11 +9,13 @@ interface Props {
 }
 
 export async function generateStaticParams() {
+  const collections = await getAllCollections();
   return collections.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const collections = await getAllCollections();
   const collection = collections.find((c) => c.slug === slug);
 
   if (!collection) {
@@ -49,12 +51,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollectionDetailPage({ params }: Props) {
   const { slug } = await params;
+  const collections = await getAllCollections();
   const collection = collections.find((c) => c.slug === slug);
   if (!collection) notFound();
 
-  const collectionProducts = products.filter(
-    (p) => p.collection.toLowerCase().replace(/\s+/g, '-') === slug
-  );
+  const collectionProducts = await getProductsByCollectionHandle(slug);
 
   const collectionJsonLd = {
     '@context': 'https://schema.org',

@@ -24,6 +24,8 @@ interface AdminProduct {
   stock: number;
   category: string;
   collection: string;
+  description?: string;
+  care?: string;
   images?: string[];
   isNew?: boolean;
   mostWanted?: boolean;
@@ -112,14 +114,14 @@ export default function AdminProductsPage() {
       stock: String(selectedProduct.stock),
       category: selectedProduct.category,
       collection: selectedProduct.collection,
-      description: '',
+      description: selectedProduct.description || '',
       image1: productImages[0] || '',
       image2: productImages[1] || '',
       image3: productImages[2] || '',
       image4: productImages[3] || '',
       image5: productImages[4] || '',
       image6: productImages[5] || '',
-      details: '',
+      details: selectedProduct.care || '',
       nameFont: (selectedProduct.nameFont || 'serif') as 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium',
       descriptionFont: (selectedProduct.descriptionFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium',
       detailsFont: (selectedProduct.detailsFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium',
@@ -191,8 +193,8 @@ export default function AdminProductsPage() {
       category: form.category,
       collection: form.collection,
       description: form.description || 'Handcrafted by Gijayi artisans.',
+      care: form.details || '',
       images: images.length ? images : undefined,
-      details: form.details ? form.details.split(',').map((item) => item.trim()).filter(Boolean) : undefined,
       nameFont: form.nameFont,
       descriptionFont: form.descriptionFont,
       detailsFont: form.detailsFont,
@@ -437,9 +439,9 @@ export default function AdminProductsPage() {
             </div>
           </div>
           <div className="space-y-2">
-            <label className="block text-xs tracking-widest uppercase text-slate-600">Product Details</label>
+            <label className="block text-xs tracking-widest uppercase text-slate-600">Product Care / Details</label>
             <div className="grid grid-cols-3 gap-2">
-              <input value={form.details} onChange={(event) => setForm({ ...form, details: event.target.value })} placeholder="Details (comma separated)" className="col-span-2 border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+              <textarea value={form.details} onChange={(event) => setForm({ ...form, details: event.target.value })} placeholder="Enter care instructions or details..." className="col-span-2 border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600 resize-none" rows={3} />
               <select value={form.detailsFont} onChange={(event) => setForm({ ...form, detailsFont: event.target.value as any })} className="border border-slate-300 rounded-xl bg-white px-3 py-3 text-sm outline-none focus:border-blue-600">
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-Serif</option>
@@ -454,6 +456,7 @@ export default function AdminProductsPage() {
           </div>
           <div className="space-y-2">
             <label className="block text-xs tracking-widest uppercase text-slate-600">Product Description</label>
+            <p className="text-xs text-slate-500 mb-2">Use the toolbar below to format your description. You can add font sizes, colors, lists, headings, and more.</p>
             <div className="space-y-2">
               <select value={form.descriptionFont} onChange={(event) => setForm({ ...form, descriptionFont: event.target.value as any })} className="w-full border border-slate-300 rounded-xl bg-white px-3 py-3 text-sm outline-none focus:border-blue-600">
                 <option value="serif">Serif Font</option>

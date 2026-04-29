@@ -66,14 +66,15 @@ export default function ProductCard({ product, showRating = false, content = def
       transition={{ duration: 0.5 }}
       className="group"
     >
-      <div className="relative overflow-hidden bg-[#faf8f4] rounded-lg shadow-sm w-full aspect-square product-image-zoom">
-        <Image
-          src={product.images[0]}
-          alt={product.name}
-          fill
-          className="object-cover rounded-lg"
-          sizes="(max-width: 768px) 45vw, 15vw"
-        />
+      <Link href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`} prefetch={true}>
+        <div className="relative overflow-hidden bg-[#faf8f4] rounded-lg shadow-sm w-full aspect-square product-image-zoom cursor-pointer">
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            className="object-cover rounded-lg"
+            sizes="(max-width: 768px) 45vw, 15vw"
+          />
         {/* Hover image */}
         {product.images[1] && (
           <Image
@@ -109,15 +110,14 @@ export default function ProductCard({ product, showRating = false, content = def
           {content.quickAddLabel}
         </button>
 
-        <Link
-          href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`}
-          prefetch={true}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white/95 text-[#1a1a1a] text-[9px] tracking-widest uppercase px-3 py-1.5 rounded-full flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
-          <Eye size={11} />
-          {content.quickViewLabel}
-        </Link>
-      </div>
+          <div
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white/95 text-[#1a1a1a] text-[9px] tracking-widest uppercase px-3 py-1.5 rounded-full flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          >
+            <Eye size={11} />
+            {content.quickViewLabel}
+          </div>
+        </div>
+      </Link>
 
       <div className="mt-3 px-1">
         <p className="text-[9px] tracking-widest uppercase text-[#b8963e] mb-1">{product.category}</p>

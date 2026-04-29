@@ -388,7 +388,7 @@ function BridalLuxeSection({ products, storefront }: { products: Product[]; stor
             <h2 className="font-serif text-5xl md:text-6xl text-slate-900">Bridal Luxe</h2>
             <p className="text-slate-600 mt-4 max-w-md">Opulent jewellery crafted for your most cherished moments. Every piece tells a story.</p>
           </div>
-          <Link href="/collections/bridal-collection" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
+          <Link href="/collections/bridal-luxe" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
             View All <ArrowRight size={14} />
           </Link>
         </div>
@@ -415,7 +415,7 @@ function HeritageSection({ products, storefront }: { products: Product[]; storef
             <h2 className="font-serif text-5xl md:text-6xl text-slate-900">Heritage</h2>
             <p className="text-slate-600 mt-4 max-w-md">Classic Indian artistry with modern, wearable elegance. Pieces that transcend generations.</p>
           </div>
-          <Link href="/collections/heritage-collection" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
+          <Link href="/collections/heritage" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
             View All <ArrowRight size={14} />
           </Link>
         </div>
@@ -442,7 +442,7 @@ function EverydayMinimalSection({ products, storefront }: { products: Product[];
             <h2 className="font-serif text-5xl md:text-6xl text-slate-900">Everyday Minimal</h2>
             <p className="text-slate-600 mt-4 max-w-md">Modern minimal designs that complement any occasion from casual to professional.</p>
           </div>
-          <Link href="/collections/everyday-luxe" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
+          <Link href="/collections/everyday-minimal" className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-slate-900 hover:text-slate-600 transition-colors font-medium whitespace-nowrap">
             View All <ArrowRight size={14} />
           </Link>
         </div>

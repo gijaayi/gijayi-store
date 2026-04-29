@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw, MessageCircle, Instagram, Facebook, Twitter, Copy, X } from 'lucide-react';
+import { ShoppingBag, Heart, Share2, ChevronDown, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw, MessageCircle, Instagram, Facebook, Twitter, Copy, X, ZoomIn } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -36,6 +36,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'details' | 'care'>('description');
   const [shareOpen, setShareOpen] = useState(false);
+  const [zoomImageIndex, setZoomImageIndex] = useState<number | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
@@ -93,7 +95,7 @@ export default function ProductDetailPage() {
       setIsLoadingProduct(true);
 
       try {
-        const response = await fetch(`/api/products/${slug}${pid ? `?pid=${encodeURIComponent(pid)}` : ''}`, { cache: 'force-cache' });
+        const response = await fetch(`/api/products/${slug}${pid ? `?pid=${encodeURIComponent(pid)}` : ''}`, { cache: 'no-store' });
         if (!response.ok) {
           if (active) {
             setProduct(null);
@@ -227,43 +229,39 @@ export default function ProductDetailPage() {
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
-          {/* Images */}
-          <div className="flex flex-col-reverse md:flex-row gap-4">
-            {/* Thumbnails */}
-            <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-150">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  className={`relative shrink-0 w-16 h-20 md:w-20 md:h-24 overflow-hidden border-2 transition-colors ${
-                    selectedImage === i ? 'border-[#b8963e]' : 'border-transparent'
-                  }`}
-                >
-                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" sizes="80px" />
-                </button>
-              ))}
-            </div>
-
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12">
+          {/* Images Section */}
+          <div className="flex flex-col gap-4">
             {/* Main Image */}
-            <div className="sticky top-24 flex-1 aspect-3/4 bg-[#faf8f4] overflow-hidden">
+            <div className="relative w-full aspect-square bg-[#faf8f4] overflow-hidden group rounded-sm">
               <motion.div
                 key={selectedImage}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="relative w-full h-full"
+                className="relative w-full h-full cursor-zoom-in"
+                onClick={() => setZoomImageIndex(selectedImage)}
               >
                 <Image
                   src={product.images[selectedImage]}
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
                   priority={selectedImage === 0}
                 />
               </motion.div>
+
+              {/* Zoom Button */}
+              <button
+                onClick={() => setZoomImageIndex(selectedImage)}
+                className="absolute bottom-4 right-4 bg-[#1a1a1a] text-white p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-[#b8963e]"
+                title="Zoom image"
+                aria-label="Zoom image"
+              >
+                <ZoomIn size={18} />
+              </button>
 
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {product.isNew && <span className="bg-[#1a1a1a] text-white text-[10px] px-2 py-1 tracking-widest uppercase">New</span>}
@@ -271,10 +269,25 @@ export default function ProductDetailPage() {
                 {discount > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-1 tracking-widest uppercase">{discount}% Off</span>}
               </div>
             </div>
+
+            {/* Thumbnails */}
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {product.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImage(i)}
+                  className={`relative shrink-0 w-20 h-20 overflow-hidden border-2 transition-colors rounded-sm ${
+                    selectedImage === i ? 'border-[#b8963e]' : 'border-gray-300 hover:border-[#b8963e]'
+                  }`}
+                >
+                  <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" sizes="80px" />
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Product Info */}
-          <div className="pt-2">
+          <div className="pt-0 md:pt-4">
             <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">{product.collection}</p>
             <h1 className="font-serif text-3xl md:text-4xl mb-4">{product.name}</h1>
 
@@ -312,7 +325,7 @@ export default function ProductDetailPage() {
 
             <div className="w-12 h-px bg-[#b8963e] mb-6" />
 
-            <div className="grid sm:grid-cols-3 gap-3 mb-8">
+            <div className="grid grid-cols-3 gap-3 mb-8">
               {[
                 { icon: ShieldCheck, label: '100% Authentic' },
                 { icon: Truck, label: 'Free Shipping*' },
@@ -560,9 +573,7 @@ export default function ProductDetailPage() {
                       {tab === 'description' && (
                         <div className="space-y-3">
                           {product.description ? (
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                              {product.description.replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, '').trim()}
-                            </p>
+                            <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap break-words [&_p]:my-2 [&_br]:block [&_div]:my-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:my-1 [&_strong]:font-semibold [&_em]:italic [&_u]:underline [&_h1]:text-lg [&_h1]:font-bold [&_h1]:my-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:my-2" dangerouslySetInnerHTML={{ __html: product.description }} />
                           ) : (
                             <p className="text-sm text-gray-600 leading-relaxed">
                               This handcrafted Indian jewelry piece is designed for bridal jewelry online shoppers looking for made in India quality and affordable designer jewelry styling.
@@ -652,6 +663,108 @@ export default function ProductDetailPage() {
           </Link>
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {zoomImageIndex !== null && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => {
+            setZoomImageIndex(null);
+            setZoomLevel(1);
+          }}
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+        >
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setZoomImageIndex(null);
+                setZoomLevel(1);
+              }}
+              className="absolute top-4 right-4 z-10 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors"
+              title="Close zoom"
+              aria-label="Close zoom"
+            >
+              <X size={24} />
+            </button>
+
+            {/* Zoom Controls */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-3 bg-white/20 backdrop-blur rounded-full px-4 py-2 z-10">
+              <button
+                onClick={() => setZoomLevel(Math.max(1, zoomLevel - 0.2))}
+                className="text-white hover:text-[#b8963e] transition-colors text-sm font-medium"
+                title="Zoom out"
+              >
+                −
+              </button>
+              <span className="text-white text-sm font-medium min-w-[50px] text-center">
+                {Math.round(zoomLevel * 100)}%
+              </span>
+              <button
+                onClick={() => setZoomLevel(Math.min(3, zoomLevel + 0.2))}
+                className="text-white hover:text-[#b8963e] transition-colors text-sm font-medium"
+                title="Zoom in"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Image Container */}
+            <div className="relative w-full h-full flex items-center justify-center overflow-auto">
+              <div style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center' }} className="transition-transform duration-200">
+                <Image
+                  src={product.images[zoomImageIndex]}
+                  alt={`${product.name} - Zoomed`}
+                  width={1000}
+                  height={1333}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Navigation Arrows */}
+            {product.images.length > 1 && (
+              <>
+                <button
+                  onClick={() => {
+                    const newIndex = Math.max(0, selectedImage - 1);
+                    setSelectedImage(newIndex);
+                    setZoomImageIndex(newIndex);
+                  }}
+                  disabled={selectedImage === 0}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors"
+                  title="Previous image"
+                >
+                  <ArrowLeft size={24} />
+                </button>
+                <button
+                  onClick={() => {
+                    const newIndex = Math.min(product.images.length - 1, selectedImage + 1);
+                    setSelectedImage(newIndex);
+                    setZoomImageIndex(newIndex);
+                  }}
+                  disabled={selectedImage === product.images.length - 1}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/40 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors"
+                  title="Next image"
+                >
+                  <ArrowLeft size={24} className="rotate-180" />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            <div className="absolute top-4 left-4 text-white/60 text-sm font-medium">
+              {zoomImageIndex + 1} / {product.images.length}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5ddcf] bg-white/95 backdrop-blur px-4 py-3">
         <div className="flex items-center gap-3">

@@ -4,7 +4,7 @@ import 'server-only';
 
 import { Collection, Product } from './types';
 import { collections as fallbackCollections, products as fallbackProducts } from './data';
-import { readDatabase } from './server/database';
+import { readDatabase, updateDatabase } from './server/database';
 
 const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN;
 const SHOPIFY_STOREFRONT_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
@@ -246,44 +246,14 @@ export async function getProductByHandle(handle: string): Promise<Product | null
 }
 
 export async function getAllCollections(): Promise<Collection[]> {
-  // Always prioritize database collections first
+  // Always prioritize database collections first, but ensure they're not empty
   const db = await readDatabase();
   if (db.collections && db.collections.length > 0) {
     return db.collections;
   }
 
-  // Fall back to Shopify if no database collections
-  if (!hasShopifyConfig()) {
-    return fallbackCollections;
-  }
-
-  try {
-    const data = await shopifyFetch<{ collections: ShopifyConnection<ShopifyCollection> }>(`
-      query GetCollections {
-        collections(first: 50, sortKey: UPDATED_AT) {
-          edges {
-            node {
-              id
-              handle
-              title
-              description
-              image {
-                url
-                altText
-              }
-              products {
-                totalCount
-              }
-            }
-          }
-        }
-      }
-    `);
-
-    return data.collections.edges.map((edge) => mapShopifyCollection(edge.node));
-  } catch {
-    return fallbackCollections;
-  }
+  // If database collections are empty, use fallback collections which includes seed data
+  return fallbackCollections;
 }
 
 export async function getCollectionByHandle(handle: string): Promise<Collection | null> {
@@ -325,11 +295,20 @@ export async function getCollectionByHandle(handle: string): Promise<Collection 
 }
 
 export async function getProductsByCollectionHandle(handle: string): Promise<Product[]> {
+  // Always prioritize database products first
+  const db = await readDatabase();
+  const dbProducts = db.products.filter(
+    (product) => product.collection.toLowerCase().replace(/\s+/g, '-') === handle
+  );
+  
+  // If we have database products, return them
+  if (dbProducts.length > 0) {
+    return dbProducts;
+  }
+
+  // Fall back to Shopify if no database products found
   if (!hasShopifyConfig()) {
-    const db = await readDatabase();
-    return db.products.filter(
-      (product) => product.collection.toLowerCase().replace(/\s+/g, '-') === handle
-    );
+    return [];
   }
 
   try {
@@ -354,10 +333,7 @@ export async function getProductsByCollectionHandle(handle: string): Promise<Pro
 
     return data.collectionByHandle.products.edges.map((edge) => mapShopifyProduct(edge.node));
   } catch {
-    const db = await readDatabase();
-    return db.products.filter(
-      (product) => product.collection.toLowerCase().replace(/\s+/g, '-') === handle
-    );
+    return [];
   }
 }
 
