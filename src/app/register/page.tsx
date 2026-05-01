@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 function RegisterPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectParam = searchParams.get('redirect');
+  const redirectParam = searchParams?.get('redirect');
   const redirect = redirectParam && redirectParam.trim() ? redirectParam.trim() : '/';
 
   const [name, setName] = useState('');
