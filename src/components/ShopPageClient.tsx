@@ -15,10 +15,10 @@ interface ShopPageClientProps {
 
 function ShopContent({ products, categories }: ShopPageClientProps) {
   const searchParams = useSearchParams();
-  const categoryParam = searchParams.get('category');
-  const collectionParam = searchParams.get('collection');
-  const filterParam = searchParams.get('filter');
-  const queryParam = searchParams.get('q')?.trim().toLowerCase() ?? '';
+  const categoryParam = searchParams?.get('category');
+  const collectionParam = searchParams?.get('collection');
+  const filterParam = searchParams?.get('filter');
+  const queryParam = searchParams?.get('q')?.trim().toLowerCase() ?? '';
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('default');
@@ -93,7 +93,7 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
         </a>
         {queryParam && (
           <p className="mt-5 text-sm text-gray-500 text-center">
-            Showing results for <span className="text-[#1a1a1a] font-medium">&ldquo;{searchParams.get('q')}&rdquo;</span>
+            Showing results for <span className="text-[#1a1a1a] font-medium">&ldquo;{searchParams?.get('q')}&rdquo;</span>
           </p>
         )}
       </div>
@@ -136,7 +136,7 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
           )}
           {queryParam && (
             <span className="flex items-center gap-1 text-xs bg-[#faf8f4] text-[#1a1a1a] px-3 py-1 border border-[#e6dfd2]">
-              <Search size={12} /> {searchParams.get('q')}
+              <Search size={12} /> {searchParams?.get('q')}
             </span>
           )}
         </div>
