@@ -117,7 +117,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    setSearchValue(searchParams.get('q') ?? '');
+    setSearchValue(searchParams?.get('q') ?? '');
   }, [searchParams]);
 
   useEffect(() => {

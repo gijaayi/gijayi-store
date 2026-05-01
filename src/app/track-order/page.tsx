@@ -46,7 +46,7 @@ function TrackOrderPageContent() {
   }
 
   useEffect(() => {
-    const code = searchParams.get('code');
+    const code = searchParams?.get('code');
     if (!code) return;
 
     setOrderCode(code);
