@@ -130,7 +130,7 @@ export default function Header() {
     event.preventDefault();
 
     const trimmedValue = searchValue.trim();
-    const params = new URLSearchParams(pathname === '/shop' ? searchParams.toString() : '');
+    const params = new URLSearchParams(pathname === '/shop' ? searchParams?.toString() ?? '' : '');
 
     if (trimmedValue) {
       params.set('q', trimmedValue);
