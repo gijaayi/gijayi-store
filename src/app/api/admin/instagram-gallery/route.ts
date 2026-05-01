@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { readDatabase, updateDatabase } from '@/lib/server/database';
 import { randomUUID } from 'crypto';
+import { withImageVersion } from '@/lib/imageVersion';
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,6 +47,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     console.log('[Instagram Gallery API] PUT request started by admin:', auth.user.id);
+    const versionToken = Date.now();
     const body = (await request.json()) as {
       handle?: string;
       profileUrl?: string;
@@ -87,7 +89,7 @@ export async function PUT(request: NextRequest) {
       if (Array.isArray(body.images)) {
         images = body.images.map((img) => ({
           id: img.id || randomUUID(),
-          url: img.url.trim(),
+          url: withImageVersion(img.url.trim(), versionToken),
           uploadedAt: new Date().toISOString(),
         }));
         // Limit images to maxImages

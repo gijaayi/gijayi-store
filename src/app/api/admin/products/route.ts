@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { Product } from '@/lib/types';
 import { readDatabase, updateDatabase, syncCollectionsWithProducts } from '@/lib/server/database';
+import { withImageVersionList } from '@/lib/imageVersion';
 
 function slugify(value: string) {
   return value
@@ -43,7 +44,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required product fields.' }, { status: 400 });
     }
 
-    const images = Array.isArray(body.images) ? body.images.map((item: unknown) => String(item).trim()).filter(Boolean) : [];
+    const versionToken = Date.now();
+    const images = Array.isArray(body.images)
+      ? withImageVersionList(
+          body.images.map((item: unknown) => String(item).trim()).filter(Boolean),
+          versionToken
+        )
+      : [];
     const details = Array.isArray(body.details) ? body.details.map((item: unknown) => String(item).trim()).filter(Boolean) : [];
     const sizes = Array.isArray(body.sizes) ? body.sizes.map((item: unknown) => String(item).trim()).filter(Boolean) : undefined;
 
@@ -81,7 +88,9 @@ export async function POST(request: NextRequest) {
         slug,
         price,
         compareAtPrice: body.compareAtPrice ? Number(body.compareAtPrice) : undefined,
-        images: images.length ? images : ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80'],
+        images: images.length
+          ? images
+          : withImageVersionList(['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80'], versionToken),
         category,
         collection,
         description,

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { ArrowRight, Star, Shield, Truck, RotateCcw, Sparkles, Gem, BadgeCheck, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { Collection, Product } from '@/lib/types';
+import { withImageVersion } from '@/lib/imageVersion';
 
 interface CarouselBanner {
   id: string;
@@ -126,8 +127,26 @@ const defaultTestimonialsSection = {
   ],
 };
 
+function normalizeCollectionKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-');
+}
+
+function matchesCollection(product: Product, aliases: string[]) {
+  const collectionKey = normalizeCollectionKey(product.collection);
+  return aliases.some((alias) => collectionKey === normalizeCollectionKey(alias));
+}
+
 function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
-  const heroSlides = storefront.carousel?.banners || [
+  const heroSlides = storefront.carousel?.banners?.map((banner, index) => ({
+    id: `banner-${index + 1}`,
+    image: banner.image,
+    headline: banner.headline,
+    subtitle: banner.subtitle,
+  })) || [
     {
       id: 'banner-1',
       image: storefront.hero.heroImage,
@@ -141,13 +160,13 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
       subtitle: 'Classic Indian artistry with modern, wearable elegance.',
     },
     {
-      id: 'banner-3',
+      id: 'banner-3-unique',
       image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1400&q=90',
       headline: 'Made in India Craftsmanship',
       subtitle: 'Every detail is handcrafted with premium materials.',
     },
     {
-      id: 'banner-4',
+      id: 'banner-4-unique',
       image: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90',
       headline: 'Affordable Designer Jewelry',
       subtitle: 'Luxury-inspired looks at fair prices.',
@@ -179,7 +198,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
       {activeSlides.map((slide, index) => (
         <Image
           key={`carousel-${index}`}
-          src={slide.image}
+          src={withImageVersion(slide.image, slide.id || index)}
           alt={slide.headline}
           fill
           className={`object-cover transition-opacity duration-700 ${index === activeSlide ? 'opacity-100' : 'opacity-0'}`}
@@ -215,13 +234,13 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
                 href={storefront.hero.primaryCtaHref}
                 className="inline-flex items-center justify-center gap-3 rounded-lg bg-white px-6 py-3 text-xs font-medium tracking-widest uppercase text-slate-900 hover:bg-slate-100 transition-colors"
               >
-                Explore Collection <ArrowRight size={15} />
+                All Collection <ArrowRight size={15} />
               </Link>
               <Link
                 href={storefront.hero.secondaryCtaHref}
                 className="inline-flex items-center justify-center rounded-lg border border-white/70 px-6 py-3 text-xs font-medium tracking-widest uppercase text-white hover:bg-white/15 transition-colors"
               >
-                {storefront.hero.secondaryCtaLabel}
+                Explore By Collection
               </Link>
             </div>
           </div>
@@ -299,45 +318,47 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
                   : collection.name;
 
               return (
-            <motion.div
-              key={collection.id}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.08 }}
-              className="group relative h-97.5 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
-            >
-              <Image
-                src={fallbackImages[collection.id] || collection.image}
-                alt={collection.name}
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-                sizes="(max-width: 768px) 100vw, 33vw"
-                onError={() => {
-                  setFallbackImages((current) => {
-                    if (current[collection.id]) return current;
-                    return {
-                      ...current,
-                      [collection.id]: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
-                    };
-                  });
-                }}
-              />
-              <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/25 to-black/70" />
-              <div className="absolute inset-0 flex flex-col items-start justify-end p-8 text-white">
-                <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collection.itemCount} Pieces</p>
-                <h3 className="font-serif text-3xl md:text-4xl mb-3">{displayCollectionName}</h3>
-                <p className="text-sm text-white/90 max-w-xs mb-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
-                  {collection.description}
-                </p>
                 <Link
+                  key={collection.id}
                   href={`/collections/${collection.slug}`}
-                  className="inline-flex items-center gap-2 border-2 border-white text-white px-6 py-2 text-xs tracking-widest uppercase hover:bg-white hover:text-slate-900 transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-lg font-medium"
+                  className="block"
                 >
-                  View Collection <ArrowRight size={14} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.08 }}
+                    className="group relative h-97.5 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+                  >
+                    <Image
+                      src={withImageVersion(fallbackImages[collection.id] || collection.image, collection.id)}
+                      alt={collection.name}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      onError={() => {
+                        setFallbackImages((current) => {
+                          if (current[collection.id]) return current;
+                          return {
+                            ...current,
+                            [collection.id]: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
+                          };
+                        });
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/25 to-black/70" />
+                    <div className="absolute inset-0 flex flex-col items-start justify-end p-8 text-white">
+                      <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collection.itemCount} Pieces</p>
+                      <h3 className="font-serif text-3xl md:text-4xl mb-3">{displayCollectionName}</h3>
+                      <p className="text-sm text-white/90 max-w-xs mb-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
+                        {collection.description}
+                      </p>
+                      <span className="inline-flex items-center gap-2 border-2 border-white text-white px-6 py-2 text-xs tracking-widest uppercase hover:bg-white hover:text-slate-900 transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-lg font-medium">
+                        View Collection <ArrowRight size={14} />
+                      </span>
+                    </div>
+                  </motion.div>
                 </Link>
-              </div>
-            </motion.div>
               );
             })()
           ))}
@@ -375,7 +396,9 @@ function BestsellersSection({ products, storefront }: { products: Product[]; sto
 
 function BridalLuxeSection({ products, storefront }: { products: Product[]; storefront: StorefrontSettings }) {
   const productCardContent = storefront.productCard || defaultProductCardContent;
-  const bridalProducts = products.filter((product) => product.bridalLuxe).slice(0, 4);
+  const bridalProducts = products
+    .filter((product) => product.bridalLuxe || matchesCollection(product, ['Bridal Luxe', 'Bridal Collection', 'Bridal']))
+    .slice(0, 4);
 
   if (bridalProducts.length === 0) return null;
 
@@ -402,7 +425,9 @@ function BridalLuxeSection({ products, storefront }: { products: Product[]; stor
 
 function HeritageSection({ products, storefront }: { products: Product[]; storefront: StorefrontSettings }) {
   const productCardContent = storefront.productCard || defaultProductCardContent;
-  const heritageProducts = products.filter((product) => product.heritage).slice(0, 4);
+  const heritageProducts = products
+    .filter((product) => product.heritage || matchesCollection(product, ['Heritage']))
+    .slice(0, 4);
 
   if (heritageProducts.length === 0) return null;
 
@@ -429,7 +454,9 @@ function HeritageSection({ products, storefront }: { products: Product[]; storef
 
 function EverydayMinimalSection({ products, storefront }: { products: Product[]; storefront: StorefrontSettings }) {
   const productCardContent = storefront.productCard || defaultProductCardContent;
-  const minimalProducts = products.filter((product) => product.everydayMinimal).slice(0, 4);
+  const minimalProducts = products
+    .filter((product) => product.everydayMinimal || matchesCollection(product, ['Everyday Minimal', 'Everyday Luxe', 'Everyday', 'Minimal']))
+    .slice(0, 4);
 
   if (minimalProducts.length === 0) return null;
 
@@ -549,7 +576,7 @@ function TrustSection({ storefront }: { storefront: StorefrontSettings }) {
         <div className="text-center mb-14">
           <p className="text-[10px] tracking-[0.5em] uppercase text-slate-500 mb-4 font-medium">{trustSection.badge}</p>
           <h2 className="font-serif text-5xl md:text-6xl text-slate-900">{trustSection.title}</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto mt-4">{trustSection.subtitle}</p>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">{trustSection.subtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -628,7 +655,7 @@ function InstagramSection() {
     async function fetchGallery() {
       try {
         setLoading(true);
-        const res = await fetch('/api/admin/instagram-gallery');
+        const res = await fetch('/api/admin/instagram-gallery', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.instagramGallery) {
@@ -685,7 +712,7 @@ function InstagramSection() {
               className="relative aspect-square rounded-xl overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300"
             >
               <Image
-                src={pic.url}
+                src={withImageVersion(pic.url, pic.id || index)}
                 alt={`Instagram post ${index + 1}`}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-110"

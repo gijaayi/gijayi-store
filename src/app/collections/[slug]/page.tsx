@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getAllCollections, getProductsByCollectionHandle } from '@/lib/shopify';
+import { getAllCollections, getCollectionByHandle, getProductsByCollectionHandle } from '@/lib/shopify';
 import ProductCard from '@/components/ProductCard';
+
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,8 +17,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const collections = await getAllCollections();
-  const collection = collections.find((c) => c.slug === slug);
+  const collection = await getCollectionByHandle(slug);
 
   if (!collection) {
     return {
@@ -51,8 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollectionDetailPage({ params }: Props) {
   const { slug } = await params;
-  const collections = await getAllCollections();
-  const collection = collections.find((c) => c.slug === slug);
+  const collection = await getCollectionByHandle(slug);
   if (!collection) notFound();
 
   const collectionProducts = await getProductsByCollectionHandle(slug);
@@ -114,7 +114,7 @@ export default async function CollectionDetailPage({ params }: Props) {
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-center text-white">
-          <p className="text-xs tracking-[0.4em] uppercase text-[#d4af64] mb-3">{collection.itemCount} pieces</p>
+          <p className="text-xs tracking-[0.4em] uppercase text-[#d4af64] mb-3">{collectionProducts.length} pieces</p>
           <h1 className="font-serif text-5xl md:text-6xl">{collection.name}</h1>
           <div className="w-12 h-px bg-[#d4af64] mx-auto mt-5" />
           <p className="text-sm text-white/80 max-w-xl mx-auto mt-4 leading-relaxed">{collection.description}</p>

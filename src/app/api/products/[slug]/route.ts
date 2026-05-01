@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getProductByHandle, getAllProducts } from '@/lib/shopify';
 import { readDatabase } from '@/lib/server/database';
 
+export const dynamic = 'force-dynamic';
+
 interface Context {
   params: Promise<{ slug: string }>;
 }
@@ -31,10 +33,9 @@ export async function GET(_: Request, context: Context) {
     .slice(0, 4);
 
   const response = NextResponse.json({ product, related });
-  
-  // Add cache headers - cache for 1 hour, revalidate every 5 minutes
-  response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=300');
-  response.headers.set('CDN-Cache-Control', 'max-age=3600');
-  
+
+  // Product data should reflect admin edits immediately (especially image updates).
+  response.headers.set('Cache-Control', 'no-store, max-age=0');
+
   return response;
 }

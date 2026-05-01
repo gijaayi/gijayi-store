@@ -22,7 +22,7 @@ export default function SocialContactToggle() {
             <MessageCircle size={12} /> WhatsApp
           </a>
           <a
-            href="https://instagram.com/gijayi.official"
+            href="https://instagram.com/begijayi"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 rounded-lg border border-[#E1306C] bg-white px-3 py-1 text-[10px] tracking-widest uppercase text-[#E1306C] hover:bg-[#E1306C] hover:text-white transition-colors"

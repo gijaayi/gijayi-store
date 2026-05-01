@@ -51,6 +51,7 @@ function normalizeMongoDbName(dbName: string | undefined): string {
 const MONGODB_URI = normalizeMongoUri(RAW_MONGODB_URI);
 const MONGODB_DB =
   normalizeMongoDbName(RAW_MONGODB_DB) || extractDatabaseNameFromUri(MONGODB_URI) || 'Gijayi';
+const MONGODB_IP_FAMILY = Number(process.env.MONGODB_IP_FAMILY || '4');
 
 if (!MONGODB_URI) {
   throw new Error('Missing MONGODB_URI environment variable.');
@@ -108,6 +109,8 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
         connectTimeoutMS: 10000,
         retryWrites: true,
         retryReads: true,
+        // Atlas DNS SRV resolution can fail on some local networks; IPv4 is safer in local dev.
+        family: MONGODB_IP_FAMILY,
       });
 
       await client.connect();
@@ -140,15 +143,21 @@ async function connectToDatabase(): Promise<{ client: MongoClient; db: Db }> {
   }
 
   const errorMsg = `MongoDB connection failed after all retries: "${lastError?.message}"`;
-  console.error(errorMsg);
+
+  if (process.env.NODE_ENV === 'production') {
+    console.error(errorMsg);
+  } else {
+    console.warn(errorMsg);
+  }
   
   // In development, provide helpful error message
   if (process.env.NODE_ENV !== 'production') {
-    console.error('\n⚠️  MONGODB CONNECTION ISSUES:');
-    console.error('1. Verify MongoDB Atlas cluster is RUNNING');
-    console.error('2. Check your IP is WHITELISTED in MongoDB Atlas (Network Access)');
-    console.error('3. Ensure MONGODB_URI is correct in .env.local');
-    console.error('4. Check your network connectivity\n');
+    console.warn('\nMongoDB connection issues detected:');
+    console.warn('1. Verify MongoDB Atlas cluster is RUNNING');
+    console.warn('2. Check your IP is WHITELISTED in MongoDB Atlas (Network Access)');
+    console.warn('3. Ensure MONGODB_URI is correct in .env.local');
+    console.warn('4. Try setting MONGODB_IP_FAMILY=4 in .env.local');
+    console.warn('5. Check your network/DNS connectivity\n');
   }
   
   throw lastError || new Error('Failed to connect to MongoDB');

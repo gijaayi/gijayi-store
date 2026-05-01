@@ -274,13 +274,13 @@ export const DEFAULT_STOREFRONT_CAROUSEL: DbStorefrontCarousel = {
       subtitle: 'Classic Indian artistry with modern, wearable elegance.',
     },
     {
-      id: 'banner-3',
+      id: 'banner-3-unique',
       image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=1400&q=90',
       headline: 'Made in India Craftsmanship',
       subtitle: 'Every detail is handcrafted with premium materials.',
     },
     {
-      id: 'banner-4',
+      id: 'banner-4-unique',
       image: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90',
       headline: 'Affordable Designer Jewelry',
       subtitle: 'Luxury-inspired looks at fair prices.',

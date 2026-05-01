@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { readDatabase, updateDatabase } from '@/lib/server/database';
+import { withImageVersion } from '@/lib/imageVersion';
 
 export async function GET(request: NextRequest) {
   const auth = await requireAdmin(request);
@@ -86,8 +87,13 @@ export async function PUT(request: NextRequest) {
       };
     };
 
+    const versionToken = Date.now();
+
     await updateDatabase((db) => {
       const current = db.storefront;
+      const isHeroImageUpdated = body.hero?.heroImage !== undefined;
+      const isSecondaryMediaImageUpdated = body.hero?.secondaryMedia?.image !== undefined;
+      const isCarouselUpdated = Array.isArray(body.carousel?.banners);
 
       db.storefront = {
         ...current,
@@ -126,13 +132,17 @@ export async function PUT(request: NextRequest) {
           primaryCtaHref: String(body.hero?.primaryCtaHref ?? current.hero.primaryCtaHref).trim() || '/shop',
           secondaryCtaLabel: String(body.hero?.secondaryCtaLabel ?? current.hero.secondaryCtaLabel).trim(),
           secondaryCtaHref: String(body.hero?.secondaryCtaHref ?? current.hero.secondaryCtaHref).trim() || '/collections',
-          heroImage: String(body.hero?.heroImage ?? current.hero.heroImage).trim(),
+          heroImage: isHeroImageUpdated
+            ? withImageVersion(String(body.hero?.heroImage || '').trim(), versionToken)
+            : current.hero.heroImage,
           featureLabel: String(body.hero?.featureLabel ?? current.hero.featureLabel).trim(),
           featureTitle: String(body.hero?.featureTitle ?? current.hero.featureTitle).trim(),
           featureSubtitle: String(body.hero?.featureSubtitle ?? current.hero.featureSubtitle).trim(),
           secondaryMedia: {
             enabled: Boolean(body.hero?.secondaryMedia?.enabled ?? current.hero.secondaryMedia.enabled),
-            image: String(body.hero?.secondaryMedia?.image ?? current.hero.secondaryMedia.image).trim(),
+            image: isSecondaryMediaImageUpdated
+              ? withImageVersion(String(body.hero?.secondaryMedia?.image || '').trim(), versionToken)
+              : current.hero.secondaryMedia.image,
             label: String(body.hero?.secondaryMedia?.label ?? current.hero.secondaryMedia.label).trim(),
             title: String(body.hero?.secondaryMedia?.title ?? current.hero.secondaryMedia.title).trim(),
             href: String(body.hero?.secondaryMedia?.href ?? current.hero.secondaryMedia.href).trim() || '/about',
@@ -143,7 +153,9 @@ export async function PUT(request: NextRequest) {
           banners: (Array.isArray(body.carousel?.banners) ? body.carousel?.banners : current.carousel?.banners || [])
             .map((item, idx) => ({
               id: String(item?.id || `banner-${idx + 1}`),
-              image: String(item?.image || '').trim(),
+              image: isCarouselUpdated
+                ? withImageVersion(String(item?.image || '').trim(), versionToken)
+                : String(item?.image || '').trim(),
               headline: String(item?.headline || '').trim(),
               subtitle: String(item?.subtitle || '').trim(),
             }))

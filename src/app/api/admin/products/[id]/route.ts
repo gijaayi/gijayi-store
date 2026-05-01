@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { readDatabase, updateDatabase } from '@/lib/server/database';
+import { withImageVersionList } from '@/lib/imageVersion';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -46,6 +47,8 @@ export async function PUT(request: NextRequest, context: Context) {
       }
     }
 
+    const versionToken = Date.now();
+
     const db = await updateDatabase((state) => {
       const index = state.products.findIndex((product) => product.id === id);
       if (index === -1) {
@@ -58,7 +61,9 @@ export async function PUT(request: NextRequest, context: Context) {
         name: body.name ?? current.name,
         price: body.price !== undefined ? Number(body.price) : current.price,
         compareAtPrice: body.compareAtPrice !== undefined ? Number(body.compareAtPrice) : current.compareAtPrice,
-        images: Array.isArray(body.images) ? body.images : current.images,
+        images: Array.isArray(body.images)
+          ? withImageVersionList(body.images.map((item: unknown) => String(item).trim()).filter(Boolean), versionToken)
+          : current.images,
         category: body.category ?? current.category,
         collection: body.collection ?? current.collection,
         description: body.description ?? current.description,

@@ -56,6 +56,67 @@ interface ShopifyCollection {
   products: { totalCount: number };
 }
 
+function normalizeCollection(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function getCanonicalCollectionHandle(value: string) {
+  const normalized = normalizeCollection(value);
+
+  if (['bridal', 'bridal-collection', 'bridal-luxe'].includes(normalized)) {
+    return 'bridal-luxe';
+  }
+
+  if (['everyday', 'everyday-luxe', 'everyday-minimal', 'minimal'].includes(normalized)) {
+    return 'everyday-minimal';
+  }
+
+  if (normalized === 'heritage') {
+    return 'heritage';
+  }
+
+  return normalized;
+}
+
+function getCollectionAliases(handleOrName: string): string[] {
+  const canonical = getCanonicalCollectionHandle(handleOrName);
+
+  if (canonical === 'bridal-luxe') {
+    return ['Bridal Luxe', 'Bridal Collection', 'Bridal'];
+  }
+
+  if (canonical === 'everyday-minimal') {
+    return ['Everyday Minimal', 'Everyday Luxe', 'Everyday', 'Minimal'];
+  }
+
+  if (canonical === 'heritage') {
+    return ['Heritage'];
+  }
+
+  return [handleOrName];
+}
+
+function collectionMatchesProduct(handleOrName: string, product: Product): boolean {
+  const normalizedHandle = getCanonicalCollectionHandle(handleOrName);
+  const normalizedAliases = getCollectionAliases(handleOrName).map((value) => normalizeCollection(value));
+  const normalizedProductCollection = normalizeCollection(product.collection || '');
+
+  if (normalizedAliases.includes(normalizedProductCollection)) {
+    return true;
+  }
+
+  if (normalizedHandle === 'bridal-luxe' && product.bridalLuxe) return true;
+  if (normalizedHandle === 'heritage' && product.heritage) return true;
+  if (normalizedHandle === 'everyday-minimal' && product.everydayMinimal) return true;
+
+  return false;
+}
+
 async function shopifyFetch<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
   if (!hasShopifyConfig()) {
     throw new Error('Shopify Storefront credentials are not configured.');
@@ -249,19 +310,35 @@ export async function getAllCollections(): Promise<Collection[]> {
   // Always prioritize database collections first, but ensure they're not empty
   const db = await readDatabase();
   if (db.collections && db.collections.length > 0) {
-    return db.collections;
+    return db.collections.map((collection) => ({
+      ...collection,
+      itemCount: db.products.filter((product) => collectionMatchesProduct(collection.slug || collection.name, product)).length,
+    }));
   }
 
   // If database collections are empty, use fallback collections which includes seed data
-  return fallbackCollections;
+  return fallbackCollections.map((collection) => ({
+    ...collection,
+    itemCount: fallbackProducts.filter((product) => collectionMatchesProduct(collection.slug || collection.name, product)).length,
+  }));
 }
 
 export async function getCollectionByHandle(handle: string): Promise<Collection | null> {
   // Always prioritize database first
   const db = await readDatabase();
-  const dbCollection = db.collections.find((collection) => collection.slug === handle);
+  const canonicalHandle = getCanonicalCollectionHandle(handle);
+  const dbCollection = db.collections.find((collection) => {
+    const candidates = [collection.slug, collection.name]
+      .flatMap((value) => [value, ...getCollectionAliases(value)])
+      .map((value) => getCanonicalCollectionHandle(value));
+
+    return candidates.includes(canonicalHandle);
+  });
   if (dbCollection) {
-    return dbCollection;
+    return {
+      ...dbCollection,
+      itemCount: db.products.filter((product) => collectionMatchesProduct(dbCollection.slug || dbCollection.name, product)).length,
+    };
   }
 
   // Fall back to Shopify if not in database
@@ -297,9 +374,8 @@ export async function getCollectionByHandle(handle: string): Promise<Collection 
 export async function getProductsByCollectionHandle(handle: string): Promise<Product[]> {
   // Always prioritize database products first
   const db = await readDatabase();
-  const dbProducts = db.products.filter(
-    (product) => product.collection.toLowerCase().replace(/\s+/g, '-') === handle
-  );
+
+  const dbProducts = db.products.filter((product) => collectionMatchesProduct(handle, product));
   
   // If we have database products, return them
   if (dbProducts.length > 0) {

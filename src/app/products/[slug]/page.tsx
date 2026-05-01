@@ -19,7 +19,7 @@ export default function ProductDetailPage() {
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const slug = String(params?.slug || '');
-  const pid = String(searchParams.get('pid') || '').trim();
+  const pid = String(searchParams?.get('pid') || '').trim();
   const fallbackTitle = slug
     ? slug
         .split('-')
@@ -573,7 +573,7 @@ export default function ProductDetailPage() {
                       {tab === 'description' && (
                         <div className="space-y-3">
                           {product.description ? (
-                            <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap break-words [&_p]:my-2 [&_br]:block [&_div]:my-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:my-1 [&_strong]:font-semibold [&_em]:italic [&_u]:underline [&_h1]:text-lg [&_h1]:font-bold [&_h1]:my-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:my-2" dangerouslySetInnerHTML={{ __html: product.description }} />
+                            <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap wrap-break-word [&_p]:my-2 [&_br]:block [&_div]:my-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_li]:my-1 [&_strong]:font-semibold [&_em]:italic [&_u]:underline [&_h1]:text-lg [&_h1]:font-bold [&_h1]:my-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:my-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:my-2" dangerouslySetInnerHTML={{ __html: product.description }} />
                           ) : (
                             <p className="text-sm text-gray-600 leading-relaxed">
                               This handcrafted Indian jewelry piece is designed for bridal jewelry online shoppers looking for made in India quality and affordable designer jewelry styling.
@@ -702,7 +702,7 @@ export default function ProductDetailPage() {
               >
                 −
               </button>
-              <span className="text-white text-sm font-medium min-w-[50px] text-center">
+              <span className="text-white text-sm font-medium min-w-12.5 text-center">
                 {Math.round(zoomLevel * 100)}%
               </span>
               <button

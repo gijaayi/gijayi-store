@@ -80,12 +80,6 @@ export default async function CollectionsPage() {
                   >
                     View Collection <ArrowRight size={14} />
                   </Link>
-                  <Link
-                    href={`/shop?q=${encodeURIComponent(collection.name)}`}
-                    className="inline-flex items-center gap-2 border border-[#1a1a1a] px-6 py-3 text-xs tracking-widest uppercase hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
-                  >
-                    Shop Similar
-                  </Link>
                 </div>
               </div>
             </article>

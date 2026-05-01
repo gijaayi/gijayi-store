@@ -8,6 +8,7 @@ import { Product } from '@/lib/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
+import { withImageVersion } from '@/lib/imageVersion';
 
 interface ProductCardProps {
   product: Product;
@@ -38,6 +39,8 @@ export default function ProductCard({ product, showRating = false, content = def
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
   const wishlisted = isWishlisted(product.id);
+  const primaryImage = withImageVersion(product.images[0], product.id);
+  const secondaryImage = product.images[1] ? withImageVersion(product.images[1], `${product.id}-hover`) : '';
   const discountPercent = product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
@@ -69,7 +72,7 @@ export default function ProductCard({ product, showRating = false, content = def
       <Link href={`/products/${product.slug}?pid=${encodeURIComponent(product.id)}`} prefetch={true}>
         <div className="relative overflow-hidden bg-[#faf8f4] rounded-lg shadow-sm w-full aspect-square product-image-zoom cursor-pointer">
           <Image
-            src={product.images[0]}
+            src={primaryImage}
             alt={product.name}
             fill
             className="object-cover rounded-lg"
@@ -78,7 +81,7 @@ export default function ProductCard({ product, showRating = false, content = def
         {/* Hover image */}
         {product.images[1] && (
           <Image
-            src={product.images[1]}
+            src={secondaryImage}
             alt={`${product.name} alt`}
             fill
             className="object-cover rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
