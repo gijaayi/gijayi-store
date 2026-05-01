@@ -167,7 +167,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className="flex-1 ml-4 lg:ml-0">
             <p className="text-[11px] uppercase tracking-[0.4em] text-slate-500 font-semibold mb-1.5">Admin Panel</p>
-            <h1 className="font-serif text-4xl lg:text-5xl font-bold text-slate-900">{getTitle(pathname)}</h1>
+            <h1 className="font-serif text-4xl lg:text-5xl font-bold text-slate-900">{getTitle(pathname || '')}</h1>
           </div>
 
           <div className="hidden md:flex items-center gap-3 text-xs text-slate-600 bg-white px-4 py-2 rounded-lg border border-slate-200">
