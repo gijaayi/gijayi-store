@@ -605,14 +605,16 @@ async function ensureDatabase(): Promise<void> {
       (await usersCollection.findOne({ role: 'admin' })) || (await usersCollection.findOne({ email: ADMIN_LOGIN_EMAIL }));
 
     if (existingAdmin) {
+      // Update admin profile but PRESERVE the existing password hash
+      // This allows admins to change their password without it being reset on app restart
       await usersCollection.updateOne(
         { id: existingAdmin.id },
         {
           $set: {
             name: existingAdmin.name || ADMIN_NAME,
             email: ADMIN_LOGIN_EMAIL,
-            passwordHash: configuredAdminHash,
             role: 'admin',
+            // Intentionally NOT updating passwordHash here - preserves user-changed passwords
           },
         },
       );

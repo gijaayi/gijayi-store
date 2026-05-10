@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import RichTextEditor from '@/components/RichTextEditor';
+import Cropper from 'react-easy-crop';
 import LowStockDashboard from '@/components/LowStockDashboard';
 
 interface AdminCategory {
@@ -70,6 +71,13 @@ export default function AdminProductsPage() {
   const [busy, setBusy] = useState(false);
   const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null, null, null, null]);
   const [error, setError] = useState('');
+  const [cropOpen, setCropOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [cropIndexState, setCropIndexState] = useState<number | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [cropAspect, setCropAspect] = useState<number | undefined>(1);
 
   const selectedProduct = useMemo(
     () => products.find((product) => product.id === selectedProductId) || null,
@@ -150,6 +158,95 @@ export default function AdminProductsPage() {
     }
 
     return data.url;
+  }
+
+  function openCropperForIndex(index: number) {
+    const file = imageFiles[index];
+    const imageUrl = [form.image1, form.image2, form.image3, form.image4, form.image5, form.image6][index];
+    if (file) {
+      const src = URL.createObjectURL(file);
+      setCropImageSrc(src);
+      // compute natural aspect
+      const img = new Image();
+      img.src = src;
+      img.onload = () => setCropAspect(img.width / img.height || 1);
+    } else if (imageUrl) {
+      setCropImageSrc(imageUrl);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = imageUrl;
+      img.onload = () => setCropAspect(img.width / img.height || 1);
+    } else {
+      setError('No image to crop for this slot.');
+      return;
+    }
+    setCropIndexState(index);
+    setCropOpen(true);
+  }
+
+  function onCropComplete(_: any, pixels: any) {
+    setCroppedAreaPixels(pixels);
+  }
+
+  async function applyCrop() {
+    if (!cropImageSrc || cropIndexState === null || !croppedAreaPixels) return;
+    try {
+      const blob = await getCroppedImg(cropImageSrc, croppedAreaPixels);
+      if (!blob) throw new Error('Failed to create cropped image');
+      const file = new File([blob], `crop-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const url = await uploadImageToCloudinary(file);
+      const setters = [
+        (url: string) => setForm((f) => ({ ...f, image1: url })),
+        (url: string) => setForm((f) => ({ ...f, image2: url })),
+        (url: string) => setForm((f) => ({ ...f, image3: url })),
+        (url: string) => setForm((f) => ({ ...f, image4: url })),
+        (url: string) => setForm((f) => ({ ...f, image5: url })),
+        (url: string) => setForm((f) => ({ ...f, image6: url })),
+      ];
+      setters[cropIndexState](url);
+      const newFiles = [...imageFiles];
+      newFiles[cropIndexState] = null;
+      setImageFiles(newFiles);
+      setCropOpen(false);
+      setCropImageSrc(null);
+      setCropIndexState(null);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Crop failed');
+    }
+  }
+
+  // helper to get cropped image blob
+  async function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<Blob | null> {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+    return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.9));
+  }
+
+  function createImage(url: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = (e) => reject(e);
+      img.src = url;
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -269,6 +366,35 @@ export default function AdminProductsPage() {
       setError('Failed to delete product.');
       setBusy(false);
     }
+  }
+
+  function moveImage(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target > 5) return;
+
+    const formKeys = ['image1','image2','image3','image4','image5','image6'] as const;
+    const newForm: any = { ...form };
+    const tmp = (newForm as any)[formKeys[index]];
+    (newForm as any)[formKeys[index]] = (newForm as any)[formKeys[target]];
+    (newForm as any)[formKeys[target]] = tmp;
+
+    const newFiles = [...imageFiles];
+    const tmpFile = newFiles[index];
+    newFiles[index] = newFiles[target];
+    newFiles[target] = tmpFile;
+
+    setForm(newForm);
+    setImageFiles(newFiles);
+  }
+
+  function removeImage(index: number) {
+    const formKeys = ['image1','image2','image3','image4','image5','image6'] as const;
+    const newForm: any = { ...form };
+    (newForm as any)[formKeys[index]] = '';
+    const newFiles = [...imageFiles];
+    newFiles[index] = null;
+    setForm(newForm);
+    setImageFiles(newFiles);
   }
 
   return (
@@ -432,7 +558,28 @@ export default function AdminProductsPage() {
                       placeholder="or paste image URL"
                       className="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-blue-600"
                     />
-                    {imageFiles[imageIndex] && <p className="text-xs text-emerald-600">✓ {imageFiles[imageIndex]!.name}</p>}
+                        {imageFiles[imageIndex] && <p className="text-xs text-emerald-600">✓ {imageFiles[imageIndex]!.name}</p>}
+
+                        {/* Preview + controls */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="w-20 h-20 bg-gray-50 border border-slate-200 rounded overflow-hidden flex items-center justify-center">
+                            {imageFiles[imageIndex] ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={URL.createObjectURL(imageFiles[imageIndex] as File)} alt={`preview-${imageNum}`} className="w-full h-full object-contain" />
+                            ) : imageSources[imageNum] ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={imageSources[imageNum]} alt={`preview-${imageNum}`} className="w-full h-full object-contain" />
+                            ) : (
+                              <span className="text-xs text-slate-400">No image</span>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <button type="button" onClick={() => openCropperForIndex(imageIndex)} className="px-2 py-1 border rounded text-xs" title="Edit / Crop">Edit</button>
+                            <button type="button" onClick={() => moveImage(imageIndex, -1)} className="px-2 py-1 border rounded text-xs" title="Move left">◀</button>
+                            <button type="button" onClick={() => moveImage(imageIndex, 1)} className="px-2 py-1 border rounded text-xs" title="Move right">▶</button>
+                            <button type="button" onClick={() => removeImage(imageIndex)} className="px-2 py-1 border rounded text-xs text-red-600" title="Remove image">Remove</button>
+                          </div>
+                        </div>
                   </div>
                 );
               })}
@@ -493,6 +640,31 @@ export default function AdminProductsPage() {
           </div>
         </form>
       </section>
+      {/* Image Cropper Modal */}
+      {cropOpen && cropImageSrc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-lg w-full max-w-3xl p-4">
+            <h3 className="font-medium mb-3">Crop Image</h3>
+            <div className="relative w-full h-80 bg-gray-100">
+              <Cropper
+                image={cropImageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={cropAspect}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className="flex items-center gap-3 mt-4">
+              <label className="text-sm">Zoom</label>
+              <input type="range" min={1} max={3} step={0.1} value={zoom} onChange={(e) => setZoom(Number(e.target.value))} className="flex-1" />
+              <button onClick={() => { setCropOpen(false); setCropImageSrc(null); setCropIndexState(null); }} className="px-4 py-2 border rounded">Cancel</button>
+              <button onClick={applyCrop} className="px-4 py-2 bg-blue-600 text-white rounded">Apply Crop & Upload</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="bg-white border border-slate-200 rounded-2xl p-6">
         <h3 className="font-serif text-2xl text-slate-900 mb-4">Catalog List</h3>

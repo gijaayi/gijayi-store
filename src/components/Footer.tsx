@@ -41,13 +41,31 @@ export default function Footer() {
               Curating India&apos;s finest handcrafted jewellery since 2010. Each piece is a celebration of artistry, tradition, and timeless beauty.
             </p>
             <div className="flex gap-3 sm:gap-4">
-              <a href="#" aria-label="Instagram" className="text-gray-400 hover:text-[#b8963e] transition-colors">
+              <a
+                href="https://instagram.com/begijayi"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="text-gray-400 hover:text-[#b8963e] transition-colors"
+              >
                 <Instagram size={16} className="sm:w-5 sm:h-5" />
               </a>
-              <a href="#" aria-label="Facebook" className="text-gray-400 hover:text-[#b8963e] transition-colors">
+              <a
+                href="https://www.facebook.com/share/1CSXXgp6xD/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="text-gray-400 hover:text-[#b8963e] transition-colors"
+              >
                 <Facebook size={16} className="sm:w-5 sm:h-5" />
               </a>
-              <a href="#" aria-label="YouTube" className="text-gray-400 hover:text-[#b8963e] transition-colors">
+              <a
+                href="https://youtube.com/@gijayi?si=I2YgkB-E7KfmDh2C"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
+                className="text-gray-400 hover:text-[#b8963e] transition-colors"
+              >
                 <Youtube size={16} className="sm:w-5 sm:h-5" />
               </a>
             </div>

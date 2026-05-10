@@ -26,12 +26,6 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
     }
   }, []);
 
-  const executeCommand = useCallback((command: string, value?: string) => {
-    editorRef.current?.focus();
-    document.execCommand(command, false, value);
-    handleInput();
-  }, []);
-
   const handleInput = useCallback(() => {
     if (editorRef.current) {
       const newContent = editorRef.current.innerHTML;
@@ -40,6 +34,32 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
         lastSavedContent.current = newContent;
         onChange(newContent);
       }
+    }
+  }, [onChange]);
+
+  const executeCommand = useCallback((command: string, value?: string) => {
+    if (!editorRef.current) return;
+    
+    editorRef.current.focus();
+    
+    try {
+      // Execute the command
+      if (command === 'insertUnorderedList' || command === 'insertOrderedList') {
+        document.execCommand(command, false);
+      } else {
+        document.execCommand(command, false, value);
+      }
+      
+      // Update content after command
+      if (editorRef.current) {
+        const newContent = editorRef.current.innerHTML;
+        if (newContent !== lastSavedContent.current) {
+          lastSavedContent.current = newContent;
+          onChange(newContent);
+        }
+      }
+    } catch (e) {
+      console.error('Command failed:', e);
     }
   }, [onChange]);
 
@@ -83,6 +103,26 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
 
   return (
     <div className="border border-slate-300 rounded-xl overflow-hidden">
+      <style>{`
+        [contenteditable] ul {
+          list-style-type: disc;
+          margin-left: 1.5rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+          padding-left: 0;
+        }
+        [contenteditable] ol {
+          list-style-type: decimal;
+          margin-left: 1.5rem;
+          margin-top: 0.5rem;
+          margin-bottom: 0.5rem;
+          padding-left: 0;
+        }
+        [contenteditable] li {
+          margin-bottom: 0.25rem;
+          margin-left: 0;
+        }
+      `}</style>
       {/* Toolbar */}
       <div className="bg-slate-50 border-b border-slate-300 p-2 flex flex-wrap gap-1">
         {/* Font Styling */}

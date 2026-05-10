@@ -218,18 +218,7 @@ export default function ProductDetailPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      {/* Sticky Mobile Add to Cart */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 p-4">
-        <button
-          onClick={() => addSelectedItemToCart()}
-          className="w-full bg-[#1a1a1a] text-white py-3 text-xs tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#b8963e] transition-colors duration-300 font-medium"
-        >
-          <ShoppingBag size={16} />
-          Add to Bag
-        </button>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:pb-0 pb-28">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12">
           {/* Images Section */}
           <div className="flex flex-col gap-4">
@@ -252,6 +241,28 @@ export default function ProductDetailPage() {
                   priority={selectedImage === 0}
                 />
               </motion.div>
+
+              {/* Main image navigation arrows */}
+              {product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length); }}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-[#1a1a1a] p-2 rounded-full shadow-md"
+                    title="Previous image"
+                    aria-label="Previous image"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedImage((prev) => (prev + 1) % product.images.length); }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-[#1a1a1a] p-2 rounded-full shadow-md"
+                    title="Next image"
+                    aria-label="Next image"
+                  >
+                    <ArrowLeft size={20} className="rotate-180" />
+                  </button>
+                </>
+              )}
 
               {/* Zoom Button */}
               <button
@@ -315,11 +326,10 @@ export default function ProductDetailPage() {
             {/* Delivery Info */}
             <div className="mb-6 space-y-2 text-sm">
               <div className="flex items-center gap-2 text-gray-700">
-                <Truck size={14} className="text-[#b8963e]" />
-                <span>🚚 Delivery in 7–12 days worldwide</span>
+                <span>🚚 Delivery in 7–12 days worldwide 🌍</span>
               </div>
               <div className="flex items-center gap-2 text-gray-700">
-                <span>🇮🇳 3–5 days within India</span>
+                <span>🇮🇳 3-5 days within India</span>
               </div>
             </div>
 
@@ -327,9 +337,9 @@ export default function ProductDetailPage() {
 
             <div className="grid grid-cols-3 gap-3 mb-8">
               {[
-                { icon: ShieldCheck, label: '100% Authentic' },
-                { icon: Truck, label: 'Free Shipping*' },
-                { icon: RotateCcw, label: 'Easy Returns' },
+                { icon: ShieldCheck, label: 'Repair warranty*' },
+                { icon: Truck, label: 'Dispatch within 36 hrs' },
+                { icon: RotateCcw, label: 'Easy Return' },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
@@ -470,24 +480,17 @@ export default function ProductDetailPage() {
                       </a>
 
                       {/* Instagram */}
-                      <button
-                        onClick={() => {
-                          if (typeof window !== 'undefined') {
-                            const text = `Check out this beautiful ${product?.name || 'product'} from @gijayi.official! ${window.location.href}`;
-                            const instagramIntent = `https://www.instagram.com/share?url=${encodeURIComponent(window.location.href)}`;
-                            // Instagram web share - copy to clipboard with caption
-                            navigator.clipboard.writeText(text).then(() => {
-                              // Open Instagram
-                              window.open('https://www.instagram.com', '_blank');
-                            });
-                          }
-                          setShareOpen(false);
-                        }}
+                      <a
+                        href="https://instagram.com/gijaayi.official/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setShareOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-[#E1306C] transition-colors rounded w-full text-left"
+                        title="Chat on Instagram"
                       >
                         <Instagram size={16} className="text-[#E1306C]" />
-                        Share via Instagram
-                      </button>
+                        Chat on Instagram
+                      </a>
 
                       {/* Facebook */}
                       <a
@@ -536,7 +539,7 @@ export default function ProductDetailPage() {
             <Link
               href="/checkout"
               onClick={() => handleAddToCart()}
-              className="block w-full text-center border border-[#1a1a1a] py-4 text-xs tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300 mb-8"
+              className="hidden md:block w-full text-center border border-[#1a1a1a] py-4 text-xs tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300 mb-8"
             >
               Buy Now
             </Link>
@@ -545,7 +548,7 @@ export default function ProductDetailPage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mb-8 block w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
+              className="hidden md:block mb-8 w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
             >
               Chat on WhatsApp
             </a>
@@ -766,7 +769,7 @@ export default function ProductDetailPage() {
         </motion.div>
       )}
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5ddcf] bg-white/95 backdrop-blur px-4 py-3">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5ddcf] bg-white/95 backdrop-blur px-4 py-3 space-y-2">
         <div className="flex items-center gap-3">
           <div className="min-w-0">
             <p className="text-[10px] tracking-widest uppercase text-gray-500">{selectedSize ? `Size ${selectedSize}` : 'Select Size'}</p>
@@ -775,10 +778,27 @@ export default function ProductDetailPage() {
           <button
             type="button"
             onClick={addSelectedItemToCart}
-            className="ml-auto bg-[#1a1a1a] text-white px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors"
+            className="ml-auto bg-[#1a1a1a] text-white px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors font-medium whitespace-nowrap"
           >
             Add to Cart
           </button>
+        </div>
+        <div className="flex gap-2 -mx-4 -mb-3 px-4 pb-3">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-center border border-[#25D366] text-[#25D366] py-2 text-[11px] tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors font-medium"
+          >
+            Chat
+          </a>
+          <Link
+            href="/checkout"
+            onClick={() => handleAddToCart()}
+            className="flex-1 text-center border border-[#1a1a1a] text-[#1a1a1a] py-2 text-[11px] tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors font-medium"
+          >
+            Buy Now
+          </Link>
         </div>
       </div>
     </div>
