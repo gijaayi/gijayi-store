@@ -41,6 +41,8 @@ export default function ProductCard({ product, showRating = false, content = def
   const wishlisted = isWishlisted(product.id);
   const primaryImage = withImageVersion(product.images[0], product.id);
   const secondaryImage = product.images[1] ? withImageVersion(product.images[1], `${product.id}-hover`) : '';
+  const ratingValue = product.ratingAverage !== undefined ? product.ratingAverage.toFixed(1) : content.ratingValue;
+  const ratingCountLabel = product.ratingCount !== undefined ? `(${product.ratingCount} reviews)` : content.ratingCountLabel;
   const discountPercent = product.compareAtPrice
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
@@ -138,8 +140,8 @@ export default function ProductCard({ product, showRating = false, content = def
         {showRating && (
           <div className="flex items-center gap-1 mt-2">
             <Star size={12} className="text-[#b8963e]" fill="currentColor" />
-            <span className="text-xs text-gray-600">{content.ratingValue}</span>
-            <span className="text-xs text-gray-400">{content.ratingCountLabel}</span>
+            <span className="text-xs text-gray-600">{ratingValue}</span>
+            <span className="text-xs text-gray-400">{ratingCountLabel}</span>
           </div>
         )}
       </div>

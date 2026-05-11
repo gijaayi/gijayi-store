@@ -54,6 +54,11 @@ export async function PUT(request: NextRequest) {
           href?: string;
         };
       };
+      collectionHighlights?: {
+        bridalLuxe?: string;
+        heritage?: string;
+        everydayMinimal?: string;
+      };
       carousel?: {
         id?: string;
         banners?: Array<{
@@ -88,6 +93,10 @@ export async function PUT(request: NextRequest) {
     };
 
     const versionToken = Date.now();
+    const isCollectionHighlightsUpdated =
+      body.collectionHighlights?.bridalLuxe !== undefined ||
+      body.collectionHighlights?.heritage !== undefined ||
+      body.collectionHighlights?.everydayMinimal !== undefined;
 
     await updateDatabase((db) => {
       const current = db.storefront;
@@ -148,6 +157,17 @@ export async function PUT(request: NextRequest) {
             href: String(body.hero?.secondaryMedia?.href ?? current.hero.secondaryMedia.href).trim() || '/about',
           },
         },
+          collectionHighlights: {
+            bridalLuxe: isCollectionHighlightsUpdated
+              ? withImageVersion(String(body.collectionHighlights?.bridalLuxe || '').trim(), versionToken)
+              : current.collectionHighlights.bridalLuxe,
+            heritage: isCollectionHighlightsUpdated
+              ? withImageVersion(String(body.collectionHighlights?.heritage || '').trim(), versionToken)
+              : current.collectionHighlights.heritage,
+            everydayMinimal: isCollectionHighlightsUpdated
+              ? withImageVersion(String(body.collectionHighlights?.everydayMinimal || '').trim(), versionToken)
+              : current.collectionHighlights.everydayMinimal,
+          },
         carousel: {
           id: String(body.carousel?.id ?? current.carousel?.id ?? 'carousel-config'),
           banners: (Array.isArray(body.carousel?.banners) ? body.carousel?.banners : current.carousel?.banners || [])

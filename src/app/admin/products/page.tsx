@@ -23,6 +23,8 @@ interface AdminProduct {
   slug: string;
   price: number;
   stock: number;
+  ratingAverage?: number;
+  ratingCount?: number;
   category: string;
   collection: string;
   description?: string;
@@ -52,6 +54,8 @@ const defaultForm = {
   image5: '',
   image6: '',
   details: '',
+  ratingAverage: '4.8',
+  ratingCount: '24',
   nameFont: 'serif' as 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium',
   descriptionFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium',
   detailsFont: 'sans-serif' as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium',
@@ -116,12 +120,19 @@ export default function AdminProductsPage() {
     if (!selectedProduct) return;
 
     const productImages = selectedProduct.images || [];
+    const allowedCollections = navigation?.gijayiEdit.subcategories || [];
+    const selectedCollection = allowedCollections.some(
+      (value) => value.trim().toLowerCase() === selectedProduct.collection.trim().toLowerCase()
+    )
+      ? selectedProduct.collection
+      : '';
+
     setForm({
       name: selectedProduct.name,
       price: String(selectedProduct.price),
       stock: String(selectedProduct.stock),
       category: selectedProduct.category,
-      collection: selectedProduct.collection,
+      collection: selectedCollection,
       description: selectedProduct.description || '',
       image1: productImages[0] || '',
       image2: productImages[1] || '',
@@ -130,6 +141,8 @@ export default function AdminProductsPage() {
       image5: productImages[4] || '',
       image6: productImages[5] || '',
       details: selectedProduct.care || '',
+      ratingAverage: typeof selectedProduct.ratingAverage === 'number' ? String(selectedProduct.ratingAverage) : '4.8',
+      ratingCount: typeof selectedProduct.ratingCount === 'number' ? String(selectedProduct.ratingCount) : '24',
       nameFont: (selectedProduct.nameFont || 'serif') as 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium',
       descriptionFont: (selectedProduct.descriptionFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium',
       detailsFont: (selectedProduct.detailsFont || 'sans-serif') as 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium',
@@ -288,9 +301,11 @@ export default function AdminProductsPage() {
       price: Number(form.price),
       stock: Number(form.stock),
       category: form.category,
-      collection: form.collection,
+      collection: form.collection.trim(),
       description: form.description || 'Handcrafted by Gijayi artisans.',
       care: form.details || '',
+      ratingAverage: form.ratingAverage !== '' ? Number(form.ratingAverage) : undefined,
+      ratingCount: form.ratingCount !== '' ? Number(form.ratingCount) : undefined,
       images: images.length ? images : undefined,
       nameFont: form.nameFont,
       descriptionFont: form.descriptionFont,
@@ -446,9 +461,11 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <input required type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="Price (₹)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
             <input required type="number" value={form.stock} onChange={(event) => setForm({ ...form, stock: event.target.value })} placeholder="Stock" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+            <input type="number" step="0.1" min="0" max="5" value={form.ratingAverage} onChange={(event) => setForm({ ...form, ratingAverage: event.target.value })} placeholder="Rating (0-5)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+            <input type="number" min="0" value={form.ratingCount} onChange={(event) => setForm({ ...form, ratingCount: event.target.value })} placeholder="Review count" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

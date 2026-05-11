@@ -43,6 +43,11 @@ interface StorefrontSettings {
     };
   };
   carousel?: StorefrontCarousel;
+  collectionHighlights: {
+    bridalLuxe: string;
+    heritage: string;
+    everydayMinimal: string;
+  };
   luxurySignals: string[];
   trustSection: {
     badge: string;
@@ -138,6 +143,24 @@ function normalizeCollectionKey(value: string) {
 function matchesCollection(product: Product, aliases: string[]) {
   const collectionKey = normalizeCollectionKey(product.collection);
   return aliases.some((alias) => collectionKey === normalizeCollectionKey(alias));
+}
+
+function getCollectionBannerImage(collection: Collection, storefront: StorefrontSettings) {
+  const slug = normalizeCollectionKey(collection.slug);
+
+  if (slug === 'bridal-luxe') {
+    return storefront.collectionHighlights.bridalLuxe || collection.image;
+  }
+
+  if (slug === 'heritage') {
+    return storefront.collectionHighlights.heritage || collection.image;
+  }
+
+  if (slug === 'everyday-minimal') {
+    return storefront.collectionHighlights.everydayMinimal || collection.image;
+  }
+
+  return collection.image;
 }
 
 function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
@@ -288,7 +311,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
   );
 }
 
-function CollectionsSection({ collections }: { collections: Collection[] }) {
+function CollectionsSection({ collections, storefront }: { collections: Collection[]; storefront: StorefrontSettings }) {
   const [fallbackImages, setFallbackImages] = useState<Record<string, string>>({});
 
   return (
@@ -331,7 +354,7 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
                     className="group relative h-97.5 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
                   >
                     <Image
-                      src={withImageVersion(fallbackImages[collection.id] || collection.image, collection.id)}
+                      src={fallbackImages[collection.id] || getCollectionBannerImage(collection, storefront)}
                       alt={collection.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -786,7 +809,7 @@ export default function HomePageClient({ products, collections, storefront }: Ho
   return (
     <>
       <HeroSection storefront={storefront} />
-      <CollectionsSection collections={collections} />
+      <CollectionsSection collections={collections} storefront={storefront} />
       <BestsellersSection products={products} storefront={storefront} />
       <BridalLuxeSection products={products} storefront={storefront} />
       <HeritageSection products={products} storefront={storefront} />

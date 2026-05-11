@@ -1,8 +1,46 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Facebook, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message });
+        setEmail('');
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage(null), 3000);
+      } else {
+        setMessage({ type: 'error', text: data.error });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to subscribe. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-[#1a1a1a] text-white">
       {/* Newsletter */}
@@ -15,19 +53,29 @@ export default function Footer() {
           <p className="text-xs sm:text-sm text-gray-400 mb-6 sm:mb-8 max-w-md mx-auto leading-relaxed px-2">
             Be the first to know about new collections, exclusive offers, and the stories behind our jewellery.
           </p>
-          <form className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-md mx-auto px-2">
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-md mx-auto px-2">
             <input
               type="email"
               placeholder="Your email address"
-              className="flex-1 bg-white/10 border border-white/20 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm focus:outline-none focus:border-[#b8963e] placeholder:text-gray-500 transition-colors rounded-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required
+              className="flex-1 bg-white/10 border border-white/20 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm focus:outline-none focus:border-[#b8963e] placeholder:text-gray-500 transition-colors rounded-sm disabled:opacity-50"
             />
             <button
               type="submit"
-              className="bg-[#b8963e] text-white px-6 sm:px-8 py-2.5 sm:py-3 text-xs tracking-widest uppercase hover:bg-[#d4af64] transition-colors rounded-sm font-medium"
+              disabled={loading}
+              className="bg-[#b8963e] text-white px-6 sm:px-8 py-2.5 sm:py-3 text-xs tracking-widest uppercase hover:bg-[#d4af64] transition-colors rounded-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Subscribe
+              {loading ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
+          {message && (
+            <p className={`mt-3 text-xs ${message.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+              {message.text}
+            </p>
+          )}
         </div>
       </div>
 

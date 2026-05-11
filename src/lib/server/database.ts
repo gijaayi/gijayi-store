@@ -125,6 +125,12 @@ export interface DbStorefrontCarousel {
   banners: DbCarouselBanner[];
 }
 
+export interface DbStorefrontCollectionHighlights {
+  bridalLuxe: string;
+  heritage: string;
+  everydayMinimal: string;
+}
+
 export interface DbStorefrontTrustSignal {
   title: string;
   desc: string;
@@ -154,6 +160,7 @@ export interface DbStorefrontSettings {
   };
   hero: DbStorefrontHero;
   carousel: DbStorefrontCarousel;
+  collectionHighlights: DbStorefrontCollectionHighlights;
   luxurySignals: string[];
   trustSection: {
     badge: string;
@@ -304,6 +311,11 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
     },
   },
   carousel: cloneState(DEFAULT_STOREFRONT_CAROUSEL),
+  collectionHighlights: {
+    bridalLuxe: seedCollections.find((collection) => collection.slug === 'bridal-luxe')?.image || '',
+    heritage: seedCollections.find((collection) => collection.slug === 'heritage')?.image || '',
+    everydayMinimal: seedCollections.find((collection) => collection.slug === 'everyday-minimal')?.image || '',
+  },
   hero: {
     badge: 'Handcrafted Indian Jewellery',
     title: 'Handcrafted Bridal & Statement Jewelry',
@@ -523,6 +535,10 @@ function normalizeStorefrontSettings(value: Partial<DbStorefrontSettings> | unde
         ...DEFAULT_STOREFRONT_SETTINGS.hero.secondaryMedia,
         ...(value?.hero?.secondaryMedia || {}),
       },
+    },
+    collectionHighlights: {
+      ...DEFAULT_STOREFRONT_SETTINGS.collectionHighlights,
+      ...(value?.collectionHighlights || {}),
     },
     productCard: {
       ...DEFAULT_STOREFRONT_SETTINGS.productCard,

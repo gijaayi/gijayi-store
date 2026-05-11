@@ -15,6 +15,12 @@ interface StorefrontCarousel {
   banners: CarouselBanner[];
 }
 
+interface CollectionHighlights {
+  bridalLuxe: string;
+  heritage: string;
+  everydayMinimal: string;
+}
+
 interface StorefrontSettings {
   hero: {
     badge: string;
@@ -30,6 +36,7 @@ interface StorefrontSettings {
     featureSubtitle: string;
   };
   carousel?: StorefrontCarousel;
+  collectionHighlights: CollectionHighlights;
   trustSection: {
     badge: string;
     title: string;
@@ -71,6 +78,7 @@ export default function AdminStorefrontPage() {
       body: JSON.stringify({
         hero: storefront.hero,
         carousel: storefront.carousel,
+        collectionHighlights: storefront.collectionHighlights,
         trustSection: storefront.trustSection,
         productCard: storefront.productCard,
       }),
@@ -118,6 +126,17 @@ export default function AdminStorefrontPage() {
     setStorefront({
       ...storefront,
       carousel: { ...storefront.carousel, banners: updated },
+    });
+  };
+
+  const updateCollectionHighlight = (field: keyof CollectionHighlights, value: string) => {
+    if (!storefront) return;
+    setStorefront({
+      ...storefront,
+      collectionHighlights: {
+        ...storefront.collectionHighlights,
+        [field]: value,
+      },
     });
   };
 
@@ -188,6 +207,41 @@ export default function AdminStorefrontPage() {
             <div>
               <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Quick View Label</label>
               <input value={storefront.productCard.quickViewLabel} onChange={(event) => setStorefront({ ...storefront, productCard: { ...storefront.productCard, quickViewLabel: event.target.value } })} className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-8 pb-8 border-b border-slate-200">
+          <h3 className="font-semibold text-slate-900 text-lg mb-4">Collection Card Images</h3>
+          <p className="text-sm text-slate-500 mb-4">Update the banner image shown on the three homepage collection tiles.</p>
+
+          <div className="grid lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Bridal Luxe Image URL</label>
+              <input
+                value={storefront.collectionHighlights.bridalLuxe}
+                onChange={(event) => updateCollectionHighlight('bridalLuxe', event.target.value)}
+                placeholder="https://..."
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Heritage Image URL</label>
+              <input
+                value={storefront.collectionHighlights.heritage}
+                onChange={(event) => updateCollectionHighlight('heritage', event.target.value)}
+                placeholder="https://..."
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Everyday Minimal Image URL</label>
+              <input
+                value={storefront.collectionHighlights.everydayMinimal}
+                onChange={(event) => updateCollectionHighlight('everydayMinimal', event.target.value)}
+                placeholder="https://..."
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+              />
             </div>
           </div>
         </div>

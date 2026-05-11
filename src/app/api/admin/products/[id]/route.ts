@@ -61,6 +61,10 @@ export async function PUT(request: NextRequest, context: Context) {
         name: body.name ?? current.name,
         price: body.price !== undefined ? Number(body.price) : current.price,
         compareAtPrice: body.compareAtPrice !== undefined ? Number(body.compareAtPrice) : current.compareAtPrice,
+        ratingAverage:
+          body.ratingAverage !== undefined && body.ratingAverage !== '' ? Number(body.ratingAverage) : current.ratingAverage,
+        ratingCount:
+          body.ratingCount !== undefined && body.ratingCount !== '' ? Number(body.ratingCount) : current.ratingCount,
         images: Array.isArray(body.images)
           ? withImageVersionList(body.images.map((item: unknown) => String(item).trim()).filter(Boolean), versionToken)
           : current.images,

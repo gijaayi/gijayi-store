@@ -41,6 +41,10 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const { isWishlisted, toggleItem } = useWishlist();
   const { user } = useAuth();
+  const ratingAverage = Number(product?.ratingAverage ?? 4.8);
+  const ratingCount = Number(product?.ratingCount ?? 24);
+  const reviewsLabel = ratingCount > 0 ? `(${ratingCount} reviews)` : '(No reviews yet)';
+  const priceFontClass = 'font-[family-name:var(--font-sans)] font-semibold tracking-tight';
 
   // Scroll to top synchronously before render (useLayoutEffect runs before paint)
   useLayoutEffect(() => {
@@ -218,7 +222,7 @@ export default function ProductDetailPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:pb-0 pb-28">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:pb-0 pb-8">
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-12">
           {/* Images Section */}
           <div className="flex flex-col gap-4">
@@ -303,21 +307,29 @@ export default function ProductDetailPage() {
             <h1 className="font-serif text-3xl md:text-4xl mb-4">{product.name}</h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={13} fill="#b8963e" className="text-[#b8963e]" />
-                ))}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <div className="flex items-center gap-1" aria-label={`Product rating ${ratingAverage.toFixed(1)} out of 5`}>
+                {[...Array(5)].map((_, i) => {
+                  const filled = i < Math.round(ratingAverage);
+                  return <Star key={i} size={13} fill={filled ? '#b8963e' : 'none'} className={filled ? 'text-[#b8963e]' : 'text-[#d4c6ab]'} />;
+                })}
               </div>
-              <span className="text-xs text-gray-500">(24 reviews)</span>
+              <Link
+                href="#product-reviews"
+                scroll
+                className="inline-flex min-h-9 items-center rounded-full px-2.5 py-1 text-xs text-gray-500 transition-colors hover:bg-[#faf8f4] hover:text-[#b8963e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b8963e] focus-visible:ring-offset-2 cursor-pointer"
+                aria-label={`Read ${reviewsLabel.replace(/[()]/g, '')}`}
+              >
+                {reviewsLabel}
+              </Link>
             </div>
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="font-serif text-3xl">₹{product.price.toLocaleString('en-IN')}</span>
+              <span className={`text-3xl ${priceFontClass}`}>₹{product.price.toLocaleString('en-IN')}</span>
               {product.compareAtPrice && (
                 <>
-                  <span className="text-lg text-gray-400 line-through">₹{product.compareAtPrice.toLocaleString('en-IN')}</span>
+                  <span className={`text-lg text-gray-400 line-through ${priceFontClass}`}>₹{product.compareAtPrice.toLocaleString('en-IN')}</span>
                   <span className="text-sm text-red-500 font-medium">Save {discount}%</span>
                 </>
               )}
@@ -343,9 +355,9 @@ export default function ProductDetailPage() {
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.label} className="border border-[#e9dfcd] bg-[#fcfbf8] px-3 py-3 flex items-center gap-2">
-                    <Icon size={14} className="text-[#b8963e]" />
-                    <p className="text-[11px] tracking-wider uppercase text-[#3b3b3b]">{item.label}</p>
+                  <div key={item.label} className="border border-[#e9dfcd] bg-[#fcfbf8] px-4 py-4 flex flex-col items-center justify-center gap-2">
+                    <Icon size={16} className="text-[#b8963e]" />
+                    <p className="text-[10px] tracking-normal uppercase text-[#3b3b3b] text-center leading-tight">{item.label}</p>
                   </div>
                 );
               })}
@@ -539,7 +551,7 @@ export default function ProductDetailPage() {
             <Link
               href="/checkout"
               onClick={() => handleAddToCart()}
-              className="hidden md:block w-full text-center border border-[#1a1a1a] py-4 text-xs tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300 mb-8"
+              className="block w-full text-center border border-[#1a1a1a] py-4 text-xs tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors duration-300 mb-8"
             >
               Buy Now
             </Link>
@@ -548,7 +560,7 @@ export default function ProductDetailPage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:block mb-8 w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
+              className="block mb-8 w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
             >
               Chat on WhatsApp
             </a>
@@ -620,17 +632,11 @@ export default function ProductDetailPage() {
               </ul>
             </div>
 
-            <div className="mt-5 grid sm:grid-cols-2 gap-3">
-              <div className="border border-[#efe6d7] p-4">
-                <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Delivery</p>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Dispatch within 2-3 business days. Complimentary insured shipping on prepaid orders above ₹5,000.
-                </p>
-              </div>
+            <div className="mt-5">
               <div className="border border-[#efe6d7] p-4">
                 <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Returns</p>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Easy return assistance within 7 days for eligible products. Visit policy pages for full terms.
+                  Visit the returns policy page for full terms.
                 </p>
               </div>
             </div>
@@ -651,12 +657,19 @@ export default function ProductDetailPage() {
         )}
 
         <section className="mt-10 border border-[#efe6d7] bg-[#fcfbf8] p-6">
+          <div id="product-reviews" className="scroll-mt-24" />
           <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-3">Customer Trust</p>
           <h3 className="font-serif text-2xl mb-4">Proudly trusted by customers across India</h3>
           <div className="grid gap-3 md:grid-cols-3">
             <p className="text-sm text-gray-700">“Beautiful finishing and fast delivery.” — Nisha, Mumbai</p>
             <p className="text-sm text-gray-700">“Exactly what I wanted for bridal styling.” — Aarohi, Hyderabad</p>
             <p className="text-sm text-gray-700">“Great quality at a fair price.” — Sana, Lucknow</p>
+          </div>
+          <div className="mt-4 rounded-2xl bg-white p-4 border border-[#efe6d7]">
+            <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Product Reviews</p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Reviews and feedback for this product will appear here and the rating summary will update as customers submit feedback.
+            </p>
           </div>
         </section>
 
@@ -769,38 +782,6 @@ export default function ProductDetailPage() {
         </motion.div>
       )}
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-[#e5ddcf] bg-white/95 backdrop-blur px-4 py-3 space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="min-w-0">
-            <p className="text-[10px] tracking-widest uppercase text-gray-500">{selectedSize ? `Size ${selectedSize}` : 'Select Size'}</p>
-            <p className="font-serif text-lg leading-none">₹{product.price.toLocaleString('en-IN')}</p>
-          </div>
-          <button
-            type="button"
-            onClick={addSelectedItemToCart}
-            className="ml-auto bg-[#1a1a1a] text-white px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors font-medium whitespace-nowrap"
-          >
-            Add to Cart
-          </button>
-        </div>
-        <div className="flex gap-2 -mx-4 -mb-3 px-4 pb-3">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 text-center border border-[#25D366] text-[#25D366] py-2 text-[11px] tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors font-medium"
-          >
-            Chat
-          </a>
-          <Link
-            href="/checkout"
-            onClick={() => handleAddToCart()}
-            className="flex-1 text-center border border-[#1a1a1a] text-[#1a1a1a] py-2 text-[11px] tracking-widest uppercase hover:bg-[#1a1a1a] hover:text-white transition-colors font-medium"
-          >
-            Buy Now
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }

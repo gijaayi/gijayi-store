@@ -3,6 +3,8 @@ export interface Product {
   name: string;
   price: number;
   compareAtPrice?: number;
+  ratingAverage?: number;
+  ratingCount?: number;
   images: string[];
   category: string;
   collection: string;

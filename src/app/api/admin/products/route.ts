@@ -88,6 +88,8 @@ export async function POST(request: NextRequest) {
         slug,
         price,
         compareAtPrice: body.compareAtPrice ? Number(body.compareAtPrice) : undefined,
+        ratingAverage: body.ratingAverage !== undefined && body.ratingAverage !== '' ? Number(body.ratingAverage) : undefined,
+        ratingCount: body.ratingCount !== undefined && body.ratingCount !== '' ? Number(body.ratingCount) : undefined,
         images: images.length
           ? images
           : withImageVersionList(['https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80'], versionToken),
