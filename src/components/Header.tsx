@@ -338,7 +338,17 @@ export default function Header() {
               className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-white z-50 overflow-y-auto shadow-lg"
             >
               <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
-                <span className="font-serif text-xl sm:text-2xl tracking-widest uppercase">Gijayi</span>
+                <Link href="/" className="flex items-center gap-2">
+                  <Image
+                    src="/logo-full.png"
+                    alt="Gijayi"
+                    width={140}
+                    height={48}
+                    className="h-10 w-auto"
+                    priority
+                  />
+                  <span className="sr-only">Gijayi</span>
+                </Link>
                 <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-gray-100 rounded">
                   <X size={20} />
                 </button>

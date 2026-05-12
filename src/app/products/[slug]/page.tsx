@@ -278,10 +278,40 @@ export default function ProductDetailPage() {
                 <ZoomIn size={18} />
               </button>
 
+              {/* Top-left badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 {product.isNew && <span className="bg-[#1a1a1a] text-white text-[10px] px-2 py-1 tracking-widest uppercase">New</span>}
                 {product.isBestseller && <span className="bg-[#b8963e] text-white text-[10px] px-2 py-1 tracking-widest uppercase">Bestseller</span>}
                 {discount > 0 && <span className="bg-red-500 text-white text-[10px] px-2 py-1 tracking-widest uppercase">{discount}% Off</span>}
+              </div>
+
+              {/* Top-right action icons for mobile */}
+              <div className="absolute top-4 right-4 flex gap-2 md:hidden">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleWishlist();
+                  }}
+                  className={`rounded-full p-2.5 transition-all duration-200 ${wishlisted ? 'bg-[#b8963e] text-white' : 'bg-white/90 text-[#1a1a1a] hover:bg-[#b8963e] hover:text-white'}`}
+                  aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                  title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <Heart size={18} fill={wishlisted ? 'currentColor' : 'none'} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShareOpen(!shareOpen);
+                  }}
+                  className="rounded-full p-2.5 bg-white/90 text-[#1a1a1a] hover:bg-[#b8963e] hover:text-white transition-all duration-200"
+                  title="Share product"
+                  aria-expanded={shareOpen}
+                  aria-haspopup="menu"
+                >
+                  <Share2 size={18} />
+                </button>
               </div>
             </div>
 
@@ -426,10 +456,11 @@ export default function ProductDetailPage() {
                 <ShoppingBag size={16} />
                 Add to Bag
               </button>
+              {/* Desktop Heart and Share buttons - hidden on mobile since they're in the top-right overlay */}
               <button
                 type="button"
                 onClick={() => handleToggleWishlist()}
-                className={`border py-4 px-4 transition-all ${
+                className={`hidden sm:flex border py-4 px-4 transition-all items-center justify-center ${
                   wishlisted
                     ? 'bg-[#b8963e] border-[#b8963e] text-white'
                     : 'border-gray-200 hover:border-[#b8963e] hover:text-[#b8963e]'
@@ -439,30 +470,11 @@ export default function ProductDetailPage() {
               >
                 <Heart size={18} fill={wishlisted ? 'currentColor' : 'none'} />
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!product) return;
-                  if (!user) {
-                    window.location.href = `/login?redirect=/products/${slug}`;
-                    return;
-                  }
-                  toggleItem(product);
-                }}
-                className={`flex-1 border text-sm tracking-widest uppercase font-semibold rounded transition-all py-4 px-4 ${
-                  wishlisted
-                    ? 'bg-[#b8963e] text-white border-[#b8963e] hover:bg-[#a0824a]'
-                    : 'bg-white text-[#1a1a1a] border-[#e5ddcf] hover:border-[#b8963e] hover:text-[#b8963e]'
-                }`}
-                title={wishlisted ? 'Saved for Later' : 'Save for Later'}
-              >
-                {wishlisted ? '✓ Saved' : 'Buy Later'}
-              </button>
-              <div className="relative">
+              <div className="hidden sm:block relative">
                 <button
                   type="button"
                   onClick={() => setShareOpen(!shareOpen)}
-                  className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors"
+                  className="border border-gray-200 py-4 px-4 hover:border-[#b8963e] hover:text-[#b8963e] transition-colors flex items-center justify-center w-full h-full"
                   title="Share product"
                   aria-expanded={shareOpen}
                   aria-haspopup="menu"
@@ -470,13 +482,13 @@ export default function ProductDetailPage() {
                   <Share2 size={18} />
                 </button>
 
-                {/* Share Menu */}
+                {/* Share Menu - positioned based on screen size */}
                 {shareOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute bottom-full right-0 mb-2 min-w-max bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+                    className="absolute z-50 min-w-max bg-white border border-gray-200 rounded-lg shadow-lg md:bottom-full md:right-0 md:mb-2 bottom-full right-0 mb-2"
                   >
                     <div className="p-3 space-y-2">
                       {/* WhatsApp */}

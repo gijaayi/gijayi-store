@@ -44,12 +44,12 @@ export default function ContactPage() {
               <div className="border border-[#efe6d7] bg-white p-5">
                 <MapPin size={18} className="text-[#b8963e] mb-3" />
                 <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mb-2">Studio</p>
-                <p className="font-medium">123 Jewellery Lane, Mumbai 400001</p>
+                <p className="font-medium">1, Old Ganj, Rampur UP 244901</p>
               </div>
               <div className="border border-[#efe6d7] bg-white p-5">
                 <Clock size={18} className="text-[#b8963e] mb-3" />
                 <p className="text-xs tracking-[0.3em] uppercase text-gray-500 mb-2">Hours</p>
-                <p className="font-medium">Mon to Sat, 10 AM to 7 PM IST</p>
+                <p className="font-medium">Mon to Sat, 8 AM to 8 PM IST</p>
               </div>
             </div>
 

@@ -125,7 +125,7 @@ function RegisterPageContent() {
         {/* Footer */}
         <div className="text-center mt-6 space-y-2">
           <p className="text-xs text-slate-500">
-            By registering, you agree to our <Link href="/terms" className="text-slate-900 font-medium hover:underline">Terms of Service</Link>
+            By registering, you agree to our <Link href="/terms" className="text-slate-900 font-medium hover:underline">Return, Exchange & Repair Policy</Link>
           </p>
         </div>
       </div>

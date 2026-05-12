@@ -70,8 +70,8 @@ export default function RootLayout({
     "@type": "Organization",
     name: "Gijayi",
     url: siteUrl,
-    logo: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200",
     description: "Handcrafted Indian jewelry and bridal collections",
+    logo: `${siteUrl}/logo-full.svg`,
     sameAs: [
       "https://www.facebook.com/gijayi",
       "https://www.instagram.com/gijayi",
