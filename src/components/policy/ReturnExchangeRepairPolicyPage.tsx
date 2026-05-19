@@ -191,7 +191,7 @@ function HeroDecorations() {
         aria-hidden
         className="absolute -top-8 right-6 hidden md:block text-[#d4af64]/70"
         animate={{ y: [0, -10, 0], rotate: [0, 4, 0] }}
-        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 7, repeat: Infinity, ease: [0.42, 0, 0.58, 1] }}
       >
         <Sparkles className="h-8 w-8" />
       </motion.div>
@@ -199,7 +199,7 @@ function HeroDecorations() {
         aria-hidden
         className="absolute bottom-6 left-6 hidden md:block text-white/70"
         animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        transition={{ duration: 6, repeat: Infinity, ease: [0.42, 0, 0.58, 1] }}
       >
         <Heart className="h-7 w-7" />
       </motion.div>
@@ -261,7 +261,7 @@ function PolicyAccordion({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            transition={{ duration: 0.35, ease: [0.42, 0, 0.58, 1] }}
             className="border-t border-[#efe4d1] px-5 pb-6 sm:px-6"
           >
             <div className="pt-6">{children}</div>

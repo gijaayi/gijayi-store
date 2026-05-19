@@ -303,7 +303,7 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
         key={`content-${activeSlide}`}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 z-10 flex items-end md:items-center"
       >
         <div className="w-full px-5 pb-20 sm:px-8 md:pb-0 lg:px-12">
