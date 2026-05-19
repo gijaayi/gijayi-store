@@ -124,9 +124,9 @@ export default function AboutClient() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <motion.img initial={{ scale: 0.98 }} whileInView={{ scale: 1 }} viewport={{ once: true }} src="/founder.png" alt="Founder" className="w-full h-96 object-cover rounded-xl shadow-lg" />
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
-            <h3 className="text-3xl font-serif font-semibold mb-4">Founder — Aisha</h3>
+            <h3 className="text-3xl font-serif font-semibold mb-4">Founder — Urooj Khan</h3>
             <blockquote className="text-gray-700 italic">“We make jewellery that holds memory and meaning — small acts of craft that feel like home.”</blockquote>
-            <p className="mt-4 text-gray-700">Aisha founded Gijayi to celebrate craft and support artisan communities. Her vision blends subtle luxury with meaningful design.</p>
+            <p className="mt-4 text-gray-700">Urooj Khan founded Gijayi to celebrate craft and support artisan communities. Her vision blends subtle luxury with meaningful design.</p>
           </motion.div>
         </div>
       </section>

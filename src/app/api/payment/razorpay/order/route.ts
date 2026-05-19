@@ -85,14 +85,24 @@ export async function POST(request: NextRequest) {
     // Make request to Razorpay API
     const auth_string = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
 
-    const response = await fetch('https://api.razorpay.com/v1/orders', {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${auth_string}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(options),
-    });
+    const controller = new AbortController();
+    const timeoutMs = 12000;
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response: Response;
+    try {
+      response = await fetch('https://api.razorpay.com/v1/orders', {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${auth_string}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(options),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
 
     if (!response.ok) {
       const raw = await response.text();
@@ -124,6 +134,13 @@ export async function POST(request: NextRequest) {
       keyId,
     });
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Razorpay is taking too long to respond. Please try again.' },
+        { status: 504 }
+      );
+    }
+
     console.error('Payment order error:', error);
     return NextResponse.json(
       { error: 'Error creating payment order' },
