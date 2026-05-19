@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingBag, Search, Menu, X, ChevronDown, Heart } from 'lucide-react';
@@ -169,11 +168,9 @@ export default function Header() {
               <Menu size={20} className="sm:w-6 sm:h-6" />
             </button>
 
-            {/* Logo */}
-            <Link href="/" className="shrink-0 mx-auto sm:mx-0">
-              <span className="font-serif text-lg sm:text-2xl md:text-3xl tracking-[0.2em] text-[#1a1a1a] uppercase">
-                Gijayi
-              </span>
+            {/* Site title (styled like legacy logo) */}
+            <Link href="/" className="shrink-0 mx-auto sm:mx-0 flex items-center">
+              <span className="text-2xl font-serif font-semibold tracking-[0.65em] uppercase" aria-label="Gijayi">GIJAYI</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -339,17 +336,9 @@ export default function Header() {
               className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-white z-50 overflow-y-auto shadow-lg"
             >
               <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100">
-                <Link href="/" className="flex items-center gap-2">
-                  <Image
-                    src="/logo-full.png"
-                    alt="Gijayi"
-                    width={140}
-                    height={48}
-                    className="h-10 w-auto"
-                    priority
-                  />
-                  <span className="sr-only">Gijayi</span>
-                </Link>
+                  <Link href="/" className="flex items-center gap-2">
+                    <span className="text-2xl font-serif font-semibold tracking-[0.65em] uppercase" aria-label="Gijayi">GIJAYI</span>
+                  </Link>
                 <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-gray-100 rounded">
                   <X size={20} />
                 </button>

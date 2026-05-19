@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
@@ -20,14 +21,14 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Gijayi – Handcrafted Jewelry & Bridal Collections | Worldwide Shipping",
-  description: "Gijayi: Premium handcrafted jewelry and bridal collections. Shop authenticated Indian heritage pieces with worldwide shipping to USA, Europe, GCC & Asia. Private WhatsApp styling support.",
-  keywords: "handcrafted jewelry, bridal jewelry, luxury jewelry, jewelry worldwide, handmade bridal sets, Indian jewelry, statement jewelry, premium jewelry online",
+  title: "Gijayi – Women Led Start-up for Handcrafted Jewelry | Worldwide Shipping",
+  description: "Welcome to Gijayi Family. Shop carefully crafted jewelry from a women led start-up with secure payment and worldwide shipping.",
+  keywords: "women led start-up, secure payment, carefully crafted jewelry, worldwide shipping, handcrafted jewelry, bridal jewelry, luxury jewelry, jewelry worldwide, handmade bridal sets, Indian jewelry, statement jewelry, premium jewelry online",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com"),
   viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
   openGraph: {
-    title: "Gijayi – Handcrafted Jewelry & Bridal Collections",
-    description: "Premium handcrafted jewelry and bridal collections with worldwide shipping, secure checkout, and personalized styling support.",
+    title: "Welcome to Gijayi Family",
+    description: "Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.",
     siteName: "Gijayi",
     type: "website",
     locale: "en_IN",
@@ -43,8 +44,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gijayi – Handcrafted Jewelry",
-    description: "Premium bridal and statement jewelry with worldwide shipping and personal WhatsApp support.",
+    title: "Welcome to Gijayi Family",
+    description: "Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.",
   },
   robots: {
     index: true,
@@ -71,7 +72,6 @@ export default function RootLayout({
     name: "Gijayi",
     url: siteUrl,
     description: "Handcrafted Indian jewelry and bridal collections",
-    logo: `${siteUrl}/logo-full.svg`,
     sameAs: [
       "https://www.facebook.com/gijayi",
       "https://www.instagram.com/gijayi",
@@ -88,6 +88,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script id="google-tag-manager" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-92MWSPN2Y3" />
+        <Script
+          id="google-tag-manager-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-92MWSPN2Y3');
+            `,
+          }}
+        />
         <meta name="theme-color" content="#b8963e" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

@@ -152,6 +152,7 @@ export default function Footer() {
                 { label: 'Track Your Order', href: '/track-order' },
                 { label: 'Size Guide', href: '/size-guide' },
                 { label: 'Care Instructions', href: '/care' },
+                { label: 'About', href: '/about' },
                 { label: 'Privacy Policy', href: '/privacy' },
                 { label: 'Return, Exchange & Repair Policy', href: '/terms' },
               ].map((item) => (

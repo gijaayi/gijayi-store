@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import { Suspense, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { PackageCheck, Truck, ShoppingBag, Sparkles } from 'lucide-react';
 
@@ -85,12 +86,42 @@ function TrackOrderPageContent() {
 
       {!hasLookup && (
         <div className="grid gap-4 md:grid-cols-4">
-          {[ShoppingBag, Sparkles, PackageCheck, Truck].map((Icon, index) => (
+          {[
+            {
+              Icon: ShoppingBag,
+              text: 'You can find your order number in your confirmation email or WhatsApp update',
+            },
+            {
+              Icon: Sparkles,
+              text: 'Tracking details may take 24–48 hours to appear after dispatch',
+            },
+            {
+              Icon: PackageCheck,
+              text: 'For custom or made-to-order pieces, timelines may be slightly longer',
+            },
+            {
+              Icon: Truck,
+              text: 'Dispatch within 48 hours',
+            },
+          ].map(({ Icon, text }, index) => (
             <div key={index} className="border border-[#efe6d7] p-5 text-center">
               <Icon size={20} className="mx-auto text-[#b8963e] mb-3" />
-              <p className="text-sm text-gray-600">Every order passes through confirmation, finishing, packaging, and insured delivery.</p>
+              <p className="text-sm text-gray-600">{text}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {!hasLookup && (
+        <div className="mt-6 text-sm text-gray-700">
+          <p>
+            Every Gijayi order moves through careful confirmation, finishing, packaging, and insured delivery. For made-to-order or
+            customized jewellery, processing timelines may vary slightly.
+          </p>
+          <p className="mt-3">
+            Need help? <a href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20with%20my%20order." className="text-[#25D366]">Contact us on WhatsApp</a> or visit our{' '}
+            <Link href="/contact" className="underline">Contact page</Link>.
+          </p>
         </div>
       )}
 

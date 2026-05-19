@@ -8,16 +8,16 @@ export const dynamic = 'force-dynamic';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata: Metadata = {
-  title: 'Gijayi – Handcrafted Jewelry & Bridal Collections | Global Shipping',
-  description: 'Discover Gijayi handcrafted jewelry—authentic bridal collections, statement pieces, and heirloom designs. Worldwide shipping to USA, Europe, GCC, and beyond. Exclusive WhatsApp concierge support.',
-  keywords: 'handcrafted jewelry, bridal jewelry online, Indian jewelry international, luxury bridal sets, designer jewelry worldwide, kundan jewelry, polki jewelry, statement jewelry',
+  title: 'Gijayi – Women Led Start-up for Handcrafted Jewelry | Worldwide Shipping',
+  description: 'Welcome to Gijayi Family. Explore carefully crafted jewelry from a women led start-up with secure payment and worldwide shipping.',
+  keywords: 'women led start-up, secure payment, carefully crafted jewelry, worldwide shipping, handcrafted jewelry, bridal jewelry online, Indian jewelry international, luxury bridal sets, designer jewelry worldwide',
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: `${siteUrl}/`,
   },
   openGraph: {
-    title: 'Gijayi – Handcrafted Jewelry & Bridal Collections',
-    description: 'Premium handcrafted jewelry with worldwide shipping. Bridal collections, statement pieces, and heirloom designs for luxury celebrations.',
+    title: 'Welcome to Gijayi Family',
+    description: 'Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.',
     url: `${siteUrl}/`,
     siteName: 'Gijayi',
     type: 'website',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Gijayi – Handcrafted Jewelry',
-    description: 'Premium bridal and statement jewelry with worldwide shipping.',
+    title: 'Welcome to Gijayi Family',
+    description: 'Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.',
     images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90'],
   },
 };

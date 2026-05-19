@@ -669,7 +669,7 @@ export default function CheckoutPage() {
                 <Shield size={12} /> Secure payment via {paymentMethod === 'paypal' ? 'PayPal' : 'Razorpay'}
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-400">
-                <Truck size={12} /> {shippingCost === 0 ? 'Free shipping on first order' : 'Shipping: ₹99 for India'}
+                <Truck size={12} /> {shippingCost === 0 ? 'Enjoy free shipping complementary' : `Shipping: ${currency} ${displayPrice(shippingCost)}`}
               </div>
               <a
                 href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20with%20checkout%20or%20payment."

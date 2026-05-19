@@ -2,12 +2,44 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getAllCollections, getCollectionByHandle, getProductsByCollectionHandle } from '@/lib/shopify';
+import { readDatabase } from '@/lib/server/database';
 import ProductCard from '@/components/ProductCard';
 
 export const dynamic = 'force-dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+function getCollectionBannerImage(
+  slug: string,
+  fallbackImage: string,
+  collectionHighlights: {
+    bridalLuxe?: string;
+    heritage?: string;
+    everydayMinimal?: string;
+  },
+) {
+  const normalizedSlug = slug.trim().toLowerCase();
+
+  if (normalizedSlug === 'bridal-luxe' || normalizedSlug === 'bridal' || normalizedSlug === 'bridal-collection') {
+    return collectionHighlights.bridalLuxe || fallbackImage;
+  }
+
+  if (normalizedSlug === 'heritage') {
+    return collectionHighlights.heritage || fallbackImage;
+  }
+
+  if (
+    normalizedSlug === 'everyday-minimal'
+    || normalizedSlug === 'everyday'
+    || normalizedSlug === 'everyday-luxe'
+    || normalizedSlug === 'minimal'
+  ) {
+    return collectionHighlights.everydayMinimal || fallbackImage;
+  }
+
+  return fallbackImage;
 }
 
 export async function generateStaticParams() {
@@ -18,6 +50,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const collection = await getCollectionByHandle(slug);
+  const db = await readDatabase();
 
   if (!collection) {
     return {
@@ -27,6 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const url = `https://gijayi.com/collections/${collection.slug}`;
+  const bannerImage = getCollectionBannerImage(slug, collection.image, db.storefront.collectionHighlights);
 
   return {
     title: `${collection.name} Collection | Gijayi`,
@@ -39,13 +73,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: collection.description,
       type: 'website',
       url,
-      images: [{ url: collection.image, alt: collection.name }],
+      images: [{ url: bannerImage, alt: collection.name }],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${collection.name} Collection | Gijayi`,
       description: collection.description,
-      images: [collection.image],
+      images: [bannerImage],
     },
   };
 }
@@ -54,8 +88,10 @@ export default async function CollectionDetailPage({ params }: Props) {
   const { slug } = await params;
   const collection = await getCollectionByHandle(slug);
   if (!collection) notFound();
+  const db = await readDatabase();
 
   const collectionProducts = await getProductsByCollectionHandle(slug);
+  const bannerImage = getCollectionBannerImage(slug, collection.image, db.storefront.collectionHighlights);
 
   const collectionJsonLd = {
     '@context': 'https://schema.org',
@@ -63,7 +99,7 @@ export default async function CollectionDetailPage({ params }: Props) {
     name: `${collection.name} Collection`,
     description: collection.description,
     url: `https://gijayi.com/collections/${collection.slug}`,
-    image: collection.image,
+    image: bannerImage,
   };
 
   const breadcrumbJsonLd = {
@@ -105,7 +141,7 @@ export default async function CollectionDetailPage({ params }: Props) {
       {/* Hero */}
       <div className="relative h-[50vh] min-h-[320px] flex items-center">
         <Image
-          src={collection.image}
+          src={bannerImage}
           alt={collection.name}
           fill
           className="object-cover"

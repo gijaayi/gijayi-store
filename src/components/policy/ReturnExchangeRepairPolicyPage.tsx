@@ -31,8 +31,6 @@ type AccordionSection = {
   summary: string;
 };
 
-const heroBullets = ['48 Hours Only', 'Unboxing Video Mandatory', '6 Months Free Repair Support'];
-
 const heroImage = {
   src: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1400&q=90',
   alt: 'Elegant handcrafted jewellery displayed in a luxury setting',
@@ -323,7 +321,7 @@ export default function ReturnExchangeRepairPolicyPage() {
             <h1 className="font-serif text-lg text-[#1a1a1a] sm:text-xl">Return, Exchange & Repair Policy</h1>
           </div>
           <Link
-            href="#contact"
+            href="https://www.gijayi.com/contact"
             className="inline-flex items-center gap-2 rounded-full border border-[#1a1a1a]/10 bg-[#1a1a1a] px-4 py-2 text-xs font-medium tracking-widest text-white transition hover:bg-[#2a2a2a]"
           >
             Contact Support <ArrowRight className="h-4 w-4" />
@@ -360,7 +358,7 @@ export default function ReturnExchangeRepairPolicyPage() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
-                  href="#contact"
+                  href="https://www.gijayi.com/contact"
                   className="inline-flex items-center gap-2 rounded-full bg-[#d4af64] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1a1a1a] transition hover:bg-[#e6c978]"
                 >
                   Contact Support <ArrowRight className="h-4 w-4" />
@@ -369,28 +367,13 @@ export default function ReturnExchangeRepairPolicyPage() {
                   Premium Handcrafted Jewellery
                 </span>
               </div>
-              <div className="mt-8 hidden gap-3 sm:grid sm:grid-cols-3">
-                {heroBullets.map((item) => (
-                  <div key={item} className="rounded-2xl border border-white/15 bg-white/10 px-4 py-4 text-center text-white/90 backdrop-blur-md">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/75">Highlight</p>
-                    <p className="mt-2 text-sm font-medium tracking-[0.18em] uppercase">{item}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </motion.div>
       </section>
 
       <section className="mx-auto max-w-5xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="sticky top-18 z-40 mb-6 rounded-3xl border border-white/60 bg-white/80 px-4 py-3 shadow-[0_10px_30px_rgba(26,26,26,0.06)] backdrop-blur-xl sm:px-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#b8963e]">Policy overview</p>
-              <p className="mt-1 text-sm text-gray-600">Tap a section to expand the details.</p>
-            </div>
-          </div>
-        </div>
+        {/* Policy overview sticky header removed per request */}
 
         <div className="space-y-5">
           {policySections.map((section) => (
@@ -563,15 +546,13 @@ export default function ReturnExchangeRepairPolicyPage() {
               )}
 
               {section.id === 'cancellation' && (
-                <div className="grid gap-4 lg:grid-cols-[1fr_0.8fr]">
-                  <NoticeBox title="Orders cancellable before dispatch only" text="Cancellation requests are accepted only before the order is shipped. Once dispatched, cancellation is no longer possible." />
-                  <div className="rounded-3xl border border-[#efe4d1] bg-white p-5 shadow-sm">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#8a6f2e]">Key rule</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-700">
-                      No cancellation after shipping. If your order has already been handed over to the courier, please follow the
-                      exchange or repair support steps instead.
-                    </p>
-                  </div>
+                <div className="space-y-6">
+                  <NoticeBox
+                    title="Cancellation by Gijayi"
+                    text={
+                      'At Gijayi, we craft and deliver premium handcrafted jewelry with care. Occasionally we may need to decline or cancel an order. This can happen if an item is out of stock, we detect a pricing or product-detail error, there’s a potential fraud or security concern, or for any other reason that prevents us from fulfilling your order. In some cases we may ask for additional information before accepting an order. If we cancel your order—fully or partially—or require more details, we’ll notify you promptly and explain the next steps. Any payments for cancelled items will be refunded as per our refunds policy.'
+                    }
+                  />
                 </div>
               )}
             </PolicyAccordion>

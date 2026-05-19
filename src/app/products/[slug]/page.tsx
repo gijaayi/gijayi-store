@@ -92,6 +92,29 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleMobileShare = async () => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : `${siteUrl}/products/${slug}`;
+    const shareData = {
+      title: product?.name || 'Gijayi Product',
+      text: `Check out ${product?.name || 'this product'} from Gijayi`,
+      url: shareUrl,
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && 'share' in navigator) {
+        await navigator.share(shareData);
+        return;
+      }
+    } catch (error) {
+      // Ignore cancel/abort and continue to fallback below.
+    }
+
+    if (typeof window !== 'undefined') {
+      const whatsappShareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareData.text}: ${shareUrl}`)}`;
+      window.open(whatsappShareUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   useEffect(() => {
     let active = true;
 
@@ -303,7 +326,7 @@ export default function ProductDetailPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShareOpen(!shareOpen);
+                    handleMobileShare();
                   }}
                   className="rounded-full p-2.5 bg-white/90 text-[#1a1a1a] hover:bg-[#b8963e] hover:text-white transition-all duration-200"
                   title="Share product"
@@ -678,10 +701,7 @@ export default function ProductDetailPage() {
             <p className="text-sm text-gray-700">“Great quality at a fair price.” — Sana, Lucknow</p>
           </div>
           <div className="mt-4 rounded-2xl bg-white p-4 border border-[#efe6d7]">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b8963e] mb-2">Product Reviews</p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Reviews and feedback for this product will appear here and the rating summary will update as customers submit feedback.
-            </p>
+            {/* Product Reviews removed per request */}
           </div>
         </section>
 

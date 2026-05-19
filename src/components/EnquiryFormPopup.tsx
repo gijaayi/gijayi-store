@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles } from 'lucide-react';
+import { BadgeCheck, Sparkles, ShieldCheck, Truck, X } from 'lucide-react';
 
 interface EnquiryFormPopupProps {
   onClose?: () => void;
@@ -11,178 +11,95 @@ interface EnquiryFormPopupProps {
 
 export default function EnquiryFormPopup({ onClose, shouldShow = true }: EnquiryFormPopupProps) {
   const [isOpen, setIsOpen] = useState(shouldShow);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const highlightItems = [
+    { icon: BadgeCheck, label: 'Women led Start-up' },
+    { icon: ShieldCheck, label: 'Secure payment' },
+    { icon: Sparkles, label: 'Carefully Crafted' },
+    { icon: Truck, label: 'Worldwide Shipping' },
+  ];
 
   useEffect(() => {
     setIsOpen(shouldShow);
   }, [shouldShow]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      handleClose();
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
     if (onClose) onClose();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          source: 'popup',
-        }),
-      });
-
-      if (response.ok) {
-        setSubmitStatus('success');
-        setFormData({ name: '', email: '', phone: '', message: '' });
-        setTimeout(() => {
-          handleClose();
-          setSubmitStatus('idle');
-        }, 2000);
-      } else {
-        setSubmitStatus('error');
-      }
-    } catch {
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-120 flex items-center justify-center bg-black/50 p-2 sm:p-3 overflow-y-auto">
+        <div className="fixed inset-x-0 bottom-4 z-120 flex justify-center px-3 sm:px-4 pointer-events-none">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="relative bg-gradient-to-b from-[#fffbf5] to-[#faf6f0] rounded-xl shadow-2xl max-w-xs w-full max-h-[95vh] overflow-y-auto border-2 border-[#e9dfcd]"
+            initial={{ opacity: 0, y: 36, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+            className="pointer-events-auto relative w-full max-w-2xl overflow-hidden rounded-2xl border border-[#eadfca] bg-gradient-to-r from-[#fffaf2] via-[#ffffff] to-[#f7f1e6] shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
           >
-            {/* Gold accent top stripe */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#b8963e] via-[#d4af7a] to-[#b8963e] rounded-t-xl"></div>
-            {/* Close button */}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#b8963e] via-[#d4af7a] to-[#b8963e]" />
             <button
               onClick={handleClose}
-              className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/90 hover:bg-[#b8963e]/20 text-gray-500 hover:text-[#b8963e] z-10 transition-all rounded-full shadow-sm border border-gray-200"
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-[#e4d7bf] bg-white/90 text-gray-500 shadow-sm transition-all hover:bg-[#b8963e]/10 hover:text-[#b8963e]"
             >
               <X size={16} />
             </button>
 
-            {/* Content */}
-            <div className="px-4 py-5 mt-1">
-              {submitStatus === 'success' ? (
-                <div className="text-center py-8">
-                  <div className="text-5xl mb-2">✓</div>
-                  <p className="text-sm text-green-600 font-medium">Thank you for reaching out!</p>
-                  <p className="text-xs text-gray-600 mt-2">We'll be in touch shortly.</p>
-                </div>
-              ) : submitStatus === 'error' ? (
-                <div className="text-center py-4">
-                  <p className="text-sm text-red-600 font-medium mb-3">Something went wrong</p>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitStatus('idle')}
-                    className="text-xs text-[#b8963e] underline hover:text-[#d4af64]"
-                  >
-                    Try again
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {/* Icon and Header */}
-                  <div className="text-center mb-4">
-                    <motion.div
-                      animate={{ scale: [1, 1.15, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="flex justify-center mb-3"
-                    >
-                      <div className="bg-gradient-to-br from-[#d4af7a] to-[#b8963e] p-2.5 rounded-full">
-                        <Sparkles size={30} className="text-white" />
-                      </div>
-                    </motion.div>
-                    <h2 className="text-lg font-serif font-bold mb-1 text-[#1a1a1a] leading-tight">
-                      Jewellery that reflects your inner glow
-                    </h2>
-                    <p className="text-xs text-[#666] font-medium">
-                      Join Gijayi & unlock exclusive designs
-                    </p>
-                  </div>
+            <div className="flex flex-col gap-4 px-4 py-4 pr-12 sm:flex-row sm:items-center sm:gap-5 sm:px-5 sm:py-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4af7a] to-[#b8963e] shadow-md">
+                <motion.div animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 2.2, repeat: Infinity }}>
+                  <Sparkles size={28} className="text-white" />
+                </motion.div>
+              </div>
 
-                  {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-2">
-                    <div>
-                      <input
-                        type="text"
-                        name="name"
-                        placeholder="Your Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Your Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Your Phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs bg-white/80 backdrop-blur-sm transition-all"
-                      />
-                    </div>
-                    <div>
-                      <textarea
-                        name="message"
-                        placeholder="Tell us what you're looking for..."
-                        value={formData.message}
-                        onChange={handleChange}
-                        rows={1}
-                        className="w-full px-3 py-2 border-1.5 border-[#d4c4b0] rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20 text-xs resize-none bg-white/80 backdrop-blur-sm transition-all"
-                      />
-                    </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#b8963e]">Flash update</p>
+                <h2 className="mt-1 text-lg font-serif font-bold leading-tight text-[#1a1a1a] sm:text-xl">
+                  Welcome to Gijayi Family
+                </h2>
+                <p className="mt-1 text-sm text-[#5f5f5f]">
+                  Handmade jewellery, trusted checkout, and worldwide delivery built for every celebration.
+                </p>
 
-                    <div className="space-y-2 pt-2.5">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-gradient-to-r from-[#1a1a1a] to-[#333] text-white py-2 text-xs tracking-widest uppercase font-semibold hover:from-[#b8963e] hover:to-[#d4af7a] transition-all duration-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {highlightItems.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                      <span
+                        key={item.label}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[#e5d7bd] bg-white/80 px-3 py-1 text-[11px] font-medium text-[#2d2d2d] shadow-sm"
                       >
-                        {isSubmitting ? 'Sending...' : '✨ Get Exclusive Designs'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleClose}
-                        className="w-full border-2 border-[#b8963e] text-[#b8963e] py-1.5 text-xs tracking-widest uppercase font-medium hover:bg-gradient-to-r hover:from-[#b8963e]/10 hover:to-[#d4af7a]/10 transition-all duration-300 rounded-lg hover:border-[#d4af7a]"
-                      >
-                        Maybe Later
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
+                        <Icon size={13} className="text-[#b8963e]" />
+                        {item.label}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-stretch">
+                <a
+                  href="/shop"
+                  onClick={handleClose}
+                  className="inline-flex items-center justify-center rounded-xl bg-[#1a1a1a] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lg transition-all hover:bg-[#b8963e]"
+                >
+                  Explore
+                </a>
+              </div>
             </div>
           </motion.div>
         </div>
