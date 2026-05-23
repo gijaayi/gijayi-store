@@ -7,6 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import StoreChrome from "@/components/StoreChrome";
 import PopupManager from "@/components/PopupManager";
+import MetaPixelTracker from "@/components/MetaPixelTracker";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -88,6 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Tag Manager */}
         <Script id="google-tag-manager" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-0F8X38P7XQ" />
         <Script
           id="google-tag-manager-init"
@@ -101,6 +103,54 @@ export default function RootLayout({
             `,
           }}
         />
+
+        {/* Meta Pixel - Facebook Pixel */}
+        {/* Prevent duplicate pixel loading with typeof fbq check */}
+        <Script
+          id="meta-pixel-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Prevent duplicate pixel initialization
+              if (typeof window !== 'undefined' && !window.fbq) {
+                !function(f,b,e,v,n,t,s){
+                  if(f.fbq)return;
+                  n=f.fbq=function(){
+                    n.callMethod ? n.callMethod.apply(n,arguments) : n.queue.push(arguments)
+                  };
+                  if(!f._fbq)f._fbq=n;
+                  n.push=n;
+                  n.loaded=!0;
+                  n.version='2.0';
+                  n.queue=[];
+                  t=b.createElement(e);
+                  t.async=!0;
+                  t.src=v;
+                  s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)
+                }(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+                
+                // Initialize Meta Pixel with Gijayi Pixel ID
+                fbq('init', '828188160054861');
+                
+                // Track initial PageView
+                fbq('track', 'PageView');
+              }
+            `,
+          }}
+        />
+
+        {/* Meta Pixel noscript fallback */}
+        <noscript>
+          <img
+            height="1"
+            width="1"
+            style={{ display: "none" }}
+            src="https://www.facebook.com/tr?id=828188160054861&ev=PageView&noscript=1"
+            alt="Meta Pixel"
+          />
+        </noscript>
+
         <meta name="theme-color" content="#b8963e" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -115,6 +165,8 @@ export default function RootLayout({
         <CartProvider>
           <AuthProvider>
             <WishlistProvider>
+              {/* Track route changes for Meta Pixel PageView events */}
+              <MetaPixelTracker />
               <PopupManager />
               <StoreChrome>{children}</StoreChrome>
             </WishlistProvider>
