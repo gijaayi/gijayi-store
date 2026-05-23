@@ -21,14 +21,14 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Gijayi – Women Led Start-up for Handcrafted Jewelry | Worldwide Shipping",
-  description: "Welcome to Gijayi Family. Shop carefully crafted jewelry from a women led start-up with secure payment and worldwide shipping.",
-  keywords: "women led start-up, secure payment, carefully crafted jewelry, worldwide shipping, handcrafted jewelry, bridal jewelry, luxury jewelry, jewelry worldwide, handmade bridal sets, Indian jewelry, statement jewelry, premium jewelry online",
+  title: "Gijayi | Handcrafted Luxury Jewelry",
+  description: "Gijayi offers bespoke Indian jewelry and bridal heirloom designs. Shop artisan crafted pieces with global shipping and premium service.",
+  keywords: "bespoke jewelry, handcrafted jewelry, bridal jewelry, luxury jewelry, Indian jewelry, artisan jewelry, Gijayi, premium jewelry online",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com"),
   viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
   openGraph: {
-    title: "Welcome to Gijayi Family",
-    description: "Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.",
+    title: "Gijayi | Handcrafted Luxury Jewelry",
+    description: "Bespoke Indian jewelry, bridal sets, and heirloom craftsmanship from Gijayi. Global shipping and personalized styling support.",
     siteName: "Gijayi",
     type: "website",
     locale: "en_IN",
@@ -37,15 +37,15 @@ export const metadata: Metadata = {
         url: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90",
         width: 1200,
         height: 630,
-        alt: "Gijayi Handcrafted Jewelry",
+        alt: "Gijayi Handcrafted Luxury Jewelry",
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Welcome to Gijayi Family",
-    description: "Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.",
+    title: "Gijayi | Handcrafted Luxury Jewelry",
+    description: "Bespoke Indian jewelry, bridal sets, and heirloom craftsmanship from Gijayi.",
   },
   robots: {
     index: true,
@@ -88,7 +88,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <Script id="google-tag-manager" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-92MWSPN2Y3" />
+        <Script id="google-tag-manager" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-0F8X38P7XQ" />
         <Script
           id="google-tag-manager-init"
           strategy="afterInteractive"
@@ -97,7 +97,7 @@ export default function RootLayout({
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-92MWSPN2Y3');
+              gtag('config', 'G-0F8X38P7XQ');
             `,
           }}
         />
@@ -105,7 +105,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}

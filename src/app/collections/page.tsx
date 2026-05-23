@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata = {
-  title: 'Jewelry Collections | Bridal, Heritage & Statement – Gijayi',
+  title: 'Collections | Gijayi',
   description: 'Discover Gijayi\'s curated collections: bridal luxury, heritage designs, everyday statement pieces, and luxury moments. Handcrafted and shipped worldwide.',
   keywords: 'jewelry collections, bridal jewelry collections, heritage jewelry, designer collections, statement jewelry, luxury jewelry collections, bridal sets',
   metadataBase: new URL(siteUrl),
@@ -16,7 +16,7 @@ export const metadata = {
     canonical: `${siteUrl}/collections`,
   },
   openGraph: {
-    title: 'Luxury Jewelry Collections – Gijayi',
+    title: 'Collections | Gijayi',
     description: 'Curated collections of handcrafted jewelry for bridal, heritage, and everyday luxury. Worldwide shipping and private WhatsApp styling support.',
     url: `${siteUrl}/collections`,
     siteName: 'Gijayi',
@@ -32,7 +32,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Luxury Jewelry Collections – Gijayi',
+    title: 'Collections | Gijayi',
     description: 'Curated collections for bridal, heritage, and everyday luxury moments worldwide.',
   },
 };

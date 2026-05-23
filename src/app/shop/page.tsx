@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata = {
-  title: 'Shop Handcrafted Jewelry | Worldwide Shipping – Gijayi',
+  title: 'Shop | Gijayi',
   description: 'Browse handcrafted jewelry collections perfect for every occasion. Bridal luxury, statement pieces, and heritage designs. Free shipping in India, worldwide delivery available.',
   keywords: 'handcrafted jewelry, bridal jewelry shop, statement jewelry, luxury jewelry, jewelry worldwide shipping, Indian jewelry international, designer jewelry online',
   metadataBase: new URL(siteUrl),
@@ -14,7 +14,7 @@ export const metadata = {
     canonical: `${siteUrl}/shop`,
   },
   openGraph: {
-    title: 'Shop Handcrafted Jewelry – Worldwide Shipping',
+    title: 'Shop | Gijayi',
     description: 'Premium handcrafted jewelry curated for bridal, celebrations, and everyday luxury. Ships to USA, Europe, Asia & more with secure checkout.',
     url: `${siteUrl}/shop`,
     siteName: 'Gijayi',
@@ -30,7 +30,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shop Gijayi – Handcrafted Jewelry',
+    title: 'Shop | Gijayi',
     description: 'Premium bridal and statement jewelry with international shipping available.',
   },
 };

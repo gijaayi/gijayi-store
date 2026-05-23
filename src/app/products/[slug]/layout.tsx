@@ -26,13 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const url = `${SITE_URL}/products/${product.slug}`;
 
   return {
-    title: `${product.name} – Gijayi Store`,
+    title: `${product.name} | Gijayi`,
     description: seoDescription,
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title: `${product.name} – Gijayi Store`,
+      title: `${product.name} | Gijayi`,
       description: seoDescription,
       type: 'website',
       url,
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} – Gijayi Store`,
+      title: `${product.name} | Gijayi`,
       description: seoDescription,
       images: image ? [image] : undefined,
     },

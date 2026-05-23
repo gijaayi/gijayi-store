@@ -344,10 +344,11 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
     subtitle: 'From authenticity to delivery, every stage is designed for premium confidence.',
   },
   trustSignals: [
-    { title: 'Certified Authentic', desc: 'Every piece includes authenticity-backed quality checks.' },
-    { title: 'Premium Shipping', desc: 'Safe and trackable delivery with complimentary packaging.' },
-    { title: 'Easy Returns', desc: 'Simple return support with assisted pickup flow.' },
-    { title: 'Style Concierge', desc: 'Personal guidance for bridal, gifting, and festive edits.' },
+    { title: 'Secure Checkout', desc: 'Shop with confidence through our secure payment flow and trusted checkout experience.' },
+    { title: 'Handcrafted Premium Jewellery', desc: 'Every piece is designed and hand-finished with premium materials and artisanal care.' },
+    { title: 'Trusted by Customers', desc: 'Loved by customers across India for quality, service, and beautiful craftsmanship.' },
+    { title: 'GST Registered', desc: 'A fully GST-registered brand offering compliant invoicing and reliable shipping.' },
+    { title: 'Women-Led Brand', desc: 'A purpose-driven women-led jewelry house committed to craft, trust, and service.' },
   ],
   testimonialsSection: {
     badge: 'Loved By Customers',

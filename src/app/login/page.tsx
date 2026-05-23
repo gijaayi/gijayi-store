@@ -1,5 +1,6 @@
 'use client';
 
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
@@ -142,6 +143,11 @@ function LoginPageContent() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Login | Gijayi',
+  description: 'Access your Gijayi account to review orders, manage your cart, and continue shopping.',
+};
 
 export default function LoginPage() {
   return (

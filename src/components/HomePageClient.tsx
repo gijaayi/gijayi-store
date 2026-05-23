@@ -84,7 +84,7 @@ interface HomePageClientProps {
 }
 
 const luxuryIcons = [BadgeCheck, Gem, Truck];
-const trustIcons = [Shield, Truck, RotateCcw, Sparkles];
+const trustIcons = [Shield, Truck, RotateCcw, Sparkles, BadgeCheck];
 const defaultSecondaryMedia = {
   enabled: false,
   image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=900&q=90',
@@ -595,7 +595,7 @@ function EditorialSection() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="bg-linear-to-br from-slate-900 to-slate-800 text-white flex items-center px-8 md:px-16 py-16 md:py-24 order-1 md:order-2"
+          className="bg-black text-white flex items-center px-8 md:px-16 py-16 md:py-24 order-1 md:order-2"
         >
           <div>
             <p className="text-[10px] tracking-[0.5em] uppercase text-slate-300 mb-6 font-medium">Our House Story</p>
@@ -653,7 +653,7 @@ function NewArrivalsSection({ products, storefront }: { products: Product[]; sto
 
 function TrustSection({ storefront }: { storefront: StorefrontSettings }) {
   const trustSection = storefront.trustSection || defaultTrustSection;
-  const trustSignals = storefront.trustSignals.slice(0, 4).map((item, index) => ({
+  const trustSignals = storefront.trustSignals.slice(0, 5).map((item, index) => ({
     ...item,
     icon: trustIcons[index] || Shield,
   }));

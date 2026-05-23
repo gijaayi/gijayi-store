@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata: Metadata = {
-  title: 'Shopping Bag – Gijayi',
+  title: 'Cart | Gijayi',
   description: 'Review your items, manage quantities, and proceed to checkout. Free shipping on orders over ₹5,000 in India. International shipping available.',
   keywords: 'shopping cart, jewelry shopping bag, checkout, free shipping',
   metadataBase: new URL(siteUrl),
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     follow: false,
   },
   openGraph: {
-    title: 'Shopping Bag – Gijayi',
+    title: 'Cart | Gijayi',
     description: 'Review your handcrafted jewelry items and proceed to secure checkout.',
     url: `${siteUrl}/cart`,
     siteName: 'Gijayi',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shopping Bag – Gijayi',
+    title: 'Cart | Gijayi',
     description: 'Review and checkout your handcrafted jewelry items.',
   },
 };

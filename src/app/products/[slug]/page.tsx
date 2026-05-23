@@ -597,7 +597,7 @@ export default function ProductDetailPage() {
               rel="noopener noreferrer"
               className="block mb-8 w-full text-center border border-[#25D366] text-[#25D366] py-4 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
             >
-              Chat on WhatsApp
+              WhatsApp for bulk sourcing
             </a>
 
             {/* Tabs */}

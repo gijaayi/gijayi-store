@@ -1,5 +1,6 @@
 'use client';
 
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -125,6 +126,11 @@ function AdminLoginContent() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: 'Admin Login | Gijayi',
+  description: 'Secure admin access for Gijayi store management and dashboard controls.',
+};
 
 export default function AdminLoginPage() {
   return (

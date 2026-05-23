@@ -4,7 +4,7 @@ import AboutClient from '../../components/about/AboutClient';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata: Metadata = {
-  title: 'About Gijayi – Handcrafted Luxury Jewelry',
+  title: 'About Us | Gijayi',
   description: "Gijayi — handcrafted heirloom jewelry, preserving craft and supporting artisan communities.",
   metadataBase: new URL(siteUrl),
 };

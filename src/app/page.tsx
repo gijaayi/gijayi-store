@@ -8,16 +8,16 @@ export const dynamic = 'force-dynamic';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata: Metadata = {
-  title: 'Gijayi – Women Led Start-up for Handcrafted Jewelry | Worldwide Shipping',
-  description: 'Welcome to Gijayi Family. Explore carefully crafted jewelry from a women led start-up with secure payment and worldwide shipping.',
-  keywords: 'women led start-up, secure payment, carefully crafted jewelry, worldwide shipping, handcrafted jewelry, bridal jewelry online, Indian jewelry international, luxury bridal sets, designer jewelry worldwide',
+  title: 'Gijayi Homepage',
+  description: 'Explore Gijayi’s curated jewelry collections, artisanal bridal pieces, and luxury heritage designs with global shipping and personalized styling.',
+  keywords: 'Gijayi homepage, handcrafted jewelry, bridal jewelry, luxury jewelry, Indian jewelry online, artisan jewelry, designer jewelry',
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: `${siteUrl}/`,
   },
   openGraph: {
-    title: 'Welcome to Gijayi Family',
-    description: 'Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.',
+    title: 'Gijayi Homepage',
+    description: 'Explore Gijayi’s curated jewelry collections, artisanal bridal pieces, and luxury heritage designs.',
     url: `${siteUrl}/`,
     siteName: 'Gijayi',
     type: 'website',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Welcome to Gijayi Family',
-    description: 'Women led start-up with carefully crafted jewelry, secure payment, and worldwide shipping.',
+    title: 'Gijayi Homepage',
+    description: 'Explore Gijayi’s curated jewelry collections, artisanal bridal pieces, and luxury heritage designs.',
     images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90'],
   },
 };

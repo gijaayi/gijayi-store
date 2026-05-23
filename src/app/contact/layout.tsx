@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata: Metadata = {
-  title: 'Contact Gijayi – Styling Help, Custom Orders & Support',
+  title: 'Contact Us | Gijayi',
   description: 'Reach Gijayi concierge for bridal styling, custom jewelry orders, international shipping help, and personalized support. Direct WhatsApp, email, and phone channels.',
   keywords: 'contact Gijayi, fashion styling help, custom jewelry orders, bridal consultation, jewelry support, international shipping help, WhatsApp support',
   metadataBase: new URL(siteUrl),
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/contact`,
   },
   openGraph: {
-    title: 'Contact Gijayi – Concierge & Styling Support',
+    title: 'Contact Us | Gijayi',
     description: 'Direct contact for bridal consultations, styling help, and personalized jewelry expertise. Available via WhatsApp, email, and phone.',
     url: `${siteUrl}/contact`,
     siteName: 'Gijayi',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Contact Gijayi Concierge',
+    title: 'Contact Us | Gijayi',
     description: 'Personalized styling, bridal consultations, and customer support.',
   },
 };
