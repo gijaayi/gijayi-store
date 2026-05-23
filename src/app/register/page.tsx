@@ -1,6 +1,5 @@
 'use client';
 
-import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
@@ -133,11 +132,6 @@ function RegisterPageContent() {
     </div>
   );
 }
-
-export const metadata: Metadata = {
-  title: 'Register | Gijayi',
-  description: 'Create your Gijayi account to shop curated jewelry, save favorites, and securely checkout.',
-};
 
 export default function RegisterPage() {
   return (
