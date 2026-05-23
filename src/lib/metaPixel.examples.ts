@@ -2,15 +2,19 @@
  * Meta Pixel Implementation Examples & Usage Guide
  * For Gijayi Jewelry Store
  * 
- * This file demonstrates how to use the Meta Pixel tracking functions
- * throughout your Next.js application.
+ * This file contains code examples for implementing Meta Pixel tracking.
+ * These are reference examples - copy and adapt to your actual components.
  */
 
+/*
 // ============================================
 // PRODUCT PAGE EXAMPLE
 // ============================================
 // File: src/app/products/[slug]/page.tsx
 
+"use client";
+
+import { useEffect } from "react";
 import { trackViewContent } from "@/lib/metaPixel";
 
 export default function ProductPage({ product }: { product: ProductData }) {
@@ -28,11 +32,13 @@ export default function ProductPage({ product }: { product: ProductData }) {
 
   return (
     <div>
-      {/* Product details */}
+      {// Product details }
     </div>
   );
 }
+*/
 
+/*
 // ============================================
 // ADD TO CART EXAMPLE
 // ============================================
@@ -46,7 +52,9 @@ function addProductToCart(product: ProductData, quantity: number) {
   // Track the add to cart event
   trackAddToCart(product, quantity);
 }
+*/
 
+/*
 // ============================================
 // CHECKOUT INITIATION EXAMPLE
 // ============================================
@@ -69,7 +77,9 @@ function startCheckout(cartItems: CartItem[], totalValue: number) {
 
   // Proceed with checkout...
 }
+*/
 
+/*
 // ============================================
 // PURCHASE/CONVERSION EXAMPLE
 // ============================================
@@ -93,7 +103,9 @@ export async function handleOrderCompletion(order: OrderData) {
     })),
   });
 }
+*/
 
+/*
 // ============================================
 // LEAD TRACKING EXAMPLE
 // ============================================
@@ -112,7 +124,9 @@ export async function handleContactFormSubmit(formData: ContactFormData) {
     last_name: formData.lastName,
   });
 }
+*/
 
+/*
 // ============================================
 // NEWSLETTER SIGNUP EXAMPLE
 // ============================================
@@ -134,7 +148,9 @@ async function handleNewsletterSignup(email: string) {
     });
   }
 }
+*/
 
+/*
 // ============================================
 // USER REGISTRATION EXAMPLE
 // ============================================
@@ -148,7 +164,9 @@ async function handleRegistration(userData: RegistrationData) {
   // Track registration completion
   trackCompleteRegistration();
 }
+*/
 
+/*
 // ============================================
 // CUSTOM EVENT TRACKING EXAMPLE
 // ============================================
@@ -169,7 +187,9 @@ function addToWishlist(productId: string) {
     product_id: productId,
   });
 }
+*/
 
+/*
 // ============================================
 // INTEGRATION WITH CART CONTEXT
 // ============================================
@@ -200,7 +220,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     </CartContext.Provider>
   );
 }
+*/
 
+/*
 // ============================================
 // DEBUGGING & VERIFICATION
 // ============================================
@@ -215,60 +237,61 @@ function debugMetaPixel() {
     console.log("fbq available:", typeof window !== "undefined" && typeof (window as any).fbq !== "undefined");
   }
 }
+*/
 
+/*
 // ============================================
 // META EVENTS MANAGER VERIFICATION
 // ============================================
 
-/**
- * To verify Meta Pixel is working in Meta Events Manager:
- * 
- * 1. Go to Meta Business Suite: https://business.facebook.com/
- * 2. Navigate to Events Manager
- * 3. Select your pixel (828188160054861)
- * 4. Check "Test Events" tab
- * 5. You should see:
- *    - PageView events on every page navigation
- *    - ViewContent when viewing products
- *    - AddToCart when adding items
- *    - InitiateCheckout during checkout
- *    - Purchase on order completion
- * 
- * If events don't appear:
- * - Check browser console for errors
- * - Verify pixel ID is correct
- * - Check if website is in production (not localhost)
- * - Wait 15-20 minutes for Events Manager to update
- * - Ensure cookies are not blocked
- */
+To verify Meta Pixel is working in Meta Events Manager:
 
+1. Go to Meta Business Suite: https://business.facebook.com/
+2. Navigate to Events Manager
+3. Select your pixel (828188160054861)
+4. Check "Test Events" tab
+5. You should see:
+   - PageView events on every page navigation
+   - ViewContent when viewing products
+   - AddToCart when adding items
+   - InitiateCheckout during checkout
+   - Purchase on order completion
+
+If events don't appear:
+- Check browser console for errors
+- Verify pixel ID is correct
+- Check if website is in production (not localhost)
+- Wait 15-20 minutes for Events Manager to update
+- Ensure cookies are not blocked
+*/
+
+/*
 // ============================================
 // NEXT STEPS FOR IMPLEMENTATION
 // ============================================
 
-/**
- * 1. PRODUCT PAGES:
- *    - Add trackViewContent to [slug]/page.tsx
- *    - Track when product details load
- * 
- * 2. CART FUNCTIONALITY:
- *    - Add trackAddToCart to CartContext or cart management
- *    - Fire when user adds items to cart
- * 
- * 3. CHECKOUT PROCESS:
- *    - Add trackInitiateCheckout when user starts checkout
- *    - Add trackPurchase on order success
- * 
- * 4. FORMS & LEADS:
- *    - Add trackLead to contact form submissions
- *    - Add trackLead to newsletter signups
- * 
- * 5. USER REGISTRATION:
- *    - Add trackCompleteRegistration after sign up
- * 
- * 6. TESTING:
- *    - Test in development (use localhost with pixel test events)
- *    - Deploy to Vercel
- *    - Verify events in Meta Events Manager
- *    - Monitor conversion funnel
- */
+1. PRODUCT PAGES:
+   - Add trackViewContent to [slug]/page.tsx
+   - Track when product details load
+
+2. CART FUNCTIONALITY:
+   - Add trackAddToCart to CartContext or cart management
+   - Fire when user adds items to cart
+
+3. CHECKOUT PROCESS:
+   - Add trackInitiateCheckout when user starts checkout
+   - Add trackPurchase on order success
+
+4. FORMS & LEADS:
+   - Add trackLead to contact form submissions
+   - Add trackLead to newsletter signups
+
+5. USER REGISTRATION:
+   - Add trackCompleteRegistration after sign up
+
+6. TESTING:
+   - Test in development (use localhost with pixel test events)
+   - Deploy to Vercel
+   - Verify events in Meta Events Manager
+   - Monitor conversion funnel
+*/
