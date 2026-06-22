@@ -23,6 +23,8 @@ import {
   Wrench,
 } from 'lucide-react';
 
+const WEBSITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+
 type AccordionSection = {
   id: string;
   title: string;
@@ -321,7 +323,7 @@ export default function ReturnExchangeRepairPolicyPage() {
             <h1 className="font-serif text-lg text-[#1a1a1a] sm:text-xl">Return, Exchange & Repair Policy</h1>
           </div>
           <Link
-            href="https://www.gijayi.com/contact"
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-full border border-[#1a1a1a]/10 bg-[#1a1a1a] px-4 py-2 text-xs font-medium tracking-widest text-white transition hover:bg-[#2a2a2a]"
           >
             Contact Support <ArrowRight className="h-4 w-4" />
@@ -358,7 +360,7 @@ export default function ReturnExchangeRepairPolicyPage() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
-                  href="https://www.gijayi.com/contact"
+                  href="/contact"
                   className="inline-flex items-center gap-2 rounded-full bg-[#d4af64] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1a1a1a] transition hover:bg-[#e6c978]"
                 >
                   Contact Support <ArrowRight className="h-4 w-4" />
@@ -579,7 +581,7 @@ export default function ReturnExchangeRepairPolicyPage() {
                 <Link href="mailto:gijaayi@gmail.com" className="inline-flex items-center gap-2 rounded-full bg-[#d4af64] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1a1a1a] transition hover:bg-[#e6c978]">
                   <Mail className="h-4 w-4" /> Email Support
                 </Link>
-                <Link href="https://www.gijayi.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/15">
+                <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/15">
                   <Globe className="h-4 w-4" /> Visit Website
                 </Link>
               </div>

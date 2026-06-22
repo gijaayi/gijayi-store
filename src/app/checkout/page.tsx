@@ -135,6 +135,7 @@ export default function CheckoutPage() {
       const razorpayOrderResponse = await fetch('/api/payment/razorpay/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           amount: total * exchangeRate,
           currency,
@@ -183,6 +184,7 @@ export default function CheckoutPage() {
               const verifyResponse = await fetch('/api/payment/razorpay/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
@@ -201,6 +203,7 @@ export default function CheckoutPage() {
               const orderResponse = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({
                   items: state.items.map((item) => ({
                     productId: item.product.id,
@@ -263,6 +266,7 @@ export default function CheckoutPage() {
       const paypalOrderResponse = await fetch('/api/payment/paypal/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           amount: total * exchangeRate,
           currency,
@@ -313,6 +317,7 @@ export default function CheckoutPage() {
       const verifyResponse = await fetch('/api/payment/paypal/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: paypalOrderId }),
       });
 
@@ -329,6 +334,7 @@ export default function CheckoutPage() {
       const orderResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           items: state.items.map((item) => ({
             productId: item.product.id,
