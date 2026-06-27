@@ -359,113 +359,224 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <>
+            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-50"
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               onClick={() => setMobileOpen(false)}
             />
+
+            {/* Drawer */}
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 left-0 h-full w-72 sm:w-80 bg-[#0f0f0f] z-50 overflow-y-auto shadow-black/30"
+              transition={{ type: 'tween', duration: 0.28, ease: 'easeOut' }}
+              className="fixed top-0 left-0 h-full w-[82vw] max-w-[340px] bg-[#0a0a0a] z-50 overflow-y-auto flex flex-col"
+              style={{ borderRight: '1px solid #2d2416' }}
             >
-              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-[#2d2416]">
-                  <Link href="/" className="flex items-center gap-2">
-                    <span className="text-2xl font-serif font-semibold tracking-[0.65em] uppercase text-[#f5e7c1]" aria-label="Gijayi">GIJAYI</span>
-                  </Link>
-                <button onClick={() => setMobileOpen(false)} className="p-1 hover:bg-[#171717] rounded">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-[#2d2416] shrink-0">
+                <Link href="/" onClick={() => setMobileOpen(false)}>
+                  <div className="relative w-[140px] h-[56px]">
+                    <Image
+                      src="/logo.png"
+                      alt="Gijayi"
+                      fill
+                      className="object-contain mix-blend-lighten"
+                      sizes="140px"
+                    />
+                  </div>
+                </Link>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="p-2 rounded-lg hover:bg-[#1a1a1a] transition-colors"
+                  aria-label="Close menu"
+                >
                   <X size={20} className="text-[#f5e7c1]" />
                 </button>
               </div>
-              <nav className="p-4 sm:p-6 space-y-3 sm:space-y-4 text-[#f5e7c1]">
-                <div className="pb-4 sm:pb-6 border-b border-[#2d2416]">
-                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-2 border border-[#2d2416] bg-[#171717] px-3 py-2.5 rounded">
-                    <Search size={14} className="text-[#d4af37]" />
-                    <input
-                      type="text"
-                      value={searchValue}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                      placeholder="Search the store"
-                      className="flex-1 text-sm text-[#f5e7c1] bg-transparent outline-none placeholder:text-[#d4af37]/70"
-                    />
-                  </form>
-                </div>
-                {navLinks.map((link) => (
-                  <div key={link.label} className="space-y-1">
-                    <Link
-                      href={link.href}
-                      className="block text-sm sm:text-base tracking-widest uppercase font-medium text-[#f5e7c1] py-2 hover:text-[#d4af37] transition-colors"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                    {link.children && link.children.length > 0 && (
-                      <div className="pl-4 space-y-2">
-                        {link.children.map((child) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            className="block text-xs sm:text-sm tracking-widest uppercase text-[#777] hover:text-[#b8963e] py-1.5 transition-colors"
-                            onClick={() => setMobileOpen(false)}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+
+              {/* User Greeting */}
+              {user && (
+                <div className="px-5 py-3 bg-[#141414] border-b border-[#2d2416] flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#2d2416] border border-[#d4af37]/30 flex items-center justify-center">
+                    <span className="text-[#d4af37] text-sm font-semibold uppercase">
+                      {user.name?.charAt(0) || 'G'}
+                    </span>
                   </div>
-                ))}
-                <div className="pt-3 sm:pt-4 border-t border-[#2d2416] grid grid-cols-2 gap-2 sm:gap-3 text-xs tracking-widest uppercase">
-                  <Link href="/wishlist" className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                    Wishlist
-                  </Link>
-                  <Link href="/track-order" className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                    Track Order
-                  </Link>
+                  <div>
+                    <p className="text-[11px] text-[#888] tracking-widest uppercase">Welcome back</p>
+                    <p className="text-sm text-[#f5e7c1] font-medium">{firstName}</p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs tracking-widest uppercase">
-                  {user ? (
-                    <>
-                      {user.role === 'admin' ? (
-                        <Link href="/admin" className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                          Admin
-                        </Link>
-                      ) : (
-                        <Link href="/profile" className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                          {firstName}
-                        </Link>
-                      )}
-                      <button
-                        onClick={async () => {
-                          await logout();
-                          setMobileOpen(false);
-                          router.refresh();
-                        }}
-                        className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded"
-                      >
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link href="/login" className="border border-[#2d2416] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:border-[#d4af37] hover:text-[#d4af37] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                        Login
-                      </Link>
-                      <Link href="/register" className="border border-[#d4af37] text-[#f5e7c1] px-3 sm:px-4 py-3 text-center hover:bg-[#d4af37] hover:text-[#0f0f0f] transition-colors rounded" onClick={() => setMobileOpen(false)}>
-                        Register
-                      </Link>
-                    </>
+              )}
+
+              {/* Search */}
+              <div className="px-5 py-4 border-b border-[#1e1e1e]">
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="flex items-center gap-2 bg-[#141414] border border-[#2d2416] rounded-xl px-3 py-2.5 focus-within:border-[#d4af37]/50 transition-colors"
+                >
+                  <Search size={14} className="text-[#d4af37] shrink-0" />
+                  <input
+                    type="text"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder="Search jewellery..."
+                    className="flex-1 text-sm text-[#f5e7c1] bg-transparent outline-none placeholder:text-[#555]"
+                  />
+                  {searchValue && (
+                    <button type="submit" className="text-[10px] tracking-widest text-[#d4af37] uppercase shrink-0">
+                      Go
+                    </button>
                   )}
+                </form>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex-1 px-4 py-3 space-y-1">
+                {navLinks.map((link) => {
+                  const hasChildren = link.children && link.children.length > 0;
+                  const isExpanded = activeDropdown === link.label;
+
+                  return (
+                    <div key={link.label}>
+                      <div className="flex items-center">
+                        <Link
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex-1 py-3 px-3 text-sm tracking-widest uppercase font-semibold text-[#f5e7c1] hover:text-[#d4af37] transition-colors rounded-lg hover:bg-[#141414]"
+                        >
+                          {link.label}
+                        </Link>
+                        {hasChildren && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveDropdown(isExpanded ? null : link.label)}
+                            className="p-3 rounded-lg hover:bg-[#141414] transition-colors"
+                            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                          >
+                            <motion.div
+                              animate={{ rotate: isExpanded ? 180 : 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ChevronDown size={14} className="text-[#888]" />
+                            </motion.div>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Accordion children */}
+                      {hasChildren && (
+                        <AnimatePresence initial={false}>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.22, ease: 'easeInOut' }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pl-4 pb-2 grid grid-cols-2 gap-1">
+                                {link.children.map((child) => (
+                                  <Link
+                                    key={child.label}
+                                    href={child.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="py-2 px-3 text-[11px] tracking-widest uppercase text-[#888] hover:text-[#d4af37] hover:bg-[#141414] rounded-lg transition-colors"
+                                  >
+                                    {child.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Quick links */}
+                <div className="pt-2 mt-2 border-t border-[#1e1e1e] space-y-1">
+                  {[
+                    { label: 'Track Order', href: '/track-order' },
+                    { label: 'About Us', href: '/about' },
+                    { label: 'Contact', href: '/contact' },
+                  ].map((item) => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="block py-2.5 px-3 text-xs tracking-widest uppercase text-[#666] hover:text-[#d4af37] hover:bg-[#141414] rounded-lg transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               </nav>
+
+              {/* Footer actions */}
+              <div className="px-4 pb-6 pt-3 border-t border-[#2d2416] space-y-2 shrink-0">
+                {user ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {user.role === 'admin' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setMobileOpen(false)}
+                        className="col-span-2 py-3 text-center text-xs tracking-widest uppercase border border-[#d4af37]/40 text-[#d4af37] rounded-xl hover:bg-[#d4af37]/10 transition-colors"
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-3 text-center text-xs tracking-widest uppercase border border-[#2d2416] text-[#f5e7c1] rounded-xl hover:border-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        await logout();
+                        setMobileOpen(false);
+                        router.refresh();
+                      }}
+                      className="py-3 text-center text-xs tracking-widest uppercase border border-[#2d2416] text-[#f5e7c1] rounded-xl hover:border-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-3 text-center text-xs tracking-widest uppercase border border-[#2d2416] text-[#f5e7c1] rounded-xl hover:border-[#d4af37]/40 hover:text-[#d4af37] transition-colors"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-3 text-center text-xs tracking-widest uppercase bg-[#d4af37] text-[#0f0f0f] rounded-xl hover:bg-[#b8963e] transition-colors font-semibold"
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
+                <p className="text-center text-[10px] text-[#333] tracking-widest uppercase pt-1">
+                  Gijayi · Handcrafted Luxury
+                </p>
+              </div>
             </motion.div>
           </>
         )}

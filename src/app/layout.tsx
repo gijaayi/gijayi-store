@@ -27,6 +27,13 @@ export const metadata: Metadata = {
   keywords: "bespoke jewelry, handcrafted jewelry, bridal jewelry, luxury jewelry, Indian jewelry, artisan jewelry, Gijayi, premium jewelry online",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com"),
   viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
   openGraph: {
     title: "Gijayi | Handcrafted Luxury Jewelry",
     description: "Bespoke Indian jewelry, bridal sets, and heirloom craftsmanship from Gijayi. Global shipping and personalized styling support.",
@@ -155,7 +162,8 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
