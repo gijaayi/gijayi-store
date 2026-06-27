@@ -53,6 +53,9 @@ interface StorefrontSettings {
     bannerHeading?: string;
     bannerSubheading?: string;
   };
+  editorial?: {
+    image?: string;
+  };
 }
 
 export default function AdminStorefrontPage() {
@@ -87,6 +90,7 @@ export default function AdminStorefrontPage() {
         trustSection: storefront.trustSection,
         productCard: storefront.productCard,
         shopPage: storefront.shopPage,
+        editorial: storefront.editorial,
       }),
     });
 
@@ -176,7 +180,7 @@ export default function AdminStorefrontPage() {
         {/* Hero Settings Section */}
         <div className="mb-8 pb-8 border-b border-slate-200">
           <h3 className="font-semibold text-slate-900 text-lg mb-4">Hero Section Content</h3>
-          
+
           <div className="grid lg:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Hero Badge</label>
@@ -322,6 +326,54 @@ export default function AdminStorefrontPage() {
         </button>
       </section>
 
+      {/* Our Story / Editorial Image Section */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h2 className="font-serif text-3xl mb-1 text-slate-900">Our Story Image</h2>
+        <p className="text-sm text-slate-500 mb-6">
+          Customize the image shown in the editorial "Our Story" split section on the homepage. Paste any public image URL below.
+        </p>
+
+        {/* Live Preview */}
+        {storefront.editorial?.image && (
+          <div className="mb-6 relative rounded-xl overflow-hidden border border-slate-200" style={{ height: 200 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={storefront.editorial.image}
+              alt="Our Story preview"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-3 py-1.5 tracking-widest uppercase">
+              Preview
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6">
+          <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">
+            Our Story Image URL
+          </label>
+          <input
+            value={storefront.editorial?.image || ''}
+            onChange={(event) =>
+              setStorefront({
+                ...storefront,
+                editorial: {
+                  ...(storefront.editorial || {}),
+                  image: event.target.value,
+                },
+              })
+            }
+            placeholder="https://res.cloudinary.com/..."
+            className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+          />
+          <p className="text-xs text-slate-400 mt-2">Recommended: landscape photo at least 1200×900px. Supports Cloudinary, Unsplash, or any public URL.</p>
+        </div>
+
+        <button disabled={busy} type="button" onClick={saveStorefrontSettings} className="bg-blue-600 text-white px-5 py-3 rounded-xl text-xs tracking-widest uppercase hover:bg-blue-700 disabled:opacity-50">
+          {busy ? 'Saving...' : 'Save Settings'}
+        </button>
+      </section>
+
       <section className="bg-white border border-slate-200 rounded-2xl p-6">
         <h2 className="font-serif text-3xl mb-1 text-slate-900">Hero Carousel Banners</h2>
         <p className="text-sm text-slate-500 mb-6">Edit all 4 carousel banners. Leave fields empty to hide a banner.</p>
@@ -329,7 +381,7 @@ export default function AdminStorefrontPage() {
         <div className="space-y-6">
           {getBanners().map((banner, index) => {
             const isEmpty = !banner.image && !banner.headline && !banner.subtitle;
-            
+
             return (
               <div key={banner.id} className={`border rounded-xl p-5 ${isEmpty ? 'bg-slate-50 border-dashed border-slate-300' : 'bg-slate-50 border-slate-200'}`}>
                 <div className="flex items-start justify-between mb-4">

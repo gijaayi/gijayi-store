@@ -188,6 +188,9 @@ export interface DbStorefrontSettings {
     bannerHeading?: string;
     bannerSubheading?: string;
   };
+  editorial?: {
+    image?: string;
+  };
   updatedAt: string;
 }
 
@@ -393,6 +396,9 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
     bannerImage: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90',
     bannerHeading: 'All Jewellery',
     bannerSubheading: 'Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.',
+  },
+  editorial: {
+    image: 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=1200&q=90',
   },
   updatedAt: new Date().toISOString(),
 };

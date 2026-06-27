@@ -75,6 +75,9 @@ interface StorefrontSettings {
     ratingValue: string;
     ratingCountLabel: string;
   };
+  editorial?: {
+    image?: string;
+  };
 }
 
 interface HomePageClientProps {
@@ -569,7 +572,10 @@ function EverydayMinimalSection({ products, storefront }: { products: Product[];
   );
 }
 
-function EditorialSection() {
+const DEFAULT_EDITORIAL_IMAGE = 'https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=1200&q=90';
+
+function EditorialSection({ storefront }: { storefront: StorefrontSettings }) {
+  const editorialImage = storefront.editorial?.image || DEFAULT_EDITORIAL_IMAGE;
   return (
     <section className="py-0 border-y border-slate-200">
       <div className="grid md:grid-cols-2 min-h-screen md:min-h-auto">
@@ -581,7 +587,7 @@ function EditorialSection() {
           className="relative min-h-87.5 md:min-h-155 order-2 md:order-1"
         >
           <Image
-            src="https://images.unsplash.com/photo-1602173574767-37ac01994b2a?w=1200&q=90"
+            src={editorialImage}
             alt="Gijayi craftsmanship"
             fill
             className="object-cover"
@@ -879,7 +885,7 @@ export default function HomePageClient({ products, collections, storefront }: Ho
       <BridalLuxeSection products={products} storefront={storefront} />
       <HeritageSection products={products} storefront={storefront} />
       <EverydayMinimalSection products={products} storefront={storefront} />
-      <EditorialSection />
+      <EditorialSection storefront={storefront} />
       <NewArrivalsSection products={products} storefront={storefront} />
       <TrustSection storefront={storefront} />
       <TestimonialsSection storefront={storefront} />
