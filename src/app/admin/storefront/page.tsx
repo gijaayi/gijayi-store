@@ -48,6 +48,11 @@ interface StorefrontSettings {
     newBadgeLabel: string;
     bestsellerBadgeLabel: string;
   };
+  shopPage?: {
+    bannerImage?: string;
+    bannerHeading?: string;
+    bannerSubheading?: string;
+  };
 }
 
 export default function AdminStorefrontPage() {
@@ -81,6 +86,7 @@ export default function AdminStorefrontPage() {
         collectionHighlights: storefront.collectionHighlights,
         trustSection: storefront.trustSection,
         productCard: storefront.productCard,
+        shopPage: storefront.shopPage,
       }),
     });
 
@@ -243,6 +249,71 @@ export default function AdminStorefrontPage() {
                 className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
               />
             </div>
+          </div>
+        </div>
+
+        <button disabled={busy} type="button" onClick={saveStorefrontSettings} className="bg-blue-600 text-white px-5 py-3 rounded-xl text-xs tracking-widest uppercase hover:bg-blue-700 disabled:opacity-50">
+          {busy ? 'Saving...' : 'Save Settings'}
+        </button>
+      </section>
+
+      {/* Shop Page Banner Content Section */}
+      <section className="bg-white border border-slate-200 rounded-2xl p-6">
+        <h2 className="font-serif text-3xl mb-1 text-slate-900">Shop Page Banner CMS</h2>
+        <p className="text-sm text-slate-500 mb-6">Manage the header banner image and titles of the main shop page.</p>
+
+        <div className="grid lg:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Shop Page Banner Image URL</label>
+            <input
+              value={storefront.shopPage?.bannerImage || ''}
+              onChange={(event) =>
+                setStorefront({
+                  ...storefront,
+                  shopPage: {
+                    ...(storefront.shopPage || {}),
+                    bannerImage: event.target.value,
+                  },
+                })
+              }
+              placeholder="https://..."
+              className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+            />
+          </div>
+          <div>
+            <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Shop Page Banner Heading</label>
+            <input
+              value={storefront.shopPage?.bannerHeading || ''}
+              onChange={(event) =>
+                setStorefront({
+                  ...storefront,
+                  shopPage: {
+                    ...(storefront.shopPage || {}),
+                    bannerHeading: event.target.value,
+                  },
+                })
+              }
+              placeholder="All Jewellery"
+              className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+            />
+          </div>
+          <div className="lg:col-span-2">
+            <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Shop Page Banner Subheading</label>
+            <textarea
+              value={storefront.shopPage?.bannerSubheading || ''}
+              onChange={(event) =>
+                setStorefront({
+                  ...storefront,
+                  shopPage: {
+                    ...(storefront.shopPage || {}),
+                    bannerSubheading: event.target.value,
+                  },
+                })
+              }
+              rows={3}
+              placeholder="Enter description..."
+              className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600"
+            />
           </div>
         </div>
 

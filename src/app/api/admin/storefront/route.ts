@@ -90,6 +90,11 @@ export async function PUT(request: NextRequest) {
         ratingValue?: string;
         ratingCountLabel?: string;
       };
+      shopPage?: {
+        bannerImage?: string;
+        bannerHeading?: string;
+        bannerSubheading?: string;
+      };
     };
 
     const versionToken = Date.now();
@@ -220,6 +225,11 @@ export async function PUT(request: NextRequest) {
           saleBadgeSuffix: String(body.productCard?.saleBadgeSuffix ?? current.productCard.saleBadgeSuffix).trim() || 'Off',
           ratingValue: String(body.productCard?.ratingValue ?? current.productCard.ratingValue).trim(),
           ratingCountLabel: String(body.productCard?.ratingCountLabel ?? current.productCard.ratingCountLabel).trim(),
+        },
+        shopPage: {
+          bannerImage: String(body.shopPage?.bannerImage ?? current.shopPage?.bannerImage ?? 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90').trim(),
+          bannerHeading: String(body.shopPage?.bannerHeading ?? current.shopPage?.bannerHeading ?? 'All Jewellery').trim(),
+          bannerSubheading: String(body.shopPage?.bannerSubheading ?? current.shopPage?.bannerSubheading ?? 'Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.').trim(),
         },
         updatedAt: new Date().toISOString(),
       };

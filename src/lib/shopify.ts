@@ -428,5 +428,5 @@ export async function getShopData() {
   const configuredCategories = db.categories.map((category) => category.name).filter(Boolean);
   const categories = ['All', ...(configuredCategories.length ? configuredCategories : Array.from(new Set(products.map((product) => product.category).filter(Boolean))))];
 
-  return { products, categories };
+  return { products, categories, storefront: db.storefront };
 }

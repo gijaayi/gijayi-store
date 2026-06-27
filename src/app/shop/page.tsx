@@ -36,7 +36,7 @@ export const metadata = {
 };
 
 export default async function ShopPage() {
-  const { products, categories } = await getShopData();
+  const { products, categories, storefront } = await getShopData();
 
-  return <ShopPageClient products={products} categories={categories} />;
+  return <ShopPageClient products={products} categories={categories} storefront={storefront} />;
 }

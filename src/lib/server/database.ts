@@ -183,6 +183,11 @@ export interface DbStorefrontSettings {
     ratingValue: string;
     ratingCountLabel: string;
   };
+  shopPage?: {
+    bannerImage?: string;
+    bannerHeading?: string;
+    bannerSubheading?: string;
+  };
   updatedAt: string;
 }
 
@@ -383,6 +388,11 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
     saleBadgeSuffix: 'Off',
     ratingValue: '4.8',
     ratingCountLabel: '(24 reviews)',
+  },
+  shopPage: {
+    bannerImage: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90',
+    bannerHeading: 'All Jewellery',
+    bannerSubheading: 'Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.',
   },
   updatedAt: new Date().toISOString(),
 };

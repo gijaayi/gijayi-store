@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, Suspense } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -8,12 +9,21 @@ import { SlidersHorizontal, X, ChevronDown, Search, MessageCircle } from 'lucide
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/lib/types';
 
+interface ShopPageStorefront {
+  shopPage?: {
+    bannerImage?: string;
+    bannerHeading?: string;
+    bannerSubheading?: string;
+  };
+}
+
 interface ShopPageClientProps {
   products: Product[];
   categories: string[];
+  storefront?: ShopPageStorefront;
 }
 
-function ShopContent({ products, categories }: ShopPageClientProps) {
+function ShopContent({ products, categories, storefront }: ShopPageClientProps) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams?.get('category');
   const collectionParam = searchParams?.get('collection');
@@ -64,39 +74,57 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
 
   const featuredCategories = categories.filter((category) => category !== 'All');
 
+  const bannerImage = storefront?.shopPage?.bannerImage || 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1400&q=90';
+  const defaultHeading = queryParam
+    ? 'Search Results'
+    : filterParam === 'new'
+      ? 'New Arrivals'
+      : filterParam === 'bestsellers'
+        ? 'Bestsellers'
+        : (storefront?.shopPage?.bannerHeading || 'All Jewellery');
+  const bannerSubheading = storefront?.shopPage?.bannerSubheading || 'Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.';
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-      <div className="border border-[#ece2d4] bg-[#fcfbf8] p-7 md:p-10 mb-10">
-        <p className="text-xs tracking-[0.34em] uppercase text-[#b8963e] mb-3 text-center">
-          {filterParam === 'new' ? 'Fresh Arrivals' : filterParam === 'bestsellers' ? 'Most Loved' : 'Discover'}
-        </p>
-        <h1 className="font-serif text-4xl md:text-5xl text-center">
-          {queryParam
-            ? 'Search Results'
-            : filterParam === 'new'
-              ? 'New Arrivals'
-              : filterParam === 'bestsellers'
-                ? 'Bestsellers'
-                : 'All Jewellery'}
-        </h1>
-        <div className="gold-divider mt-4 mb-6" />
-        <p className="text-sm text-gray-600 text-center max-w-2xl mx-auto leading-relaxed">
-          Discover handcrafted statement pieces and ceremonial essentials designed to elevate every celebration.
-        </p>
-        <a
-          href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20choosing%20the%20right%20jewellery."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-flex items-center gap-2 border border-[#25D366] text-[#25D366] px-5 py-3 text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300"
-        >
-          <MessageCircle size={14} /> Need styling help on WhatsApp?
-        </a>
-        {queryParam && (
-          <p className="mt-5 text-sm text-gray-500 text-center">
-            Showing results for <span className="text-[#1a1a1a] font-medium">&ldquo;{searchParams?.get('q')}&rdquo;</span>
+    <>
+      {/* Dynamic Banner Hero */}
+      <div className="relative w-full h-[280px] sm:h-[340px] md:h-[400px] overflow-hidden">
+        <Image
+          src={bannerImage}
+          alt="Shop Banner"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
+          <p className="text-[10px] sm:text-xs tracking-[0.4em] uppercase text-[#d4af37] mb-3 sm:mb-4 font-medium">
+            {filterParam === 'new' ? 'Fresh Arrivals' : filterParam === 'bestsellers' ? 'Most Loved' : 'Discover'}
           </p>
-        )}
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white drop-shadow-lg">
+            {defaultHeading}
+          </h1>
+          <div className="w-16 h-[1px] bg-[#d4af37] mt-4 mb-5" />
+          <p className="text-xs sm:text-sm text-white/80 max-w-xl mx-auto leading-relaxed">
+            {bannerSubheading}
+          </p>
+          <a
+            href="https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20need%20help%20choosing%20the%20right%20jewellery."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 sm:mt-6 inline-flex items-center gap-2 border border-[#25D366] text-[#25D366] px-5 py-2.5 text-[10px] sm:text-xs tracking-widest uppercase hover:bg-[#25D366] hover:text-white transition-colors duration-300 rounded-full backdrop-blur-sm bg-black/20"
+          >
+            <MessageCircle size={14} /> Need styling help on WhatsApp?
+          </a>
+          {queryParam && (
+            <p className="mt-4 text-xs sm:text-sm text-white/70">
+              Showing results for <span className="text-white font-medium">&ldquo;{searchParams?.get('q')}&rdquo;</span>
+            </p>
+          )}
+        </div>
       </div>
+
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
 
       {!queryParam && (
         <div className="mb-10">
@@ -203,13 +231,14 @@ function ShopContent({ products, categories }: ShopPageClientProps) {
         </div>
       )}
     </div>
+    </>
   );
 }
 
-export default function ShopPageClient({ products, categories }: ShopPageClientProps) {
+export default function ShopPageClient({ products, categories, storefront }: ShopPageClientProps) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-sm text-gray-400">Loading...</p></div>}>
-      <ShopContent products={products} categories={categories} />
+      <ShopContent products={products} categories={categories} storefront={storefront} />
     </Suspense>
   );
 }
