@@ -8,6 +8,11 @@ function getPayPalCredentials() {
   return { clientId, clientSecret };
 }
 
+function getPayPalBaseUrl() {
+  const mode = String(process.env.PAYPAL_MODE || '').trim().toLowerCase();
+  return mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+}
+
 export async function POST(request: NextRequest) {
   const auth = await requireAuth(request);
   if ('error' in auth) {
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Get PayPal access token
     const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    const tokenResponse = await fetch('https://api-m.paypal.com/v1/oauth2/token', {
+    const tokenResponse = await fetch(`${getPayPalBaseUrl()}/v1/oauth2/token`, {
       method: 'POST',
       headers: {
         Authorization: `Basic ${authString}`,
@@ -53,7 +58,7 @@ export async function POST(request: NextRequest) {
     const accessToken = tokenData.access_token;
 
     // Capture PayPal payment
-    const captureResponse = await fetch(`https://api-m.paypal.com/v2/checkout/orders/${orderId}/capture`, {
+    const captureResponse = await fetch(`${getPayPalBaseUrl()}/v2/checkout/orders/${orderId}/capture`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
