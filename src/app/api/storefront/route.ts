@@ -3,5 +3,8 @@ import { readDatabase } from '@/lib/server/database';
 
 export async function GET() {
   const db = await readDatabase();
-  return NextResponse.json({ storefront: db.storefront });
+  return NextResponse.json({
+    storefront: db.storefront,
+    categories: db.categories || [],
+  });
 }

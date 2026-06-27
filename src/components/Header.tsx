@@ -41,6 +41,15 @@ const defaultNavLinks = [
   },
 ];
 
+function slugify(name: string) {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export default function Header() {
   const { totalItems, toggleCart } = useCart();
   const { count } = useWishlist();
@@ -72,28 +81,34 @@ export default function Header() {
               freshArrival?: { label?: string };
             };
           };
+          categories?: Array<{ name: string; slug: string }>;
         };
 
         const shop = data.storefront?.navigation?.shop;
         const gijayiEdit = data.storefront?.navigation?.gijayiEdit;
         const freshArrival = data.storefront?.navigation?.freshArrival;
 
+        const dbCategories = (data.categories || []).map((cat) => String(cat.name || '').trim()).filter(Boolean);
+        const shopSubcategories = dbCategories.length > 0
+          ? dbCategories
+          : (shop?.subcategories || []).map((name) => String(name || '').trim()).filter(Boolean);
+
         const nextLinks = [
           {
             label: shop?.label?.trim() || 'Shop',
             href: '/shop',
-            children: (shop?.subcategories || [])
-              .map((name) => String(name || '').trim())
-              .filter(Boolean)
-              .map((name) => ({ label: name, href: `/shop?category=${encodeURIComponent(name)}` })),
+            children: shopSubcategories.map((name) => ({
+              label: name,
+              href: `/shop?category=${encodeURIComponent(name)}`,
+            })),
           },
           {
             label: gijayiEdit?.label?.trim() || 'Gijayi Edit',
-            href: '/shop',
+            href: '/collections',
             children: (gijayiEdit?.subcategories || [])
               .map((name) => String(name || '').trim())
               .filter(Boolean)
-              .map((name) => ({ label: name, href: `/shop?collection=${encodeURIComponent(name)}` })),
+              .map((name) => ({ label: name, href: `/collections/${slugify(String(name || ''))}` })),
           },
           {
             label: freshArrival?.label?.trim() || 'Fresh Arrival',
@@ -201,15 +216,22 @@ export default function Header() {
                   onMouseEnter={() => setActiveDropdown(link.label)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <Link
-                    href={link.href}
-                    className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#f5e7c1] hover:text-[#d4af37] transition-colors duration-200 py-2"
-                  >
-                    {link.label}
-                    {link.children && link.children.length > 0 && (
+                  {link.children && link.children.length > 0 ? (
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#f5e7c1] hover:text-[#d4af37] transition-colors duration-200 py-2"
+                    >
+                      {link.label}
                       <ChevronDown size={12} />
-                    )}
-                  </Link>
+                    </button>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="flex items-center gap-1 text-xs tracking-widest uppercase font-medium text-[#f5e7c1] hover:text-[#d4af37] transition-colors duration-200 py-2"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                   {link.children && link.children.length > 0 && (
                     <AnimatePresence>
                       {activeDropdown === link.label && (

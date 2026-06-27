@@ -643,7 +643,7 @@ function NewArrivalsSection({ products, storefront }: { products: Product[]; sto
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {newArrivals.map((product) => <ProductCard key={product.id} product={product} content={productCardContent} />)}
         </div>
       </div>

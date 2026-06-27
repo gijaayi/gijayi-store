@@ -161,11 +161,9 @@ export default function AdminCategoriesPage() {
     setBusy(true);
     setError('');
 
-    const shopSubcategories = shopSubcategoriesInput
-      .split('\n')
-      .map((item) => item.trim())
-      .filter(Boolean)
-      .slice(0, 20);
+    const shopSubcategories = categories
+      .map((cat) => cat.name.trim())
+      .filter(Boolean);
 
     const gijayiEditSubcategories = gijayiEditSubcategoriesInput
       .split('\n')
@@ -291,12 +289,13 @@ export default function AdminCategoriesPage() {
 
           <div className="grid md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Shop Subcategories (one per line)</label>
+              <label className="block text-xs tracking-widest uppercase text-slate-600 mb-2">Shop Subcategories (Automatically synced from Category Manager)</label>
               <textarea
-                value={shopSubcategoriesInput}
-                onChange={(event) => setShopSubcategoriesInput(event.target.value)}
+                readOnly
+                disabled
+                value={categories.map((c) => c.name).join('\n')}
                 rows={6}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-600"
+                className="w-full border border-slate-200 bg-slate-100 rounded-lg px-3 py-2 text-sm outline-none text-slate-500 cursor-not-allowed"
               />
             </div>
             <div>
