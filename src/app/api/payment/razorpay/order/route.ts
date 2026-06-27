@@ -2,15 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/server/auth';
 
 function getRazorpayCredentials() {
+  const mode = String(process.env.RAZORPAY_MODE || '').trim().toLowerCase();
+  const isLive = mode === 'live';
+
   const keyId = String(
-    process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_LIVE_KEY_ID || process.env.RAZORPAY_TEST_KEY_ID || ''
+    isLive
+      ? (process.env.RAZORPAY_LIVE_KEY_ID || process.env.RAZORPAY_KEY_ID || '')
+      : (process.env.RAZORPAY_TEST_KEY_ID || process.env.RAZORPAY_KEY_ID || '')
   ).trim();
 
   const keySecret = String(
-    process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_TEST_KEY_SECRET || ''
+    isLive
+      ? (process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || '')
+      : (process.env.RAZORPAY_TEST_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || '')
   ).trim();
 
-  return { keyId, keySecret };
+  return { keyId, keySecret, isLive };
 }
 
 interface RazorpayOrderResponse {
