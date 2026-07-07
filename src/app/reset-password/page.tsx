@@ -1,10 +1,10 @@
 "use client";
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token') || '';
   const email = searchParams?.get('email') || '';
@@ -107,5 +107,17 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center text-sm text-slate-500">
+        Loading...
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
@@ -21,12 +21,17 @@ const playfair = Playfair_Display({
   variable: "--font-serif",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "Gijayi | Handcrafted Luxury Jewelry",
   description: "Gijayi offers bespoke Indian jewelry and bridal heirloom designs. Shop artisan crafted pieces with global shipping and premium service.",
   keywords: "bespoke jewelry, handcrafted jewelry, bridal jewelry, luxury jewelry, Indian jewelry, artisan jewelry, Gijayi, premium jewelry online",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://gijayi.com"),
-  viewport: "width=device-width, initial-scale=1.0, viewport-fit=cover",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
