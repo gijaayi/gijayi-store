@@ -578,7 +578,7 @@ export default function ReturnExchangeRepairPolicyPage() {
                 review your request quickly.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="mailto:gijaayi@gmail.com" className="inline-flex items-center gap-2 rounded-full bg-[#d4af64] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1a1a1a] transition hover:bg-[#e6c978]">
+                <Link href="mailto:support@gijayi.com" className="inline-flex items-center gap-2 rounded-full bg-[#d4af64] px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#1a1a1a] transition hover:bg-[#e6c978]">
                   <Mail className="h-4 w-4" /> Email Support
                 </Link>
                 <Link href="/" className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/15">

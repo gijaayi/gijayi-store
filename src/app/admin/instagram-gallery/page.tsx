@@ -36,7 +36,7 @@ export default function AdminInstagramGalleryPage() {
       const data = await res.json();
       if (data.instagramGallery) {
         setGallery(data.instagramGallery);
-        setHandle(data.instagramGallery.handle || 'begijayi');
+        setHandle(data.instagramGallery.handle || 'gijayi_handcrafted_jewelry');
         setImages(Array.isArray(data.instagramGallery.images) ? data.instagramGallery.images : []);
       }
       setError('');
@@ -163,7 +163,7 @@ export default function AdminInstagramGalleryPage() {
               type="text"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              placeholder="begijayi"
+              placeholder="gijayi_handcrafted_jewelry"
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#b8963e] focus:ring-2 focus:ring-[#b8963e]/20"
             />
           </div>

@@ -754,8 +754,8 @@ function InstagramSection() {
           const data = await res.json();
           if (data.instagramGallery) {
             setImageData({
-              handle: data.instagramGallery.handle || 'begijayi',
-              profileUrl: data.instagramGallery.profileUrl || 'https://instagram.com/begijayi',
+              handle: data.instagramGallery.handle || 'gijayi_handcrafted_jewelry',
+              profileUrl: data.instagramGallery.profileUrl || 'https://instagram.com/gijayi_handcrafted_jewelry',
               images: Array.isArray(data.instagramGallery.images) ? data.instagramGallery.images : [],
             });
           }

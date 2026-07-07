@@ -48,10 +48,6 @@ export default function ProductCard({ product, showRating = false, content = def
     : 0;
 
   const handleAddToCart = () => {
-    if (!user) {
-      window.location.href = '/login?redirect=/';
-      return;
-    }
     addItem(product);
   };
 

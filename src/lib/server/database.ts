@@ -405,8 +405,8 @@ export const DEFAULT_STOREFRONT_SETTINGS: DbStorefrontSettings = {
 
 export const DEFAULT_INSTAGRAM_GALLERY: DbInstagramGallery = {
   id: 'instagram-gallery-config',
-  handle: 'begijayi',
-  profileUrl: 'https://instagram.com/begijayi',
+  handle: 'gijayi_handcrafted_jewelry',
+  profileUrl: 'https://instagram.com/gijayi_handcrafted_jewelry',
   maxImages: 6,
   images: [
     {

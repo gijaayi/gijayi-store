@@ -8,7 +8,7 @@ export default function SocialContactToggle() {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
       <a
-        href="https://instagram.com/begijayi"
+        href="https://instagram.com/gijayi_handcrafted_jewelry"
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-[#feda75] via-[#d62976] to-[#962fbf] text-white shadow-[0_12px_28px_rgba(214,41,118,0.35)] transition-transform hover:scale-105"

@@ -65,10 +65,6 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    if (!user) {
-      window.location.href = `/login?redirect=/products/${slug}`;
-      return;
-    }
     addItem(product, selectedSize || undefined);
   };
 
@@ -83,10 +79,6 @@ export default function ProductDetailPage() {
 
   const addSelectedItemToCart = () => {
     if (!product) return;
-    if (!user) {
-      window.location.href = `/login?redirect=/products/${slug}`;
-      return;
-    }
     for (let index = 0; index < quantity; index++) {
       addItem(product, selectedSize || undefined);
     }

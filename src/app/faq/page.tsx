@@ -107,7 +107,7 @@ export default function FaqPage() {
             <Link href="/contact" className="inline-flex items-center justify-center bg-[#b8963e] text-white px-8 py-2 rounded text-sm font-semibold hover:bg-[#a37f35] transition">
               Contact Concierge
             </Link>
-            <a href="mailto:gijaayi@gmail.com" className="inline-flex items-center justify-center border border-[#b8963e] text-[#b8963e] px-8 py-2 rounded text-sm font-semibold hover:bg-[#b8963e]/10 transition">
+            <a href="mailto:support@gijayi.com" className="inline-flex items-center justify-center border border-[#b8963e] text-[#b8963e] px-8 py-2 rounded text-sm font-semibold hover:bg-[#b8963e]/10 transition">
               Email Us
             </a>
           </div>

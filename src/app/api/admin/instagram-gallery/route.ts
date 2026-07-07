@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
     
     const instagramGallery = db.instagramGallery || {
       id: 'instagram-gallery-config',
-      handle: 'begijayi',
-      profileUrl: 'https://instagram.com/begijayi',
+      handle: 'gijayi_handcrafted_jewelry',
+      profileUrl: 'https://instagram.com/gijayi_handcrafted_jewelry',
       maxImages: 6,
       images: [],
       updatedAt: new Date().toISOString(),
@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ 
       instagramGallery: {
         id: 'instagram-gallery-config',
-        handle: 'begijayi',
-        profileUrl: 'https://instagram.com/begijayi',
+        handle: 'gijayi_handcrafted_jewelry',
+        profileUrl: 'https://instagram.com/gijayi_handcrafted_jewelry',
         maxImages: 6,
         images: [],
         updatedAt: new Date().toISOString(),
@@ -60,8 +60,8 @@ export async function PUT(request: NextRequest) {
     await updateDatabase((db) => {
       const current = db.instagramGallery || {
         id: 'instagram-gallery-config',
-        handle: 'begijayi',
-        profileUrl: 'https://instagram.com/begijayi',
+        handle: 'gijayi_handcrafted_jewelry',
+        profileUrl: 'https://instagram.com/gijayi_handcrafted_jewelry',
         maxImages: 6,
         images: [],
         updatedAt: new Date().toISOString(),
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest) {
 
       // Update handle if provided
       if (body.handle !== undefined) {
-        const newHandle = body.handle.trim() || 'begijayi';
+        const newHandle = body.handle.trim() || 'gijayi_handcrafted_jewelry';
         console.log('[Instagram Gallery API] Updating handle from', current.handle, 'to', newHandle);
         current.handle = newHandle;
         current.profileUrl = `https://instagram.com/${current.handle}`;

@@ -22,6 +22,7 @@ interface AdminProduct {
   name: string;
   slug: string;
   price: number;
+  compareAtPrice?: number;
   stock: number;
   ratingAverage?: number;
   ratingCount?: number;
@@ -43,6 +44,7 @@ interface AdminProduct {
 const defaultForm = {
   name: '',
   price: '',
+  compareAtPrice: '',
   stock: '',
   category: '',
   collection: '',
@@ -130,6 +132,7 @@ export default function AdminProductsPage() {
     setForm({
       name: selectedProduct.name,
       price: String(selectedProduct.price),
+      compareAtPrice: selectedProduct.compareAtPrice ? String(selectedProduct.compareAtPrice) : '',
       stock: String(selectedProduct.stock),
       category: selectedProduct.category,
       collection: selectedCollection,
@@ -299,6 +302,7 @@ export default function AdminProductsPage() {
     const payload = {
       name: form.name,
       price: Number(form.price),
+      compareAtPrice: form.compareAtPrice !== '' ? Number(form.compareAtPrice) : null,
       stock: Number(form.stock),
       category: form.category,
       collection: form.collection.trim(),
@@ -461,8 +465,9 @@ export default function AdminProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <input required type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="Price (₹)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <input required type="number" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="Sale Price (₹)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
+            <input type="number" value={form.compareAtPrice} onChange={(event) => setForm({ ...form, compareAtPrice: event.target.value })} placeholder="Original Price (₹)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
             <input required type="number" value={form.stock} onChange={(event) => setForm({ ...form, stock: event.target.value })} placeholder="Stock" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
             <input type="number" step="0.1" min="0" max="5" value={form.ratingAverage} onChange={(event) => setForm({ ...form, ratingAverage: event.target.value })} placeholder="Rating (0-5)" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
             <input type="number" min="0" value={form.ratingCount} onChange={(event) => setForm({ ...form, ratingCount: event.target.value })} placeholder="Review count" className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600" />
@@ -727,7 +732,14 @@ export default function AdminProductsPage() {
                 )}
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-semibold text-slate-900">₹{product.price.toLocaleString('en-IN')}</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  ₹{product.price.toLocaleString('en-IN')}
+                  {product.compareAtPrice && (
+                    <span className="text-xs text-slate-400 line-through ml-1.5">
+                      ₹{product.compareAtPrice.toLocaleString('en-IN')}
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs text-slate-500">Stock: {product.stock}</p>
               </div>
             </div>

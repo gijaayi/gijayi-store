@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         <div className="border border-[#efe6d7] bg-white p-8 rounded-lg text-center">
           <p className="text-xs uppercase tracking-widest text-[#b8963e] font-semibold mb-3">✓ Compliance & Standards</p>
           <p className="text-sm text-gray-700 mb-4">
-            Gijayi complies with Indian Privacy Law and maintains the highest standards of data protection. For any privacy concerns, contact us at gijaayi@gmail.com.
+            Gijayi complies with Indian Privacy Law and maintains the highest standards of data protection. For any privacy concerns, contact us at support@gijayi.com.
           </p>
           <div className="flex flex-wrap justify-center gap-3 text-xs text-gray-600">
             <span className="border border-gray-300 px-3 py-1 rounded">GDPR Aware</span>

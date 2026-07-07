@@ -105,6 +105,15 @@ function LoginPageContent() {
                 </div>
               </div>
 
+              <div className="text-right">
+                <Link
+                  href={`/forgot-password?redirect=${encodeURIComponent(redirect)}`}
+                  className="text-sm text-slate-700 hover:underline font-medium mt-2 inline-block"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                   {error}

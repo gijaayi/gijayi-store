@@ -60,7 +60,9 @@ export async function PUT(request: NextRequest, context: Context) {
         ...current,
         name: body.name ?? current.name,
         price: body.price !== undefined ? Number(body.price) : current.price,
-        compareAtPrice: body.compareAtPrice !== undefined ? Number(body.compareAtPrice) : current.compareAtPrice,
+        compareAtPrice: body.compareAtPrice !== undefined
+          ? (body.compareAtPrice === null || body.compareAtPrice === '' || Number(body.compareAtPrice) === 0 ? undefined : Number(body.compareAtPrice))
+          : current.compareAtPrice,
         ratingAverage:
           body.ratingAverage !== undefined && body.ratingAverage !== '' ? Number(body.ratingAverage) : current.ratingAverage,
         ratingCount:

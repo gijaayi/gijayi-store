@@ -90,7 +90,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-3 sm:gap-4">
               <a
-                href="https://instagram.com/begijayi"
+                href="https://instagram.com/gijayi_handcrafted_jewelry"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -181,8 +181,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2 sm:gap-3">
                 <Mail size={14} className="text-[#b8963e] shrink-0 sm:w-4 sm:h-4" />
-                <a href="mailto:gijaayi@gmail.com" className="text-xs sm:text-sm text-gray-400 hover:text-[#b8963e] transition-colors break-all">
-                  gijaayi@gmail.com
+                <a href="mailto:support@gijayi.com" className="text-xs sm:text-sm text-gray-400 hover:text-[#b8963e] transition-colors break-all">
+                  support@gijayi.com
                 </a>
               </li>
             </ul>

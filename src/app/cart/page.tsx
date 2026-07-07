@@ -21,16 +21,6 @@ export default function CartPage() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center text-center px-6">
-        <h2 className="font-serif text-3xl mb-4">Login to view your cart</h2>
-        <Link href="/login?redirect=/cart" className="text-[#b8963e] text-xs tracking-widest uppercase hover:underline">
-          Sign in to your account
-        </Link>
-      </div>
-    );
-  }
 
   if (state.items.length === 0) {
     return (
