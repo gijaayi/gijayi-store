@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { applyWebhookStatusUpdate } from '@/lib/server/shiprocket';
 
 /**
- * Shiprocket webhook endpoint.
- * Configure this URL in Shiprocket dashboard:
- *   https://gijayi.com/api/webhooks/shiprocket
+ * Courier tracking webhook endpoint for Shiprocket.
  *
- * Optional shared secret via SHIPROCKET_WEBHOOK_SECRET header/query.
+ * IMPORTANT: Shiprocket forbids URL keywords like "shiprocket", "sr", "kr".
+ * Configure this exact URL in Shiprocket dashboard:
+ *   https://gijayi.com/api/webhooks/delivery-status
+ *
+ * Auth: Auth Token Type = x-api-key
+ * Token value must match SHIPROCKET_WEBHOOK_SECRET in Hostinger env.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -48,8 +51,10 @@ export async function POST(request: NextRequest) {
         '',
     ).trim();
 
+    // Shiprocket "Test Webhook" often sends an empty/minimal body.
+    // Return 200 so their dashboard can verify connectivity.
     if (!awb && !orderId) {
-      return NextResponse.json({ error: 'Missing AWB or order id.' }, { status: 400 });
+      return NextResponse.json({ ok: true, ping: true });
     }
 
     await applyWebhookStatusUpdate({
@@ -65,10 +70,9 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Webhook processing failed.';
     if (message === 'NOT_FOUND') {
-      // Acknowledge unknown orders so Shiprocket does not retry endlessly.
       return NextResponse.json({ ok: true, ignored: true });
     }
-    console.error('[Shiprocket Webhook]', message);
+    console.error('[Delivery Webhook]', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
