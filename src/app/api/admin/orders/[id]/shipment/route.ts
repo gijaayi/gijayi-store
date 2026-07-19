@@ -3,7 +3,7 @@ import { requireAdmin } from '@/lib/server/auth';
 import { readDatabase } from '@/lib/server/database';
 import {
   assignAwb,
-  createAndAttachShipment,
+  fulfillOrderShipment,
   generateInvoice,
   generateLabel,
   generatePickup,
@@ -18,6 +18,7 @@ interface Context {
 
 type ShipmentAction =
   | 'create'
+  | 'auto_fulfill'
   | 'assign_awb'
   | 'generate_pickup'
   | 'generate_label'
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest, context: Context) {
       action?: ShipmentAction;
       courierId?: string;
     };
-    const action = (body.action || 'create') as ShipmentAction;
+    const action = (body.action || 'auto_fulfill') as ShipmentAction;
 
     const db = await readDatabase();
     const order = db.orders.find((item) => item.id === id);
@@ -45,10 +46,13 @@ export async function POST(request: NextRequest, context: Context) {
       return NextResponse.json({ error: 'Order not found.' }, { status: 404 });
     }
 
-    if (action === 'create') {
-      const result = await createAndAttachShipment(id);
+    if (action === 'create' || action === 'auto_fulfill') {
+      const result = await fulfillOrderShipment(id);
       if (!result.ok) {
-        return NextResponse.json({ error: result.error || 'Unable to create shipment.' }, { status: 400 });
+        return NextResponse.json(
+          { error: result.error || 'Unable to fulfill shipment.', steps: result.steps },
+          { status: 400 },
+        );
       }
     } else if (action === 'assign_awb') {
       if (!order.shipment?.shipmentId) {
@@ -71,6 +75,7 @@ export async function POST(request: NextRequest, context: Context) {
           trackingUrl: buildTrackingUrl(awbCode, courierName),
           shipmentStatus: awbCode ? 'AWB Assigned' : order.shipment.shipmentStatus,
           lastTrackingUpdate: new Date().toISOString(),
+          lastError: undefined,
         },
         { timelineLabel: awbCode ? 'AWB generated' : undefined, status: awbCode ? 'Packed' : undefined },
       );
@@ -81,7 +86,7 @@ export async function POST(request: NextRequest, context: Context) {
       await generatePickup(order.shipment.shipmentId);
       await persistShipmentOnOrder(
         id,
-        { pickupStatus: 'Pickup requested', shipmentStatus: 'Pickup Scheduled' },
+        { pickupStatus: 'Pickup requested', shipmentStatus: 'Pickup Scheduled', lastError: undefined },
         { timelineLabel: 'Pickup requested', status: 'Packed' },
       );
     } else if (action === 'generate_label') {
@@ -91,6 +96,7 @@ export async function POST(request: NextRequest, context: Context) {
       const label = await generateLabel(order.shipment.shipmentId);
       await persistShipmentOnOrder(id, {
         labelUrl: label.label_url,
+        lastError: undefined,
       });
     } else if (action === 'generate_invoice') {
       if (!order.shipment?.shiprocketOrderId) {
@@ -99,6 +105,7 @@ export async function POST(request: NextRequest, context: Context) {
       const invoice = await generateInvoice(order.shipment.shiprocketOrderId);
       await persistShipmentOnOrder(id, {
         invoiceUrl: invoice.invoice_url,
+        lastError: undefined,
       });
     } else if (action === 'refresh' || action === 'track') {
       await refreshShipmentTracking(id);
@@ -111,7 +118,7 @@ export async function POST(request: NextRequest, context: Context) {
     return NextResponse.json({ ok: true, order: updated });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Shipment action failed.';
-    console.error('[Admin Shipment]', message);
+    console.error('[Admin shipment]', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -127,7 +127,7 @@ export default function AdminOrdersPage() {
     <section className="bg-white border border-slate-200 rounded-2xl p-6">
       <h2 className="font-serif text-3xl mb-1 text-slate-900">Order Operations</h2>
       <p className="text-sm text-slate-500 mb-6">
-        Track orders, manage Shiprocket shipments, and update delivery status.
+        Prepaid orders auto-fulfill shipping after payment. Use Auto Fulfill or the manual steps below if anything fails.
       </p>
 
       {error && (
@@ -237,29 +237,34 @@ export default function AdminOrdersPage() {
                   )}
 
                   <div className="flex flex-wrap gap-2">
-                    {!shipment?.shipmentId && (
+                    {(!shipment?.shipmentId ||
+                      !shipment?.awbCode ||
+                      !shipment?.pickupStatus ||
+                      Boolean(shipment?.lastError)) && (
                       <button
                         type="button"
                         disabled={busy}
-                        onClick={() => runShipmentAction(order.id, 'create')}
+                        onClick={() => runShipmentAction(order.id, 'auto_fulfill')}
                         className="px-3 py-2 text-[10px] tracking-widest uppercase bg-blue-600 text-white rounded-lg disabled:opacity-50"
                       >
-                        Create Shipment
+                        Auto Fulfill Shipping
                       </button>
                     )}
                     <button
                       type="button"
-                      disabled={busy || !shipment?.shipmentId}
+                      disabled={busy || !shipment?.shipmentId || Boolean(shipment?.awbCode)}
                       onClick={() => runShipmentAction(order.id, 'assign_awb')}
                       className="px-3 py-2 text-[10px] tracking-widest uppercase border border-slate-300 rounded-lg hover:bg-white disabled:opacity-50"
+                      title="Manual fallback: assign AWB"
                     >
                       Generate AWB
                     </button>
                     <button
                       type="button"
-                      disabled={busy || !shipment?.shipmentId}
+                      disabled={busy || !shipment?.shipmentId || !shipment?.awbCode}
                       onClick={() => runShipmentAction(order.id, 'generate_pickup')}
                       className="px-3 py-2 text-[10px] tracking-widest uppercase border border-slate-300 rounded-lg hover:bg-white disabled:opacity-50"
+                      title="Manual fallback: request pickup"
                     >
                       Request Pickup
                     </button>
@@ -268,6 +273,7 @@ export default function AdminOrdersPage() {
                       disabled={busy || !shipment?.shipmentId}
                       onClick={() => runShipmentAction(order.id, 'generate_label')}
                       className="px-3 py-2 text-[10px] tracking-widest uppercase border border-slate-300 rounded-lg hover:bg-white disabled:opacity-50"
+                      title="Manual fallback: print label"
                     >
                       Print Label
                     </button>
@@ -276,6 +282,7 @@ export default function AdminOrdersPage() {
                       disabled={busy || !shipment?.shiprocketOrderId}
                       onClick={() => runShipmentAction(order.id, 'generate_invoice')}
                       className="px-3 py-2 text-[10px] tracking-widest uppercase border border-slate-300 rounded-lg hover:bg-white disabled:opacity-50"
+                      title="Manual fallback: print invoice"
                     >
                       Print Invoice
                     </button>

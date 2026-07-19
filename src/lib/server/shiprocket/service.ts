@@ -27,6 +27,32 @@ function phoneDigits(phone: string) {
   return digits;
 }
 
+function parseAwbAssignResult(awbResult: {
+  response?: {
+    data?: {
+      awb_code?: string;
+      courier_id?: number | string;
+      courier_name?: string;
+      freight_charges?: number;
+    };
+  };
+}) {
+  const awbData = awbResult.response?.data;
+  const awbCode = awbData?.awb_code ? String(awbData.awb_code) : undefined;
+  const courierName = awbData?.courier_name ? String(awbData.courier_name) : undefined;
+  const courierId = awbData?.courier_id != null ? String(awbData.courier_id) : undefined;
+  const shippingCharges =
+    typeof awbData?.freight_charges === 'number' ? awbData.freight_charges : undefined;
+  return { awbCode, courierName, courierId, shippingCharges };
+}
+
+async function getOrderOrThrow(orderId: string): Promise<DbOrder> {
+  const db = await readDatabase();
+  const order = db.orders.find((item) => item.id === orderId);
+  if (!order) throw new Error('NOT_FOUND');
+  return order;
+}
+
 export async function createShiprocketShipment(order: DbOrder): Promise<ShiprocketCreateOrderResult> {
   if (!isShiprocketConfigured()) {
     throw new Error('Shiprocket is not configured.');
@@ -212,47 +238,162 @@ export async function persistShipmentOnOrder(
   return updatedOrder;
 }
 
-/** Create shipment in Shiprocket and save IDs on the order. Never throws to caller for auto-flow. */
-export async function createAndAttachShipment(orderId: string): Promise<{ ok: boolean; error?: string }> {
+export type FulfillShipmentResult = {
+  ok: boolean;
+  error?: string;
+  steps: string[];
+};
+
+/**
+ * Full prepaid shipping pipeline:
+ * create shipment -> assign AWB -> request pickup -> generate label/invoice.
+ * Continues from whatever step is missing. Never throws for auto-flow callers.
+ */
+export async function fulfillOrderShipment(orderId: string): Promise<FulfillShipmentResult> {
+  const steps: string[] = [];
+
   try {
     if (!isShiprocketConfigured()) {
-      return { ok: false, error: 'Shiprocket is not configured.' };
+      return { ok: false, error: 'Shiprocket is not configured.', steps };
     }
 
-    const db = await readDatabase();
-    const order = db.orders.find((item) => item.id === orderId);
-    if (!order) return { ok: false, error: 'Order not found.' };
+    let order = await getOrderOrThrow(orderId);
 
-    if (order.shipment?.shipmentId) {
-      return { ok: true };
+    // 1) Create Shiprocket order/shipment
+    if (!order.shipment?.shipmentId) {
+      const created = await createShiprocketShipment(order);
+      await persistShipmentOnOrder(
+        orderId,
+        {
+          shiprocketOrderId: created.shiprocketOrderId,
+          shipmentId: created.shipmentId,
+          awbCode: created.awbCode,
+          courierName: created.courierName,
+          trackingNumber: created.awbCode,
+          trackingUrl: buildTrackingUrl(created.awbCode, created.courierName),
+          shipmentStatus: created.status || 'NEW',
+          lastError: undefined,
+          lastTrackingUpdate: new Date().toISOString(),
+        },
+        {
+          timelineLabel: 'Shipment created',
+          status: 'Preparing for Dispatch',
+        },
+      );
+      steps.push('created');
+      order = await getOrderOrThrow(orderId);
     }
 
-    const created = await createShiprocketShipment(order);
-    const trackingUrl = buildTrackingUrl(created.awbCode, created.courierName);
+    const shipmentId = order.shipment?.shipmentId;
+    if (!shipmentId) {
+      throw new Error('Shipment ID missing after create.');
+    }
 
-    await persistShipmentOnOrder(
-      orderId,
-      {
-        shiprocketOrderId: created.shiprocketOrderId,
-        shipmentId: created.shipmentId,
-        awbCode: created.awbCode,
-        courierName: created.courierName,
-        trackingNumber: created.awbCode,
-        trackingUrl,
-        shipmentStatus: created.status || 'NEW',
-        lastError: undefined,
-        lastTrackingUpdate: new Date().toISOString(),
-      },
-      {
-        timelineLabel: 'Shipment created',
-        status: 'Preparing for Dispatch',
-      },
+    // 2) Assign AWB (auto courier if none selected)
+    if (!order.shipment?.awbCode) {
+      const awbResult = await assignAwb(shipmentId);
+      const parsed = parseAwbAssignResult(awbResult);
+      if (!parsed.awbCode) {
+        throw new Error('Shiprocket did not return an AWB code.');
+      }
+
+      await persistShipmentOnOrder(
+        orderId,
+        {
+          awbCode: parsed.awbCode,
+          trackingNumber: parsed.awbCode,
+          courierId: parsed.courierId,
+          courierName: parsed.courierName || order.shipment?.courierName,
+          shippingCharges: parsed.shippingCharges,
+          trackingUrl: buildTrackingUrl(parsed.awbCode, parsed.courierName || order.shipment?.courierName),
+          shipmentStatus: 'AWB Assigned',
+          lastError: undefined,
+          lastTrackingUpdate: new Date().toISOString(),
+        },
+        {
+          timelineLabel: 'AWB generated',
+          status: 'Packed',
+          notify: true,
+        },
+      );
+      steps.push('awb');
+      order = await getOrderOrThrow(orderId);
+    }
+
+    // 3) Request pickup
+    const pickupDone = Boolean(
+      order.shipment?.pickupStatus &&
+        !/fail|error|cancel/i.test(order.shipment.pickupStatus),
     );
+    if (!pickupDone) {
+      await generatePickup(shipmentId);
+      await persistShipmentOnOrder(
+        orderId,
+        {
+          pickupStatus: 'Pickup requested',
+          shipmentStatus: 'Pickup Scheduled',
+          lastError: undefined,
+          lastTrackingUpdate: new Date().toISOString(),
+        },
+        {
+          timelineLabel: 'Pickup requested',
+          status: 'Packed',
+        },
+      );
+      steps.push('pickup');
+      order = await getOrderOrThrow(orderId);
+    }
 
-    return { ok: true };
+    // 4) Label + invoice (best-effort; do not fail the whole pipeline)
+    const softErrors: string[] = [];
+
+    if (!order.shipment?.labelUrl) {
+      try {
+        const label = await generateLabel(shipmentId);
+        if (label.label_url) {
+          await persistShipmentOnOrder(orderId, {
+            labelUrl: label.label_url,
+            lastError: undefined,
+          });
+          steps.push('label');
+          order = await getOrderOrThrow(orderId);
+        }
+      } catch (error) {
+        softErrors.push(error instanceof Error ? error.message : 'Label generation failed');
+      }
+    }
+
+    if (order.shipment?.shiprocketOrderId && !order.shipment?.invoiceUrl) {
+      try {
+        const invoice = await generateInvoice(order.shipment.shiprocketOrderId);
+        if (invoice.invoice_url) {
+          await persistShipmentOnOrder(orderId, {
+            invoiceUrl: invoice.invoice_url,
+            lastError: undefined,
+          });
+          steps.push('invoice');
+        }
+      } catch (error) {
+        softErrors.push(error instanceof Error ? error.message : 'Invoice generation failed');
+      }
+    }
+
+    if (softErrors.length) {
+      await persistShipmentOnOrder(orderId, {
+        lastError: `Documents: ${softErrors.join(' | ')}`,
+      });
+      return {
+        ok: true,
+        error: softErrors.join(' | '),
+        steps,
+      };
+    }
+
+    await persistShipmentOnOrder(orderId, { lastError: undefined });
+    return { ok: true, steps };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Shipment creation failed';
-    console.error('[Shiprocket] createAndAttachShipment:', message);
+    const message = error instanceof Error ? error.message : 'Shipment fulfillment failed';
+    console.error('[Shiprocket] fulfillOrderShipment:', message, steps);
 
     try {
       await persistShipmentOnOrder(orderId, { lastError: message });
@@ -260,8 +401,14 @@ export async function createAndAttachShipment(orderId: string): Promise<{ ok: bo
       // ignore secondary write failures
     }
 
-    return { ok: false, error: message };
+    return { ok: false, error: message, steps };
   }
+}
+
+/** Alias used by order placement — runs the full automated pipeline. */
+export async function createAndAttachShipment(orderId: string): Promise<{ ok: boolean; error?: string }> {
+  const result = await fulfillOrderShipment(orderId);
+  return { ok: result.ok, error: result.error };
 }
 
 export async function refreshShipmentTracking(orderId: string): Promise<DbOrder | null> {
@@ -297,7 +444,11 @@ export async function refreshShipmentTracking(orderId: string): Promise<DbOrder 
   }));
 
   const shouldNotify =
-    Boolean(mapped) && mapped !== current.status && ['Packed', 'Picked Up', 'In Transit', 'Out For Delivery', 'Delivered', 'Returned', 'Cancelled'].includes(mapped || '');
+    Boolean(mapped) &&
+    mapped !== current.status &&
+    ['Packed', 'Picked Up', 'In Transit', 'Out For Delivery', 'Delivered', 'Returned', 'Cancelled'].includes(
+      mapped || '',
+    );
 
   return persistShipmentOnOrder(
     orderId,
@@ -306,9 +457,7 @@ export async function refreshShipmentTracking(orderId: string): Promise<DbOrder 
       currentLocation: latestLocation,
       estimatedDelivery: trackingData?.etd || current.shipment?.estimatedDelivery,
       shipmentHistory: history.length ? history : current.shipment?.shipmentHistory,
-      trackingUrl:
-        current.shipment?.trackingUrl ||
-        buildTrackingUrl(awb, current.shipment?.courierName),
+      trackingUrl: current.shipment?.trackingUrl || buildTrackingUrl(awb, current.shipment?.courierName),
       trackingNumber: awb,
       lastTrackingUpdate: new Date().toISOString(),
     },

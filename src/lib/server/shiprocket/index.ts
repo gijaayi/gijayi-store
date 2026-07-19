@@ -7,6 +7,7 @@ export {
 } from './client';
 export {
   createAndAttachShipment,
+  fulfillOrderShipment,
   createShiprocketShipment,
   assignAwb,
   generatePickup,
