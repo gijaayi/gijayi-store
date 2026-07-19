@@ -19,6 +19,7 @@ export function buildInitialTimeline(): DbOrder['timeline'] {
   });
 
   return [
+    { label: 'Order placed', time: now },
     { label: 'Order confirmed', time: now },
     { label: 'Payment accepted', time: now },
   ];

@@ -13,6 +13,16 @@ interface ProfileOrder {
   createdAt: string;
   updatedAt: string;
   itemsCount: number;
+  items?: Array<{ name: string; quantity: number; price: number; image?: string }>;
+  estimatedDeliveryDate?: string;
+  timeline?: Array<{ label: string; time: string }>;
+  shipment?: {
+    shipmentStatus?: string;
+    trackingNumber?: string;
+    courierName?: string;
+    trackingUrl?: string;
+    estimatedDelivery?: string;
+  } | null;
 }
 
 interface ProfileResponse {
@@ -422,17 +432,52 @@ export default function ProfilePage() {
             ) : (
               <div className="space-y-3">
                 {orders.map((order) => (
-                  <div key={order.id} className="border border-[#efe6d7] p-4">
+                  <div key={order.id} className="border border-[#efe6d7] p-4 space-y-2">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-xs tracking-[0.25em] uppercase text-[#b8963e]">{order.orderCode}</p>
                       <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString('en-IN')}</span>
                     </div>
-                    <p className="text-sm mt-2">{order.itemsCount} item(s) · ₹{order.totalAmount.toLocaleString('en-IN')}</p>
-                    <p className="text-sm text-gray-600 mt-1">Status: {order.status}</p>
-                    <div className="mt-3">
-                      <Link href={`/track-order?code=${encodeURIComponent(order.orderCode)}`} className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]">
+                    <p className="text-sm mt-1">{order.itemsCount} item(s) · ₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                    {order.items?.slice(0, 3).map((item) => (
+                      <p key={`${order.id}-${item.name}`} className="text-xs text-gray-500">
+                        {item.quantity}× {item.name}
+                      </p>
+                    ))}
+                    <p className="text-sm text-gray-600">Order status: {order.status}</p>
+                    {order.shipment?.shipmentStatus && (
+                      <p className="text-sm text-gray-600">Shipment: {order.shipment.shipmentStatus}</p>
+                    )}
+                    {order.shipment?.courierName && (
+                      <p className="text-xs text-gray-500">Courier: {order.shipment.courierName}</p>
+                    )}
+                    {(order.shipment?.trackingNumber) && (
+                      <p className="text-xs text-gray-500">Tracking: {order.shipment.trackingNumber}</p>
+                    )}
+                    {(order.shipment?.estimatedDelivery || order.estimatedDeliveryDate) && (
+                      <p className="text-xs text-gray-500">
+                        Est. delivery:{' '}
+                        {new Date(
+                          order.shipment?.estimatedDelivery || order.estimatedDeliveryDate || '',
+                        ).toLocaleDateString('en-IN')}
+                      </p>
+                    )}
+                    <div className="mt-3 flex flex-wrap gap-4">
+                      <Link
+                        href={`/track-order?code=${encodeURIComponent(order.orderCode)}`}
+                        className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]"
+                      >
                         Track Order
                       </Link>
+                      {order.shipment?.trackingUrl && (
+                        <a
+                          href={order.shipment.trackingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs tracking-widest uppercase text-[#b8963e] hover:text-[#1a1a1a]"
+                        >
+                          Courier Tracking
+                        </a>
+                      )}
                     </div>
                   </div>
                 ))}

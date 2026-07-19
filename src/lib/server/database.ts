@@ -57,6 +57,46 @@ export interface DbTimelineEvent {
   time: string;
 }
 
+export interface DbShipmentHistoryEvent {
+  status: string;
+  location?: string;
+  activity?: string;
+  time: string;
+}
+
+/** Carrier / Shiprocket shipment details attached to an order. */
+export interface DbOrderShipment {
+  shiprocketOrderId?: string;
+  shipmentId?: string;
+  awbCode?: string;
+  courierId?: string;
+  courierName?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  shipmentStatus?: string;
+  pickupStatus?: string;
+  shippingCharges?: number;
+  codCharges?: number;
+  estimatedDelivery?: string;
+  labelUrl?: string;
+  invoiceUrl?: string;
+  currentLocation?: string;
+  lastTrackingUpdate?: string;
+  shipmentHistory?: DbShipmentHistoryEvent[];
+  lastError?: string;
+}
+
+export type DbOrderStatus =
+  | 'Confirmed'
+  | 'Preparing for Dispatch'
+  | 'Packed'
+  | 'Picked Up'
+  | 'In Transit'
+  | 'Out For Delivery'
+  | 'Delivered'
+  | 'Returned'
+  | 'Cancelled';
+
 export interface DbOrder {
   id: string;
   orderCode: string;
@@ -82,12 +122,13 @@ export interface DbOrder {
     currency: string;
     exchangeRate: number;
   };
-  status: 'Confirmed' | 'Preparing for Dispatch' | 'In Transit' | 'Delivered';
+  status: DbOrderStatus;
   timeline: DbTimelineEvent[];
   subtotal: number;
   shippingCost: number;
   totalAmount: number;
   estimatedDeliveryDate?: string;
+  shipment?: DbOrderShipment;
   createdAt: string;
   updatedAt: string;
 }
@@ -820,17 +861,46 @@ export function sanitizeUser(user: DbUser) {
 }
 
 export function getPublicOrderView(order: DbOrder) {
+  const shipmentStatus = order.shipment?.shipmentStatus;
+  const eta =
+    order.status === 'Delivered'
+      ? 'Delivered successfully'
+      : order.status === 'Out For Delivery'
+        ? 'Your parcel is out for delivery'
+        : order.status === 'In Transit' || order.status === 'Picked Up'
+          ? 'Your parcel is on the way'
+          : order.shipment?.estimatedDelivery
+            ? `Estimated delivery: ${new Date(order.shipment.estimatedDelivery).toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              })}`
+            : 'Your order is being prepared';
+
   return {
     orderCode: order.orderCode,
     status: order.status,
-    eta:
-      order.status === 'Delivered'
-        ? 'Delivered successfully'
-        : order.status === 'In Transit'
-          ? 'Your parcel is on the way'
-          : 'Your order is being prepared',
+    eta,
     timeline: order.timeline,
     updatedAt: order.updatedAt,
+    items: order.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      image: item.image,
+    })),
+    shipment: order.shipment
+      ? {
+          shipmentStatus: shipmentStatus || order.status,
+          trackingNumber: order.shipment.trackingNumber || order.shipment.awbCode,
+          courierName: order.shipment.courierName,
+          trackingUrl: order.shipment.trackingUrl,
+          estimatedDelivery: order.shipment.estimatedDelivery || order.estimatedDeliveryDate,
+          currentLocation: order.shipment.currentLocation,
+          lastTrackingUpdate: order.shipment.lastTrackingUpdate,
+          shipmentHistory: order.shipment.shipmentHistory || [],
+        }
+      : null,
   };
 }
 

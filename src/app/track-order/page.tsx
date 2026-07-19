@@ -11,6 +11,38 @@ interface TrackedOrder {
   eta: string;
   timeline: { label: string; time: string }[];
   updatedAt: string;
+  items?: Array<{ name: string; quantity: number; price: number; image?: string }>;
+  shipment?: {
+    shipmentStatus?: string;
+    trackingNumber?: string;
+    courierName?: string;
+    trackingUrl?: string;
+    estimatedDelivery?: string;
+    currentLocation?: string;
+    lastTrackingUpdate?: string;
+    shipmentHistory?: Array<{ status: string; location?: string; activity?: string; time: string }>;
+  } | null;
+}
+
+const CUSTOMER_STEPS = [
+  'Order Placed',
+  'Confirmed',
+  'Packed',
+  'Picked Up',
+  'In Transit',
+  'Out For Delivery',
+  'Delivered',
+] as const;
+
+function statusStepIndex(status: string) {
+  const normalized = status.toLowerCase();
+  if (normalized.includes('deliver')) return CUSTOMER_STEPS.indexOf('Delivered');
+  if (normalized.includes('out for delivery')) return CUSTOMER_STEPS.indexOf('Out For Delivery');
+  if (normalized.includes('transit') || normalized.includes('shipped')) return CUSTOMER_STEPS.indexOf('In Transit');
+  if (normalized.includes('picked')) return CUSTOMER_STEPS.indexOf('Picked Up');
+  if (normalized.includes('pack') || normalized.includes('preparing')) return CUSTOMER_STEPS.indexOf('Packed');
+  if (normalized.includes('confirm')) return CUSTOMER_STEPS.indexOf('Confirmed');
+  return 0;
 }
 
 function TrackOrderPageContent() {
@@ -53,6 +85,20 @@ function TrackOrderPageContent() {
     setOrderCode(code);
     void handleLookup(code);
   }, [searchParams]);
+
+  // Light auto-refresh while viewing an active shipment
+  useEffect(() => {
+    if (!order?.orderCode) return;
+    if (['Delivered', 'Cancelled', 'Returned'].includes(order.status)) return;
+
+    const timer = setInterval(() => {
+      void handleLookup(order.orderCode);
+    }, 60_000);
+
+    return () => clearInterval(timer);
+  }, [order?.orderCode, order?.status]);
+
+  const activeStep = order ? statusStepIndex(order.shipment?.shipmentStatus || order.status) : 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 md:py-20">
@@ -133,23 +179,108 @@ function TrackOrderPageContent() {
       )}
 
       {order && (
-        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-6">
-          <section className="border border-[#efe6d7] bg-[#1a1a1a] text-white p-6 md:p-8">
-            <p className="text-xs tracking-[0.35em] uppercase text-[#d4af64] mb-3">Current Status</p>
-            <h2 className="font-serif text-3xl mb-3">{order.status}</h2>
-            <p className="text-sm text-white/75">{order.eta}</p>
-          </section>
+        <div className="space-y-6">
+          <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-6">
+            <section className="border border-[#efe6d7] bg-[#1a1a1a] text-white p-6 md:p-8">
+              <p className="text-xs tracking-[0.35em] uppercase text-[#d4af64] mb-3">Current Status</p>
+              <h2 className="font-serif text-3xl mb-3">{order.status}</h2>
+              <p className="text-sm text-white/75 mb-4">{order.eta}</p>
+              {order.shipment?.courierName && (
+                <p className="text-sm text-white/80">Courier: {order.shipment.courierName}</p>
+              )}
+              {order.shipment?.trackingNumber && (
+                <p className="text-sm text-white/80 mt-1">Tracking: {order.shipment.trackingNumber}</p>
+              )}
+              {order.shipment?.currentLocation && (
+                <p className="text-sm text-white/80 mt-1">Location: {order.shipment.currentLocation}</p>
+              )}
+              {order.shipment?.lastTrackingUpdate && (
+                <p className="text-xs text-white/50 mt-3">
+                  Last updated: {new Date(order.shipment.lastTrackingUpdate).toLocaleString('en-IN')}
+                </p>
+              )}
+              {order.shipment?.trackingUrl && (
+                <a
+                  href={order.shipment.trackingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-5 text-xs tracking-widest uppercase text-[#d4af64] border border-[#d4af64] px-4 py-2 hover:bg-[#d4af64] hover:text-[#1a1a1a] transition-colors"
+                >
+                  Open Courier Tracking
+                </a>
+              )}
+            </section>
+
+            <section className="border border-[#efe6d7] bg-[#fcfbf8] p-6 md:p-8">
+              <p className="text-xs tracking-[0.35em] uppercase text-[#b8963e] mb-4">Shipping Timeline</p>
+              <div className="space-y-4">
+                {CUSTOMER_STEPS.map((step, index) => {
+                  const done = index <= activeStep;
+                  return (
+                    <div key={step} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <span
+                          className={`w-8 h-8 rounded-full text-xs flex items-center justify-center ${
+                            done ? 'bg-[#1a1a1a] text-white' : 'bg-[#e8dfc8] text-[#8a7a5a]'
+                          }`}
+                        >
+                          {index + 1}
+                        </span>
+                        {index < CUSTOMER_STEPS.length - 1 && (
+                          <span className={`w-px flex-1 mt-2 ${done ? 'bg-[#d8c8a1]' : 'bg-[#efe6d7]'}`} />
+                        )}
+                      </div>
+                      <div className="pb-2">
+                        <p className={`text-sm font-medium ${done ? 'text-[#1a1a1a]' : 'text-gray-400'}`}>{step}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+
+          {!!order.items?.length && (
+            <section className="border border-[#efe6d7] bg-white p-6 md:p-8">
+              <p className="text-xs tracking-[0.35em] uppercase text-[#b8963e] mb-4">Products</p>
+              <div className="space-y-2">
+                {order.items.map((item) => (
+                  <div key={`${item.name}-${item.quantity}`} className="flex justify-between text-sm text-gray-700">
+                    <span>
+                      {item.quantity}× {item.name}
+                    </span>
+                    <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="border border-[#efe6d7] bg-[#fcfbf8] p-6 md:p-8">
-            <p className="text-xs tracking-[0.35em] uppercase text-[#b8963e] mb-4">Journey</p>
+            <p className="text-xs tracking-[0.35em] uppercase text-[#b8963e] mb-4">Activity Log</p>
             <div className="space-y-5">
-              {order.timeline.map((entry, index) => (
-                <div key={`${entry.label}-${entry.time}`} className="flex gap-4">
+              {(order.shipment?.shipmentHistory?.length
+                ? order.shipment.shipmentHistory.map((entry) => ({
+                    label: entry.activity || entry.status,
+                    time: entry.time,
+                    meta: entry.location,
+                  }))
+                : order.timeline.map((entry) => ({
+                    label: entry.label,
+                    time: entry.time,
+                    meta: undefined as string | undefined,
+                  }))
+              ).map((entry, index, list) => (
+                <div key={`${entry.label}-${entry.time}-${index}`} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <span className="w-8 h-8 rounded-full bg-[#1a1a1a] text-white text-xs flex items-center justify-center">{index + 1}</span>
-                    {index < order.timeline.length - 1 && <span className="w-px flex-1 bg-[#d8c8a1] mt-2" />}
+                    <span className="w-8 h-8 rounded-full bg-[#1a1a1a] text-white text-xs flex items-center justify-center">
+                      {index + 1}
+                    </span>
+                    {index < list.length - 1 && <span className="w-px flex-1 bg-[#d8c8a1] mt-2" />}
                   </div>
                   <div className="pb-3">
                     <p className="text-sm font-medium">{entry.label}</p>
+                    {entry.meta && <p className="text-xs text-gray-500 mt-1">{entry.meta}</p>}
                     <p className="text-sm text-gray-500 mt-1">{entry.time}</p>
                   </div>
                 </div>

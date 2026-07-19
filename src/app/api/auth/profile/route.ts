@@ -43,6 +43,23 @@ export async function GET(request: NextRequest) {
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
       itemsCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+      items: order.items.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image,
+      })),
+      estimatedDeliveryDate: order.estimatedDeliveryDate,
+      shipment: order.shipment
+        ? {
+            shipmentStatus: order.shipment.shipmentStatus || order.status,
+            trackingNumber: order.shipment.trackingNumber || order.shipment.awbCode,
+            courierName: order.shipment.courierName,
+            trackingUrl: order.shipment.trackingUrl,
+            estimatedDelivery: order.shipment.estimatedDelivery || order.estimatedDeliveryDate,
+          }
+        : null,
+      timeline: order.timeline,
     }));
 
   return NextResponse.json({ user: sanitizeUser(user), orders });

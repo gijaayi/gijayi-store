@@ -204,3 +204,80 @@ export async function sendOrderConfirmationEmail(
   console.log(`[Email] Order confirmation sent successfully. Resend ID: ${data?.id}`);
   return { ok: true };
 }
+
+interface SendShipmentStatusEmailInput {
+  to: string;
+  customerName: string;
+  orderCode: string;
+  statusLabel: string;
+  trackingNumber?: string;
+  courierName?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
+}
+
+export async function sendShipmentStatusEmail(
+  input: SendShipmentStatusEmailInput,
+): Promise<SendEmailResult> {
+  if (!RESEND_API_KEY) {
+    return { ok: false, skipped: true, error: 'RESEND_API_KEY is not configured.' };
+  }
+
+  const fromAddress = `Gijayi <${ORDER_CONFIRMATION_FROM_EMAIL}>`;
+  const trackLink =
+    input.trackingUrl ||
+    `https://gijayi.com/track-order?code=${encodeURIComponent(input.orderCode)}`;
+
+  const subject = `Order ${input.orderCode} update – ${input.statusLabel}`;
+  const text = [
+    `Hi ${input.customerName},`,
+    '',
+    `Your Gijayi order ${input.orderCode} is now: ${input.statusLabel}.`,
+    input.courierName ? `Courier: ${input.courierName}` : '',
+    input.trackingNumber ? `Tracking number: ${input.trackingNumber}` : '',
+    input.estimatedDelivery ? `Estimated delivery: ${input.estimatedDelivery}` : '',
+    '',
+    `Track your order: ${trackLink}`,
+    '',
+    'Regards,',
+    'Team Gijayi',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const html = `
+<!DOCTYPE html>
+<html><body style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;">
+  <p>Dear <strong>${input.customerName}</strong>,</p>
+  <p>Your Gijayi order <strong>${input.orderCode}</strong> status is now:</p>
+  <p style="font-size:18px;font-weight:bold;color:#b8963e;">${input.statusLabel}</p>
+  ${input.courierName ? `<p>Courier: ${input.courierName}</p>` : ''}
+  ${input.trackingNumber ? `<p>Tracking number: <strong>${input.trackingNumber}</strong></p>` : ''}
+  <p><a href="${trackLink}" style="background:#1a1a1a;color:#d4af37;padding:12px 20px;text-decoration:none;display:inline-block;">Track Order</a></p>
+  <p style="color:#888;font-size:12px;">Gijayi · support@gijayi.com</p>
+</body></html>`;
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: fromAddress,
+      to: [input.to],
+      ...(ORDER_CONFIRMATION_CC_EMAIL && { cc: [ORDER_CONFIRMATION_CC_EMAIL] }),
+      subject,
+      html,
+      text,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`[Email] Shipment status email failed (${response.status}):`, errorText);
+    return { ok: false, error: errorText };
+  }
+
+  return { ok: true };
+}

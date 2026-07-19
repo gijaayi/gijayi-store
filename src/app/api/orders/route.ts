@@ -4,6 +4,7 @@ import { createOrderCode, createOrderId, computeOrderTotals, buildInitialTimelin
 import { DbOrderItem, updateDatabase } from '@/lib/server/database';
 import crypto from 'crypto';
 import { sendOrderConfirmationEmail } from '@/lib/server/email';
+import { createAndAttachShipment, isShiprocketConfigured } from '@/lib/server/shiprocket';
 
 function addBusinessDays(fromDate: Date, days: number) {
   const date = new Date(fromDate);
@@ -90,11 +91,13 @@ export async function POST(request: NextRequest) {
     const exchangeRate = Number(paymentDetails?.exchangeRate || 1);
 
     let createdOrderCode = '';
+    let createdOrderId = '';
     let createdTotalAmount = 0;
     let createdEstimatedDeliveryDate = '';
 
     await updateDatabase((db) => {
       createdOrderCode = createOrderCode(db.orders.map((order) => order.orderCode));
+      createdOrderId = createOrderId();
       const now = new Date().toISOString();
       const totals = computeOrderTotals(items);
       createdTotalAmount = totals.totalAmount;
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
       }
 
       db.orders.unshift({
-        id: createOrderId(),
+        id: createdOrderId,
         orderCode: createdOrderCode,
         userId: auth.user.id,
         userName: auth.user.name,
@@ -141,6 +144,15 @@ export async function POST(request: NextRequest) {
       });
     });
 
+    // Shiprocket is best-effort — never block order placement if it fails.
+    let shipmentCreated = false;
+    let shipmentError: string | undefined;
+    if (isShiprocketConfigured()) {
+      const shipmentResult = await createAndAttachShipment(createdOrderId);
+      shipmentCreated = shipmentResult.ok;
+      shipmentError = shipmentResult.error;
+    }
+
     const emailResult = await sendOrderConfirmationEmail({
       to: String(shipping.email),
       customerName: `${String(shipping.firstName)} ${String(shipping.lastName || '')}`.trim() || auth.user.name,
@@ -156,6 +168,8 @@ export async function POST(request: NextRequest) {
       estimatedDeliveryDate: createdEstimatedDeliveryDate,
       emailSent: emailResult.ok,
       emailSkipped: emailResult.skipped || false,
+      shipmentCreated,
+      shipmentError,
     });
   } catch {
     return NextResponse.json({ error: 'Unable to place order.' }, { status: 500 });
