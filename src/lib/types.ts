@@ -22,6 +22,12 @@ export interface Product {
   nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium';
   descriptionFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium';
   detailsFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium';
+  /** Optional SEO page title (independent of product name). Max 70 chars. */
+  seoTitle?: string;
+  /** Optional SEO meta description. Max 170 chars. */
+  metaDescription?: string;
+  /** Optional comma-separated SEO keywords. */
+  metaKeywords?: string;
 }
 
 export interface CartItem {

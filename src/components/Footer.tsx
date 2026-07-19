@@ -86,7 +86,7 @@ export default function Footer() {
           <div>
             <h4 className="font-serif text-xl sm:text-2xl tracking-widest uppercase mb-4 sm:mb-5">Gijayi</h4>
             <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4 sm:mb-6">
-              Curating India&apos;s finest handcrafted jewellery since 2010. Each piece is a celebration of artistry, tradition, and timeless beauty.
+              Curating India&apos;s finest handcrafted jewellery since 2025. Each piece is a celebration of artistry, tradition, and timeless beauty.
             </p>
             <div className="flex gap-3 sm:gap-4">
               <a

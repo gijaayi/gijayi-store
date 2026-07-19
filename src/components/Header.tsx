@@ -175,32 +175,33 @@ export default function Header() {
         style={{ backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.02), rgba(0,0,0,0))' }}
       >
         <div className="max-w-[1600px] mx-auto pl-0 pr-6 sm:pr-8 lg:pr-12">
-          <div className="flex items-center justify-between h-[90px] sm:h-[110px] md:h-[130px]">
+          <div className="flex items-center justify-between gap-2 h-[90px] sm:h-[110px] md:h-[130px]">
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2 shrink-0 text-[#f5e7c1]"
+              className="md:hidden p-2 shrink-0 text-[#f5e7c1] relative z-20"
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
               <Menu size={20} className="sm:w-6 sm:h-6" />
             </button>
 
-            <div className="flex items-center gap-5 md:gap-6 lg:gap-8">
-              <div className="flex items-center flex-shrink-0 ml-0 pl-0">
+            <div className="flex items-center min-w-0 flex-1 justify-center sm:flex-none sm:justify-start gap-5 md:gap-6 lg:gap-8">
+              <div className="flex items-center min-w-0 max-w-[42vw] sm:max-w-none sm:flex-shrink-0 ml-0 pl-0">
                 <Link
                   href="/"
-                  className="group relative flex items-center focus:outline-none focus-visible:outline-none focus-visible:ring-0 active:outline-none active:ring-0 border-none outline-none"
+                  className="group relative flex items-center min-w-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 active:outline-none active:ring-0 border-none outline-none"
                 >
-                  <div className="relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
-                    <div className="relative w-[190px] h-[95px] sm:w-[210px] sm:h-[105px] md:w-[230px] md:h-[115px]">
+                  <div className="relative overflow-hidden max-w-full">
+                    {/* Side fade is desktop/tablet only — on mobile it visually covers nearby icons */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none hidden sm:block" />
+                    <div className="relative w-[120px] h-[60px] sm:w-[210px] sm:h-[105px] md:w-[230px] md:h-[115px] max-w-full">
                       <Image
                         src="/logo.png"
                         alt="Gijayi Luxury Jewellery"
                         fill
                         priority
                         className="object-contain mix-blend-lighten transition-all duration-500 group-hover:opacity-95"
-                        sizes="(max-width: 640px) 190px, (max-width: 768px) 210px, 230px"
+                        sizes="(max-width: 640px) 120px, (max-width: 768px) 210px, 230px"
                       />
                     </div>
                   </div>
@@ -263,7 +264,7 @@ export default function Header() {
           </div>
 
             {/* Actions */}
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-1.5 sm:space-x-4 shrink-0 relative z-20">
               {user ? (
                 <>
                   <Link href="/profile" className="hidden md:inline text-[11px] tracking-widest uppercase text-[#f5e7c1] hover:text-[#d4af37] transition-colors py-1">

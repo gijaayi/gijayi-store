@@ -1,35 +1,27 @@
 import type { Metadata } from 'next';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '@/lib/siteMetadata';
 
 export const metadata: Metadata = {
   title: 'Contact Us | Gijayi',
   description: 'Reach Gijayi concierge for bridal styling, custom jewelry orders, international shipping help, and personalized support. Direct WhatsApp, email, and phone channels.',
   keywords: 'contact Gijayi, fashion styling help, custom jewelry orders, bridal consultation, jewelry support, international shipping help, WhatsApp support',
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: `${siteUrl}/contact`,
+    canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
     title: 'Contact Us | Gijayi',
     description: 'Direct contact for bridal consultations, styling help, and personalized jewelry expertise. Available via WhatsApp, email, and phone.',
-    url: `${siteUrl}/contact`,
-    siteName: 'Gijayi',
+    url: `${SITE_URL}/contact`,
+    siteName: SITE_NAME,
     type: 'website',
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90',
-        width: 1200,
-        height: 630,
-        alt: 'Gijayi Contact & Concierge',
-        type: 'image/jpeg',
-      },
-    ],
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Contact Us | Gijayi',
     description: 'Personalized styling, bridal consultations, and customer support.',
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 

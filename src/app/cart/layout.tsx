@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '@/lib/siteMetadata';
 
 export const metadata: Metadata = {
   title: 'Cart | Gijayi',
   description: 'Review your items, manage quantities, and proceed to checkout. Free shipping on orders over ₹5,000 in India. International shipping available.',
   keywords: 'shopping cart, jewelry shopping bag, checkout, free shipping',
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: `${siteUrl}/cart`,
+    canonical: `${SITE_URL}/cart`,
   },
   robots: {
     index: false, // Don't index cart page
@@ -17,23 +16,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Cart | Gijayi',
     description: 'Review your handcrafted jewelry items and proceed to secure checkout.',
-    url: `${siteUrl}/cart`,
-    siteName: 'Gijayi',
+    url: `${SITE_URL}/cart`,
+    siteName: SITE_NAME,
     type: 'website',
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=90',
-        width: 1200,
-        height: 630,
-        alt: 'Gijayi Shopping Cart',
-        type: 'image/jpeg',
-      },
-    ],
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Cart | Gijayi',
     description: 'Review and checkout your handcrafted jewelry items.',
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 

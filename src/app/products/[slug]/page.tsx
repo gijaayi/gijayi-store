@@ -452,12 +452,9 @@ export default function ProductDetailPage() {
                   +
                 </button>
               </div>
-              {product.stock <= 5 && (
-                <p className="text-xs text-[#b8963e] mt-2">Only {product.stock} left in stock</p>
-              )}
             </div>
 
-            {/* Low Stock Alert */}
+            {/* Customer-facing stock notice only (no admin inventory details) */}
             <LowStockAlert stock={product.stock} />
 
             {/* Buttons */}

@@ -2,38 +2,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { getAllCollections } from '@/lib/shopify';
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '@/lib/siteMetadata';
 
 export const dynamic = 'force-dynamic';
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gijayi.com';
 
 export const metadata = {
   title: 'Collections | Gijayi',
   description: 'Discover Gijayi\'s curated collections: bridal luxury, heritage designs, everyday statement pieces, and luxury moments. Handcrafted and shipped worldwide.',
   keywords: 'jewelry collections, bridal jewelry collections, heritage jewelry, designer collections, statement jewelry, luxury jewelry collections, bridal sets',
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: `${siteUrl}/collections`,
+    canonical: `${SITE_URL}/collections`,
   },
   openGraph: {
     title: 'Collections | Gijayi',
     description: 'Curated collections of handcrafted jewelry for bridal, heritage, and everyday luxury. Worldwide shipping and private WhatsApp styling support.',
-    url: `${siteUrl}/collections`,
-    siteName: 'Gijayi',
+    url: `${SITE_URL}/collections`,
+    siteName: SITE_NAME,
     type: 'website',
-    images: [
-      {
-        url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=1200&q=90',
-        width: 1200,
-        height: 630,
-        alt: 'Gijayi Collections',
-      },
-    ],
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Collections | Gijayi',
     description: 'Curated collections for bridal, heritage, and everyday luxury moments worldwide.',
+    images: [DEFAULT_OG_IMAGE.url],
   },
 };
 

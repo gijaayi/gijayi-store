@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/server/auth';
 import { readDatabase, updateDatabase } from '@/lib/server/database';
 import { withImageVersionList } from '@/lib/imageVersion';
+import { parseProductSeoFields } from '@/lib/productSeo';
 
 interface Context {
   params: Promise<{ id: string }>;
@@ -48,6 +49,11 @@ export async function PUT(request: NextRequest, context: Context) {
     }
 
     const versionToken = Date.now();
+    const seoFields = parseProductSeoFields(body as Record<string, unknown>);
+    const hasSeoUpdate =
+      body.seoTitle !== undefined ||
+      body.metaDescription !== undefined ||
+      body.metaKeywords !== undefined;
 
     const db = await updateDatabase((state) => {
       const index = state.products.findIndex((product) => product.id === id);
@@ -56,7 +62,7 @@ export async function PUT(request: NextRequest, context: Context) {
       }
 
       const current = state.products[index];
-      state.products[index] = {
+      const updated = {
         ...current,
         name: body.name ?? current.name,
         price: body.price !== undefined ? Number(body.price) : current.price,
@@ -86,6 +92,19 @@ export async function PUT(request: NextRequest, context: Context) {
         descriptionFont: body.descriptionFont ?? current.descriptionFont ?? 'sans-serif',
         detailsFont: body.detailsFont ?? current.detailsFont ?? 'sans-serif',
       };
+
+      if (hasSeoUpdate) {
+        if (seoFields.seoTitle) updated.seoTitle = seoFields.seoTitle;
+        else delete updated.seoTitle;
+
+        if (seoFields.metaDescription) updated.metaDescription = seoFields.metaDescription;
+        else delete updated.metaDescription;
+
+        if (seoFields.metaKeywords) updated.metaKeywords = seoFields.metaKeywords;
+        else delete updated.metaKeywords;
+      }
+
+      state.products[index] = updated;
     });
 
     return NextResponse.json({ products: db.products });

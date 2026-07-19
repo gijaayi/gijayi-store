@@ -39,6 +39,9 @@ interface AdminProduct {
   nameFont?: 'serif' | 'sans-serif' | 'mono' | 'display' | 'elegant' | 'modern-sans' | 'geometric' | 'bold' | 'light' | 'script' | 'georgia' | 'premium';
   descriptionFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'geometric' | 'light' | 'premium';
   detailsFont?: 'serif' | 'sans-serif' | 'mono' | 'elegant' | 'modern-sans' | 'light' | 'premium';
+  seoTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
 }
 
 const defaultForm = {
@@ -66,6 +69,9 @@ const defaultForm = {
   bridalLuxe: false,
   heritage: false,
   everydayMinimal: false,
+  seoTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
 }
 
 export default function AdminProductsPage() {
@@ -154,6 +160,9 @@ export default function AdminProductsPage() {
       bridalLuxe: Boolean(selectedProduct.bridalLuxe),
       heritage: Boolean(selectedProduct.heritage),
       everydayMinimal: Boolean(selectedProduct.everydayMinimal),
+      seoTitle: selectedProduct.seoTitle || '',
+      metaDescription: selectedProduct.metaDescription || '',
+      metaKeywords: selectedProduct.metaKeywords || '',
     });
     setImageFiles([null, null, null, null, null, null]);
   }, [selectedProduct]);
@@ -319,6 +328,9 @@ export default function AdminProductsPage() {
       bridalLuxe: Boolean(form.bridalLuxe),
       heritage: Boolean(form.heritage),
       everydayMinimal: Boolean(form.everydayMinimal),
+      seoTitle: form.seoTitle,
+      metaDescription: form.metaDescription,
+      metaKeywords: form.metaKeywords,
     };
 
     // Collection is now optional - only validate if provided
@@ -642,6 +654,61 @@ export default function AdminProductsPage() {
                 onChange={(value) => setForm({ ...form, description: value })} 
                 placeholder="Enter product description with formatting..."
               />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 tracking-wide">SEO Settings</h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Optional search fields. These do not change the customer-facing product name.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-xs tracking-widest uppercase text-slate-600">SEO Title</label>
+                <span className={`text-xs ${form.seoTitle.length > 60 ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {form.seoTitle.length}/70
+                </span>
+              </div>
+              <input
+                type="text"
+                maxLength={70}
+                value={form.seoTitle}
+                onChange={(event) => setForm({ ...form, seoTitle: event.target.value })}
+                placeholder='Example: "Premium Handmade Wooden Dining Table | Gijayi"'
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600 bg-white"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <label className="block text-xs tracking-widest uppercase text-slate-600">Meta Description</label>
+                <span className={`text-xs ${form.metaDescription.length > 160 ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {form.metaDescription.length}/170
+                </span>
+              </div>
+              <textarea
+                maxLength={170}
+                value={form.metaDescription}
+                onChange={(event) => setForm({ ...form, metaDescription: event.target.value })}
+                placeholder="Buy premium handmade wooden dining tables crafted from solid wood with modern design and durable finish."
+                rows={3}
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600 resize-none bg-white"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs tracking-widest uppercase text-slate-600">Meta Keywords (Optional)</label>
+              <input
+                type="text"
+                value={form.metaKeywords}
+                onChange={(event) => setForm({ ...form, metaKeywords: event.target.value })}
+                placeholder="wooden table, dining table, handcrafted furniture, solid wood table"
+                className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-600 bg-white"
+              />
+              <p className="text-xs text-slate-400">Comma-separated keywords</p>
             </div>
           </div>
 

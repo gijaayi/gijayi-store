@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/server/auth';
 import { Product } from '@/lib/types';
 import { readDatabase, updateDatabase, syncCollectionsWithProducts } from '@/lib/server/database';
 import { withImageVersionList } from '@/lib/imageVersion';
+import { parseProductSeoFields } from '@/lib/productSeo';
 
 function slugify(value: string) {
   return value
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
       : [];
     const details = Array.isArray(body.details) ? body.details.map((item: unknown) => String(item).trim()).filter(Boolean) : [];
     const sizes = Array.isArray(body.sizes) ? body.sizes.map((item: unknown) => String(item).trim()).filter(Boolean) : undefined;
+    const seoFields = parseProductSeoFields(body as Record<string, unknown>);
 
     const dbSnapshot = await readDatabase();
     const categoryExists = dbSnapshot.categories.some((item) => item.name === category);
@@ -108,6 +110,7 @@ export async function POST(request: NextRequest) {
         nameFont: body.nameFont || 'serif',
         descriptionFont: body.descriptionFont || 'sans-serif',
         detailsFont: body.detailsFont || 'sans-serif',
+        ...seoFields,
       };
 
       state.products.unshift(product);
