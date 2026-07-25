@@ -4,6 +4,7 @@ export {
   isShiprocketConfigured,
   getShiprocketToken,
   getShiprocketPickupLocation,
+  resolveShiprocketPickupLocation,
 } from './client';
 export {
   createAndAttachShipment,

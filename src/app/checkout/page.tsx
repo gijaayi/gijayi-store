@@ -114,7 +114,7 @@ export default function CheckoutPage() {
     setPlacingOrder(true);
     setError('');
 
-    if (!shipping.firstName || !shipping.email || !shipping.address || !shipping.city || !shipping.pincode) {
+    if (!shipping.firstName || !shipping.email || !shipping.phone || !shipping.address || !shipping.city || !shipping.state || !shipping.pincode) {
       setError('Please complete your shipping information.');
       setPlacingOrder(false);
       return;
@@ -490,7 +490,7 @@ export default function CheckoutPage() {
                 </div>
                 <button
                   onClick={() => setStep('currency')}
-                  disabled={!shipping.firstName || !shipping.email || !shipping.address || !shipping.city || !shipping.pincode}
+                  disabled={!shipping.firstName || !shipping.email || !shipping.phone || !shipping.address || !shipping.city || !shipping.state || !shipping.pincode}
                   className="w-full bg-[#1a1a1a] text-white py-4 text-xs tracking-widest uppercase hover:bg-[#b8963e] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Continue to Payment

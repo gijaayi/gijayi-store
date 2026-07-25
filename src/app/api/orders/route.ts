@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid payment method. Supported methods: Razorpay, PayPal.' }, { status: 400 });
     }
 
-    if (!shipping.firstName || !shipping.email || !shipping.address || !shipping.city || !shipping.pincode || !shipping.phone) {
+    if (!shipping.firstName || !shipping.email || !shipping.address || !shipping.city || !shipping.state || !shipping.pincode || !shipping.phone) {
       return NextResponse.json({ error: 'Shipping details are incomplete.' }, { status: 400 });
     }
 
@@ -151,6 +151,17 @@ export async function POST(request: NextRequest) {
       const shipmentResult = await createAndAttachShipment(createdOrderId);
       shipmentCreated = shipmentResult.ok;
       shipmentError = shipmentResult.error;
+      if (!shipmentResult.ok || shipmentResult.error) {
+        console.error('[Orders] Shiprocket fulfillment:', {
+          orderId: createdOrderId,
+          orderCode: createdOrderCode,
+          ok: shipmentResult.ok,
+          error: shipmentResult.error,
+        });
+      }
+    } else {
+      console.warn('[Orders] Shiprocket env missing on server — shipment not created.');
+      shipmentError = 'Shiprocket is not configured on the server.';
     }
 
     const emailResult = await sendOrderConfirmationEmail({

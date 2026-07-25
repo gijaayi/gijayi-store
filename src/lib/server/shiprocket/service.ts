@@ -5,8 +5,8 @@ import { readDatabase, updateDatabase } from '@/lib/server/database';
 import { sendShipmentStatusEmail } from '@/lib/server/email';
 import {
   getDefaultParcelDims,
-  getShiprocketPickupLocation,
   isShiprocketConfigured,
+  resolveShiprocketPickupLocation,
   shiprocketRequest,
 } from './client';
 import { buildTrackingUrl, mapShiprocketStatusToOrderStatus, orderStatusToTimelineLabel } from './status-map';
@@ -63,7 +63,20 @@ export async function createShiprocketShipment(order: DbOrder): Promise<Shiprock
   }
 
   const dims = getDefaultParcelDims();
-  const pickupLocation = getShiprocketPickupLocation();
+  const pickupLocation = await resolveShiprocketPickupLocation();
+  const phone = phoneDigits(order.shipping.phone);
+  if (phone.length !== 10) {
+    throw new Error('Customer phone must be a valid 10-digit Indian mobile number for Shiprocket.');
+  }
+  if (!/^\d{6}$/.test(String(order.shipping.pincode || '').trim())) {
+    throw new Error('Customer pincode must be a valid 6-digit Indian PIN for Shiprocket.');
+  }
+  if (!String(order.shipping.state || '').trim()) {
+    throw new Error('Customer state is required for Shiprocket shipment creation.');
+  }
+  if (!String(order.shipping.address || '').trim() || !String(order.shipping.city || '').trim()) {
+    throw new Error('Customer address and city are required for Shiprocket shipment creation.');
+  }
   const orderDate = new Date(order.createdAt);
   const formattedDate = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}-${String(orderDate.getDate()).padStart(2, '0')} ${String(orderDate.getHours()).padStart(2, '0')}:${String(orderDate.getMinutes()).padStart(2, '0')}`;
 
@@ -80,7 +93,7 @@ export async function createShiprocketShipment(order: DbOrder): Promise<Shiprock
     billing_state: order.shipping.state || '',
     billing_country: order.shipping.country || 'India',
     billing_email: order.shipping.email,
-    billing_phone: phoneDigits(order.shipping.phone),
+    billing_phone: phone,
     shipping_is_billing: true,
     order_items: order.items.map((item) => ({
       name: item.name,
@@ -248,18 +261,20 @@ export type FulfillShipmentResult = {
  * Full prepaid shipping pipeline:
  * create shipment -> assign AWB -> request pickup -> generate label/invoice.
  * Continues from whatever step is missing. Never throws for auto-flow callers.
+ * Create success is treated as success even if AWB/pickup fail (admin can retry).
  */
 export async function fulfillOrderShipment(orderId: string): Promise<FulfillShipmentResult> {
   const steps: string[] = [];
+  const softErrors: string[] = [];
 
   try {
     if (!isShiprocketConfigured()) {
-      return { ok: false, error: 'Shiprocket is not configured.', steps };
+      return { ok: false, error: 'Shiprocket is not configured on the server.', steps };
     }
 
     let order = await getOrderOrThrow(orderId);
 
-    // 1) Create Shiprocket order/shipment
+    // 1) Create Shiprocket order/shipment (hard requirement)
     if (!order.shipment?.shipmentId) {
       const created = await createShiprocketShipment(order);
       await persistShipmentOnOrder(
@@ -282,6 +297,8 @@ export async function fulfillOrderShipment(orderId: string): Promise<FulfillShip
       );
       steps.push('created');
       order = await getOrderOrThrow(orderId);
+    } else {
+      steps.push('already_created');
     }
 
     const shipmentId = order.shipment?.shipmentId;
@@ -289,65 +306,71 @@ export async function fulfillOrderShipment(orderId: string): Promise<FulfillShip
       throw new Error('Shipment ID missing after create.');
     }
 
-    // 2) Assign AWB (auto courier if none selected)
+    // 2) Assign AWB (soft — shipment already exists on Shiprocket)
     if (!order.shipment?.awbCode) {
-      const awbResult = await assignAwb(shipmentId);
-      const parsed = parseAwbAssignResult(awbResult);
-      if (!parsed.awbCode) {
-        throw new Error('Shiprocket did not return an AWB code.');
-      }
+      try {
+        const awbResult = await assignAwb(shipmentId);
+        const parsed = parseAwbAssignResult(awbResult);
+        if (!parsed.awbCode) {
+          throw new Error('Shiprocket did not return an AWB code. Check wallet balance / courier serviceability.');
+        }
 
-      await persistShipmentOnOrder(
-        orderId,
-        {
-          awbCode: parsed.awbCode,
-          trackingNumber: parsed.awbCode,
-          courierId: parsed.courierId,
-          courierName: parsed.courierName || order.shipment?.courierName,
-          shippingCharges: parsed.shippingCharges,
-          trackingUrl: buildTrackingUrl(parsed.awbCode, parsed.courierName || order.shipment?.courierName),
-          shipmentStatus: 'AWB Assigned',
-          lastError: undefined,
-          lastTrackingUpdate: new Date().toISOString(),
-        },
-        {
-          timelineLabel: 'AWB generated',
-          status: 'Packed',
-          notify: true,
-        },
-      );
-      steps.push('awb');
-      order = await getOrderOrThrow(orderId);
+        await persistShipmentOnOrder(
+          orderId,
+          {
+            awbCode: parsed.awbCode,
+            trackingNumber: parsed.awbCode,
+            courierId: parsed.courierId,
+            courierName: parsed.courierName || order.shipment?.courierName,
+            shippingCharges: parsed.shippingCharges,
+            trackingUrl: buildTrackingUrl(parsed.awbCode, parsed.courierName || order.shipment?.courierName),
+            shipmentStatus: 'AWB Assigned',
+            lastError: undefined,
+            lastTrackingUpdate: new Date().toISOString(),
+          },
+          {
+            timelineLabel: 'AWB generated',
+            status: 'Packed',
+            notify: true,
+          },
+        );
+        steps.push('awb');
+        order = await getOrderOrThrow(orderId);
+      } catch (error) {
+        softErrors.push(error instanceof Error ? error.message : 'AWB assignment failed');
+      }
     }
 
-    // 3) Request pickup
+    // 3) Request pickup (soft)
     const pickupDone = Boolean(
       order.shipment?.pickupStatus &&
         !/fail|error|cancel/i.test(order.shipment.pickupStatus),
     );
-    if (!pickupDone) {
-      await generatePickup(shipmentId);
-      await persistShipmentOnOrder(
-        orderId,
-        {
-          pickupStatus: 'Pickup requested',
-          shipmentStatus: 'Pickup Scheduled',
-          lastError: undefined,
-          lastTrackingUpdate: new Date().toISOString(),
-        },
-        {
-          timelineLabel: 'Pickup requested',
-          status: 'Packed',
-        },
-      );
-      steps.push('pickup');
-      order = await getOrderOrThrow(orderId);
+    if (!pickupDone && order.shipment?.awbCode) {
+      try {
+        await generatePickup(shipmentId);
+        await persistShipmentOnOrder(
+          orderId,
+          {
+            pickupStatus: 'Pickup requested',
+            shipmentStatus: 'Pickup Scheduled',
+            lastError: undefined,
+            lastTrackingUpdate: new Date().toISOString(),
+          },
+          {
+            timelineLabel: 'Pickup requested',
+            status: 'Packed',
+          },
+        );
+        steps.push('pickup');
+        order = await getOrderOrThrow(orderId);
+      } catch (error) {
+        softErrors.push(error instanceof Error ? error.message : 'Pickup request failed');
+      }
     }
 
-    // 4) Label + invoice (best-effort; do not fail the whole pipeline)
-    const softErrors: string[] = [];
-
-    if (!order.shipment?.labelUrl) {
+    // 4) Label + invoice (soft)
+    if (order.shipment?.awbCode && !order.shipment?.labelUrl) {
       try {
         const label = await generateLabel(shipmentId);
         if (label.label_url) {
@@ -380,7 +403,7 @@ export async function fulfillOrderShipment(orderId: string): Promise<FulfillShip
 
     if (softErrors.length) {
       await persistShipmentOnOrder(orderId, {
-        lastError: `Documents: ${softErrors.join(' | ')}`,
+        lastError: softErrors.join(' | '),
       });
       return {
         ok: true,
@@ -399,6 +422,11 @@ export async function fulfillOrderShipment(orderId: string): Promise<FulfillShip
       await persistShipmentOnOrder(orderId, { lastError: message });
     } catch {
       // ignore secondary write failures
+    }
+
+    // If create already happened earlier in this run, still report partial success.
+    if (steps.includes('created') || steps.includes('already_created')) {
+      return { ok: true, error: message, steps };
     }
 
     return { ok: false, error: message, steps };

@@ -127,7 +127,7 @@ export default function AdminOrdersPage() {
     <section className="bg-white border border-slate-200 rounded-2xl p-6">
       <h2 className="font-serif text-3xl mb-1 text-slate-900">Order Operations</h2>
       <p className="text-sm text-slate-500 mb-6">
-        Prepaid orders auto-fulfill shipping after payment. Use Auto Fulfill or the manual steps below if anything fails.
+        After payment, shipping is created automatically on Shiprocket. If Shipping fields are empty or show an error, click Auto Fulfill Shipping, then use Generate AWB / Request Pickup only if needed.
       </p>
 
       {error && (

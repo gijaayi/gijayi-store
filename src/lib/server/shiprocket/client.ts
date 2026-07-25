@@ -20,6 +20,31 @@ export function isShiprocketConfigured(): boolean {
   return Boolean(email && password);
 }
 
+function extractShiprocketError(data: unknown, status: number): string {
+  if (!data || typeof data !== 'object') {
+    return `Shiprocket API error (${status})`;
+  }
+
+  const record = data as Record<string, unknown>;
+  if (typeof record.message === 'string' && record.message.trim()) {
+    return record.message.trim();
+  }
+
+  if (record.errors && typeof record.errors === 'object') {
+    const parts: string[] = [];
+    for (const [key, value] of Object.entries(record.errors as Record<string, unknown>)) {
+      if (Array.isArray(value)) {
+        parts.push(`${key}: ${value.map(String).join(', ')}`);
+      } else if (value != null) {
+        parts.push(`${key}: ${String(value)}`);
+      }
+    }
+    if (parts.length) return parts.join(' | ');
+  }
+
+  return `Shiprocket API error (${status})`;
+}
+
 async function login(): Promise<string> {
   const { email, password } = getCredentials();
   if (!email || !password) {
@@ -43,7 +68,6 @@ async function login(): Promise<string> {
     throw new Error(data.message || `Shiprocket auth failed (${response.status})`);
   }
 
-  // Tokens are typically valid ~10 days; refresh earlier for safety.
   tokenCache = {
     token: data.token,
     expiresAt: Date.now() + 9 * 24 * 60 * 60 * 1000,
@@ -87,23 +111,63 @@ export async function shiprocketRequest<T = unknown>(
     return shiprocketRequest<T>(path, { ...options, retryAuth: false });
   }
 
-  const data = (await response.json().catch(() => ({}))) as T & {
-    message?: string;
-    status_code?: number;
-  };
+  const data = (await response.json().catch(() => ({}))) as T;
 
   if (!response.ok) {
-    const message =
-      (typeof data === 'object' && data && 'message' in data && data.message) ||
-      `Shiprocket API error (${response.status})`;
-    throw new Error(String(message));
+    throw new Error(extractShiprocketError(data, response.status));
   }
 
   return data;
 }
 
 export function getShiprocketPickupLocation(): string {
-  return (process.env.SHIPROCKET_PICKUP_LOCATION || 'Primary').trim() || 'Primary';
+  return (process.env.SHIPROCKET_PICKUP_LOCATION || 'Home').trim() || 'Home';
+}
+
+/**
+ * Prefer configured pickup if it has a phone; otherwise use first usable pickup.
+ * Prevents create/AWB failures when "Primary" has an empty phone in Shiprocket.
+ */
+export async function resolveShiprocketPickupLocation(): Promise<string> {
+  const configured = getShiprocketPickupLocation();
+
+  try {
+    const data = await shiprocketRequest<{
+      data?: {
+        shipping_address?: Array<{
+          pickup_location?: string;
+          phone?: string | number;
+          status?: number | string;
+        }>;
+      };
+    }>('/settings/company/pickup');
+
+    const addresses = data.data?.shipping_address || [];
+    if (!addresses.length) return configured;
+
+    const hasPhone = (phone: string | number | undefined) =>
+      String(phone || '').replace(/\D/g, '').length >= 10;
+
+    const configuredMatch = addresses.find((item) => item.pickup_location === configured);
+    if (configuredMatch && hasPhone(configuredMatch.phone)) {
+      return configured;
+    }
+
+    const usable = addresses.find((item) => item.pickup_location && hasPhone(item.phone));
+    if (usable?.pickup_location) {
+      if (configuredMatch && !hasPhone(configuredMatch.phone)) {
+        console.warn(
+          `[Shiprocket] Pickup "${configured}" has no phone. Using "${usable.pickup_location}" instead.`,
+        );
+      }
+      return usable.pickup_location;
+    }
+
+    return configuredMatch?.pickup_location || addresses[0]?.pickup_location || configured;
+  } catch (error) {
+    console.warn('[Shiprocket] Unable to resolve pickup location, using configured value.', error);
+    return configured;
+  }
 }
 
 export function getDefaultParcelDims() {
