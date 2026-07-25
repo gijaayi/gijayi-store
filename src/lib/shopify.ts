@@ -422,6 +422,19 @@ export async function getHomeData() {
   };
 }
 
+/** Homepage + /collections — only the three admin storefront collections. */
+export async function getStorefrontCollections() {
+  const { resolveStorefrontCollections } = await import('./storefrontCollections');
+  const db = await readDatabase();
+  const [products, collections] = await Promise.all([getAllProducts(), getAllCollections()]);
+
+  return resolveStorefrontCollections(
+    collections,
+    products,
+    db.storefront.collectionHighlights,
+  );
+}
+
 export async function getShopData() {
   const products = await getAllProducts();
   const db = await readDatabase();

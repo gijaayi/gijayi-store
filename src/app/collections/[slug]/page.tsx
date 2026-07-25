@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getAllCollections, getCollectionByHandle, getProductsByCollectionHandle } from '@/lib/shopify';
+import { getCollectionByHandle, getProductsByCollectionHandle, getStorefrontCollections } from '@/lib/shopify';
 import { readDatabase } from '@/lib/server/database';
 import ProductCard from '@/components/ProductCard';
 
@@ -43,7 +43,7 @@ function getCollectionBannerImage(
 }
 
 export async function generateStaticParams() {
-  const collections = await getAllCollections();
+  const collections = await getStorefrontCollections();
   return collections.map((c) => ({ slug: c.slug }));
 }
 

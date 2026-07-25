@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { getAllCollections } from '@/lib/shopify';
+import { getStorefrontCollections } from '@/lib/shopify';
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '@/lib/siteMetadata';
 
 export const dynamic = 'force-dynamic';
@@ -31,7 +31,7 @@ export const metadata = {
 };
 
 export default async function CollectionsPage() {
-  const collections = await getAllCollections();
+  const collections = await getStorefrontCollections();
 
   return (
     <div className="bg-white">
@@ -54,13 +54,17 @@ export default async function CollectionsPage() {
               className="grid overflow-hidden border border-[#efe6d7] bg-[#fcfbf8] md:grid-cols-[1.2fr_1fr]"
             >
               <div className={`relative min-h-80 ${index % 2 === 1 ? 'md:order-2' : ''}`}>
-                <Image
-                  src={collection.image}
-                  alt={collection.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 60vw"
-                />
+                {collection.image ? (
+                  <Image
+                    src={collection.image}
+                    alt={collection.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[#efe6d7]" />
+                )}
               </div>
               <div className="flex flex-col justify-center p-8 md:p-12 lg:p-16">
                 <p className="text-xs tracking-[0.35em] uppercase text-[#b8963e] mb-3">{collection.itemCount} Pieces</p>

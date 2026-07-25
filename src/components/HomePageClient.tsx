@@ -8,6 +8,12 @@ import { ArrowRight, Star, Shield, Truck, RotateCcw, Sparkles, Gem, BadgeCheck, 
 import ProductCard from '@/components/ProductCard';
 import { Collection, Product } from '@/lib/types';
 import { withImageVersion } from '@/lib/imageVersion';
+import { normalizeCollectionKey, resolveStorefrontCollections } from '@/lib/storefrontCollections';
+
+function matchesCollection(product: Product, aliases: string[]) {
+  const collectionKey = normalizeCollectionKey(product.collection || '');
+  return aliases.some((alias) => collectionKey === normalizeCollectionKey(alias));
+}
 
 interface CarouselBanner {
   id: string;
@@ -134,102 +140,6 @@ const defaultTestimonialsSection = {
     },
   ],
 };
-
-function normalizeCollectionKey(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-');
-}
-
-type FeaturedCollectionDefinition = {
-  slug: 'bridal-luxe' | 'heritage' | 'everyday-minimal';
-  label: string;
-  aliases: string[];
-  highlightKey: keyof StorefrontSettings['collectionHighlights'];
-  description: string;
-};
-
-const FEATURED_COLLECTIONS: FeaturedCollectionDefinition[] = [
-  {
-    slug: 'bridal-luxe',
-    label: 'Bridal Luxe',
-    aliases: ['Bridal Luxe', 'Bridal Collection', 'Bridal', 'Khanam'],
-    highlightKey: 'bridalLuxe',
-    description: 'Opulent jewellery crafted for your most cherished moments. Every piece tells a story of love and tradition.',
-  },
-  {
-    slug: 'heritage',
-    label: 'Heritage',
-    aliases: ['Heritage'],
-    highlightKey: 'heritage',
-    description: 'Timeless designs inspired by India\'s rich jewellery-making legacy, reimagined for the modern woman.',
-  },
-  {
-    slug: 'everyday-minimal',
-    label: 'Everyday Minimal',
-    aliases: ['Everyday Minimal', 'Everyday Luxe', 'Everyday', 'Minimal', 'Naaz'],
-    highlightKey: 'everydayMinimal',
-    description: 'Refined pieces to elevate every day. Effortlessly luxurious for the woman who appreciates beauty in simplicity.',
-  },
-];
-
-function collectionMatchesFeaturedDefinition(collection: Collection, definition: FeaturedCollectionDefinition) {
-  const slug = normalizeCollectionKey(collection.slug);
-  const name = normalizeCollectionKey(collection.name);
-
-  return slug === definition.slug || definition.aliases.some((alias) => {
-    const aliasKey = normalizeCollectionKey(alias);
-    return slug === aliasKey || name === aliasKey;
-  });
-}
-
-function countFeaturedCollectionProducts(products: Product[], definition: FeaturedCollectionDefinition) {
-  return products.filter((product) => {
-    if (definition.slug === 'bridal-luxe' && product.bridalLuxe) return true;
-    if (definition.slug === 'heritage' && product.heritage) return true;
-    if (definition.slug === 'everyday-minimal' && product.everydayMinimal) return true;
-    return matchesCollection(product, definition.aliases);
-  }).length;
-}
-
-function getFeaturedCollectionImage(collection: Collection | undefined, storefront: StorefrontSettings, definition: FeaturedCollectionDefinition) {
-  const fallbackImage = collection?.image || '';
-
-  if (definition.slug === 'bridal-luxe') {
-    return storefront.collectionHighlights.bridalLuxe || fallbackImage;
-  }
-
-  if (definition.slug === 'heritage') {
-    return storefront.collectionHighlights.heritage || fallbackImage;
-  }
-
-  return storefront.collectionHighlights.everydayMinimal || fallbackImage;
-}
-
-function matchesCollection(product: Product, aliases: string[]) {
-  const collectionKey = normalizeCollectionKey(product.collection);
-  return aliases.some((alias) => collectionKey === normalizeCollectionKey(alias));
-}
-
-function getCollectionBannerImage(collection: Collection, storefront: StorefrontSettings) {
-  const slug = normalizeCollectionKey(collection.slug);
-
-  if (slug === 'bridal-luxe') {
-    return storefront.collectionHighlights.bridalLuxe || collection.image;
-  }
-
-  if (slug === 'heritage') {
-    return storefront.collectionHighlights.heritage || collection.image;
-  }
-
-  if (slug === 'everyday-minimal') {
-    return storefront.collectionHighlights.everydayMinimal || collection.image;
-  }
-
-  return collection.image;
-}
 
 function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
   const heroSlides = storefront.carousel?.banners?.length
@@ -383,6 +293,11 @@ function HeroSection({ storefront }: { storefront: StorefrontSettings }) {
 
 function CollectionsSection({ products, collections, storefront }: { products: Product[]; collections: Collection[]; storefront: StorefrontSettings }) {
   const [fallbackImages, setFallbackImages] = useState<Record<string, string>>({});
+  const featuredCollections = resolveStorefrontCollections(
+    collections,
+    products,
+    storefront.collectionHighlights,
+  );
 
   return (
     <section className="py-20 md:py-28 bg-gradient-to-br from-slate-50 to-white border-y border-slate-200">
@@ -402,17 +317,13 @@ function CollectionsSection({ products, collections, storefront }: { products: P
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7">
-          {FEATURED_COLLECTIONS.map((definition, index) => {
-            const matchedCollection = collections.find((collection) => collectionMatchesFeaturedDefinition(collection, definition));
-            const collectionId = matchedCollection?.id || definition.slug;
-            const collectionImage = fallbackImages[collectionId] || getFeaturedCollectionImage(matchedCollection, storefront, definition);
-            const collectionDescription = definition.description;
-            const collectionCount = countFeaturedCollectionProducts(products, definition) || matchedCollection?.itemCount || 0;
+          {featuredCollections.map((collection, index) => {
+            const collectionImage = fallbackImages[collection.id] || collection.image;
 
             return (
               <Link
-                key={definition.slug}
-                href={`/collections/${definition.slug}`}
+                key={collection.slug}
+                href={`/collections/${collection.slug}`}
                 className="block"
               >
                 <motion.div
@@ -422,28 +333,32 @@ function CollectionsSection({ products, collections, storefront }: { products: P
                   transition={{ duration: 0.5, delay: index * 0.08 }}
                   className="group relative h-97.5 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
                 >
-                  <Image
-                    src={collectionImage}
-                    alt={definition.label}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    onError={() => {
-                      setFallbackImages((current) => {
-                        if (current[collectionId]) return current;
-                        return {
-                          ...current,
-                          [collectionId]: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
-                        };
-                      });
-                    }}
-                  />
+                  {collectionImage ? (
+                    <Image
+                      src={collectionImage}
+                      alt={collection.name}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      onError={() => {
+                        setFallbackImages((current) => {
+                          if (current[collection.id]) return current;
+                          return {
+                            ...current,
+                            [collection.id]: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=900&q=80',
+                          };
+                        });
+                      }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-slate-200" />
+                  )}
                   <div className="absolute inset-0 bg-linear-to-b from-black/5 via-black/25 to-black/70" />
                   <div className="absolute inset-0 flex flex-col items-start justify-end p-8 text-white">
-                    <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collectionCount} Pieces</p>
-                    <h3 className="font-serif text-3xl md:text-4xl mb-3">{definition.label}</h3>
+                    <p className="text-xs tracking-[0.4em] uppercase text-slate-100 mb-2">{collection.itemCount} Pieces</p>
+                    <h3 className="font-serif text-3xl md:text-4xl mb-3">{collection.name}</h3>
                     <p className="text-sm text-white/90 max-w-xs mb-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
-                      {collectionDescription}
+                      {collection.description}
                     </p>
                     <span className="inline-flex items-center gap-2 border-2 border-white text-white px-6 py-2 text-xs tracking-widest uppercase hover:bg-white hover:text-slate-900 transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-lg font-medium">
                       View Collection <ArrowRight size={14} />
