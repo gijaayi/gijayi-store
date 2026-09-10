@@ -5,6 +5,8 @@ Allow: /shop
 Allow: /shop?*
 Allow: /products/*
 Allow: /collections
+Allow: /blog
+Allow: /blog/*
 Allow: /about
 Allow: /contact
 

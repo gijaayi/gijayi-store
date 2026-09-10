@@ -39,6 +39,11 @@ const defaultNavLinks = [
     href: '/shop?filter=new',
     children: [],
   },
+  {
+    label: 'Journal',
+    href: '/blog',
+    children: [],
+  },
 ];
 
 function slugify(name: string) {
@@ -113,6 +118,11 @@ export default function Header() {
           {
             label: freshArrival?.label?.trim() || 'Fresh Arrival',
             href: '/shop?filter=new',
+            children: [],
+          },
+          {
+            label: 'Journal',
+            href: '/blog',
             children: [],
           },
         ];

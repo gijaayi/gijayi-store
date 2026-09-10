@@ -6,6 +6,26 @@ import { Collection, Product, ShippingZone } from '@/lib/types';
 import { collections as seedCollections, products as seedProducts } from '@/lib/data';
 import { hashPassword } from './password';
 import { getMongoDb } from './mongodb';
+import type {
+  BlogCategory,
+  BlogPost,
+  BlogRedirect,
+  BlogSettings,
+  BlogTag,
+} from '@/lib/blogTypes';
+import { DEFAULT_BLOG_SETTINGS, SEED_BLOG_CATEGORIES } from '@/lib/blogSeed';
+
+export type {
+  BlogCategory,
+  BlogPost,
+  BlogRedirect,
+  BlogSettings,
+  BlogTag,
+  BlogPostStatus,
+  BlogSeoFields,
+  BlogAuthor,
+  BlogFaq,
+} from '@/lib/blogTypes';
 
 export interface DbUser {
   id: string;
@@ -245,6 +265,11 @@ export interface DatabaseState {
   storefront: DbStorefrontSettings;
   instagramGallery: DbInstagramGallery;
   shippingZones: ShippingZone[];
+  blogPosts: BlogPost[];
+  blogCategories: BlogCategory[];
+  blogTags: BlogTag[];
+  blogRedirects: BlogRedirect[];
+  blogSettings: BlogSettings;
 }
 
 export interface DbInstagramImage {
@@ -539,6 +564,16 @@ async function getFallbackState(): Promise<DatabaseState> {
       storefront: cloneState(DEFAULT_STOREFRONT_SETTINGS),
       instagramGallery: cloneState(DEFAULT_INSTAGRAM_GALLERY),
       shippingZones: cloneState(DEFAULT_SHIPPING_ZONES),
+      blogPosts: [],
+      blogCategories: SEED_BLOG_CATEGORIES.map((category) => ({
+        ...category,
+        id: randomUUID(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })),
+      blogTags: [],
+      blogRedirects: [],
+      blogSettings: cloneState(DEFAULT_BLOG_SETTINGS),
     };
   }
 
@@ -757,6 +792,33 @@ async function ensureDatabase(): Promise<void> {
       await shippingZonesCollection.insertMany(defaultZones);
     }
   }
+
+  const blogCategoriesCollection = db.collection<BlogCategory>('blogCategories');
+  const blogCategoriesCount = await blogCategoriesCollection.estimatedDocumentCount();
+  if (blogCategoriesCount === 0) {
+    const now = new Date().toISOString();
+    await blogCategoriesCollection.insertMany(
+      SEED_BLOG_CATEGORIES.map((category) => ({
+        ...category,
+        id: randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+      })),
+    );
+  }
+
+  const blogSettingsCollection = db.collection<BlogSettings>('blogSettings');
+  const blogSettingsCount = await blogSettingsCollection.estimatedDocumentCount();
+  if (blogSettingsCount === 0) {
+    await blogSettingsCollection.insertOne(cloneState(DEFAULT_BLOG_SETTINGS));
+  }
+
+  await Promise.all([
+    db.collection<BlogPost>('blogPosts').createIndex({ slug: 1 }, { unique: true }),
+    db.collection<BlogCategory>('blogCategories').createIndex({ slug: 1 }, { unique: true }),
+    db.collection<BlogTag>('blogTags').createIndex({ slug: 1 }, { unique: true }),
+    db.collection<BlogRedirect>('blogRedirects').createIndex({ fromSlug: 1 }, { unique: true }),
+  ]);
 }
 
 export async function readDatabase(): Promise<DatabaseState> {
@@ -764,7 +826,22 @@ export async function readDatabase(): Promise<DatabaseState> {
     await ensureDatabase();
     const db = await getMongoDb();
 
-    const [users, products, collections, categories, contacts, orders, storefront, instagramGallery, shippingZones] = await Promise.all([
+    const [
+      users,
+      products,
+      collections,
+      categories,
+      contacts,
+      orders,
+      storefront,
+      instagramGallery,
+      shippingZones,
+      blogPosts,
+      blogCategories,
+      blogTags,
+      blogRedirects,
+      blogSettingsDoc,
+    ] = await Promise.all([
       db.collection<DbUser>('users').find({}).toArray(),
       db.collection<Product>('products').find({}).toArray(),
       db.collection<Collection>('collections').find({}).toArray(),
@@ -774,6 +851,11 @@ export async function readDatabase(): Promise<DatabaseState> {
       db.collection<DbStorefrontSettings>('storefront').findOne({ id: 'storefront-config' }),
       db.collection<DbInstagramGallery>('instagramGallery').findOne({ id: 'instagram-gallery-config' }),
       db.collection<ShippingZone>('shippingZones').find({}).toArray(),
+      db.collection<BlogPost>('blogPosts').find({}).toArray(),
+      db.collection<BlogCategory>('blogCategories').find({}).toArray(),
+      db.collection<BlogTag>('blogTags').find({}).toArray(),
+      db.collection<BlogRedirect>('blogRedirects').find({}).toArray(),
+      db.collection<BlogSettings>('blogSettings').findOne({ id: 'blog-settings' }),
     ]);
 
     const storefrontSettings = storefront
@@ -783,6 +865,10 @@ export async function readDatabase(): Promise<DatabaseState> {
     const instagramGallerySettings = instagramGallery
       ? withoutMongoId<DbInstagramGallery>(instagramGallery as DbInstagramGallery & Document)
       : DEFAULT_INSTAGRAM_GALLERY;
+
+    const blogSettings = blogSettingsDoc
+      ? withoutMongoId<BlogSettings>(blogSettingsDoc as BlogSettings & Document)
+      : cloneState(DEFAULT_BLOG_SETTINGS);
 
     return {
       users: users.map((user) => withoutMongoId<DbUser>(user)),
@@ -794,6 +880,11 @@ export async function readDatabase(): Promise<DatabaseState> {
       storefront: storefrontSettings,
       instagramGallery: instagramGallerySettings,
       shippingZones: shippingZones.map((zone) => withoutMongoId<ShippingZone>(zone)),
+      blogPosts: blogPosts.map((post) => withoutMongoId<BlogPost>(post)),
+      blogCategories: blogCategories.map((category) => withoutMongoId<BlogCategory>(category)),
+      blogTags: blogTags.map((tag) => withoutMongoId<BlogTag>(tag)),
+      blogRedirects: blogRedirects.map((redirect) => withoutMongoId<BlogRedirect>(redirect)),
+      blogSettings,
     };
   } catch (error) {
     console.warn('MongoDB unavailable. Using in-memory fallback state.', error);
@@ -822,6 +913,11 @@ async function writeState(dbState: DatabaseState) {
     replaceCollection('storefront', [dbState.storefront as unknown as Document]),
     replaceCollection('instagramGallery', [dbState.instagramGallery as unknown as Document]),
     replaceCollection('shippingZones', dbState.shippingZones as unknown as Document[]),
+    replaceCollection('blogPosts', (dbState.blogPosts || []) as unknown as Document[]),
+    replaceCollection('blogCategories', (dbState.blogCategories || []) as unknown as Document[]),
+    replaceCollection('blogTags', (dbState.blogTags || []) as unknown as Document[]),
+    replaceCollection('blogRedirects', (dbState.blogRedirects || []) as unknown as Document[]),
+    replaceCollection('blogSettings', [dbState.blogSettings || DEFAULT_BLOG_SETTINGS] as unknown as Document[]),
   ]);
 }
 

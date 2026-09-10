@@ -13,6 +13,8 @@ import { useAuth } from '@/context/AuthContext';
 import ProductCard from '@/components/ProductCard';
 import LowStockAlert from '@/components/LowStockAlert';
 import ProductLoadingSkeleton from '@/components/ProductLoadingSkeleton';
+import { toGa4Item, trackViewItem } from '@/lib/ga4';
+
 export default function ProductDetailPage() {
   const whatsappUrl = 'https://wa.me/917310580050?text=Hi%20Gijayi%2C%20I%20want%20help%20with%20this%20product.';
   const siteUrl = typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : 'https://gijayi.com';
@@ -150,6 +152,22 @@ export default function ProductDetailPage() {
     setSelectedSize(product.sizes?.[0] || '');
     setQuantity(1);
   }, [product?.id, product?.slug]);
+
+  // GA4 view_item — once per loaded product
+  useEffect(() => {
+    if (!product) return;
+    trackViewItem(
+      toGa4Item({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        category: product.category || product.collection,
+        currency: 'INR',
+      }),
+      'INR',
+    );
+  }, [product?.id]);
 
   if (isLoadingProduct) {
     return <ProductLoadingSkeleton title={fallbackTitle} />;

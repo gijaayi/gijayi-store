@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartItem, Product } from '@/lib/types';
+import { toGa4Item, trackAddToCart } from '@/lib/ga4';
 
 interface CartState {
   items: CartItem[];
@@ -118,7 +119,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider
       value={{
         state,
-        addItem: (product, size) => dispatch({ type: 'ADD_ITEM', payload: { product, size } }),
+        addItem: (product, size) => {
+          dispatch({ type: 'ADD_ITEM', payload: { product, size } });
+          trackAddToCart(
+            toGa4Item({
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              quantity: 1,
+              category: product.category || product.collection,
+              variant: size,
+              currency: 'INR',
+            }),
+            'INR',
+          );
+        },
         removeItem: (productId, size) => dispatch({ type: 'REMOVE_ITEM', payload: { productId, size } }),
         updateQty: (productId, quantity, size) =>
           dispatch({ type: 'UPDATE_QTY', payload: { productId, size, quantity } }),

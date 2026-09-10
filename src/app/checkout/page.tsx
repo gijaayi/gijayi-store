@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -8,6 +8,40 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { CheckCircle, Shield, Truck, ChevronDown, CreditCard, MessageCircle } from 'lucide-react';
+import { toGa4Item, trackBeginCheckout, trackPurchase } from '@/lib/ga4';
+import type { CartItem } from '@/lib/types';
+
+function cartItemsToGa4(items: CartItem[]) {
+  return items.map((item) =>
+    toGa4Item({
+      id: item.product.id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      category: item.product.category || item.product.collection,
+      variant: item.size,
+      currency: 'INR',
+    }),
+  );
+}
+
+function trackCheckoutPurchase(options: {
+  transactionId: string;
+  items: CartItem[];
+  shipping: number;
+  value: number;
+}) {
+  const items = cartItemsToGa4(options.items);
+  trackPurchase({
+    currency: 'INR',
+    value: options.value,
+    shipping: options.shipping,
+    tax: 0,
+    transaction_id: options.transactionId,
+    affiliation: 'Gijayi Store',
+    items,
+  });
+}
 
 type Step = 'shipping' | 'currency' | 'review';
 type PaymentMethod = 'razorpay' | 'paypal';
@@ -48,6 +82,7 @@ export default function CheckoutPage() {
   const shippingCost = user && !user.hasPlacedOrder ? 0 : 99;
   const total = totalPrice + shippingCost;
   const displayPrice = (amount: number) => (amount * exchangeRate).toFixed(2);
+  const beginCheckoutTracked = useRef(false);
 
   useEffect(() => {
     if (loading) return;
@@ -55,6 +90,21 @@ export default function CheckoutPage() {
       router.push('/login?redirect=/checkout');
     }
   }, [loading, user, router]);
+
+  // GA4 begin_checkout — once per checkout visit with items
+  useEffect(() => {
+    if (orderPlaced || beginCheckoutTracked.current) return;
+    if (!state.items.length) return;
+    beginCheckoutTracked.current = true;
+    trackBeginCheckout({
+      currency: 'INR',
+      value: total,
+      shipping: shippingCost,
+      tax: 0,
+      affiliation: 'Gijayi Store',
+      items: cartItemsToGa4(state.items),
+    });
+  }, [orderPlaced, state.items, total, shippingCost]);
 
   // Handle PayPal callback
   useEffect(() => {
@@ -233,7 +283,17 @@ export default function CheckoutPage() {
                 return;
               }
 
-              setOrderCode(orderData.orderCode || '');
+              const placedOrderCode = String(orderData.orderCode || '').trim();
+              if (placedOrderCode) {
+                trackCheckoutPurchase({
+                  transactionId: placedOrderCode,
+                  items: state.items,
+                  shipping: shippingCost,
+                  value: total,
+                });
+              }
+
+              setOrderCode(placedOrderCode);
               setEstimatedDelivery(orderData.estimatedDeliveryDate || '');
               setOrderPlaced(true);
               clearCart();
@@ -296,6 +356,19 @@ export default function CheckoutPage() {
           JSON.stringify({
             paypalOrderId: paypalOrder.orderId,
             timestamp: Date.now(),
+            // Snapshot cart for GA4 purchase after PayPal return (cart may be cleared / page remounted)
+            ga4: {
+              value: total,
+              shipping: shippingCost,
+              items: state.items.map((item) => ({
+                productId: item.product.id,
+                name: item.product.name,
+                price: item.product.price,
+                quantity: item.quantity,
+                size: item.size,
+                category: item.product.category || item.product.collection,
+              })),
+            },
           })
         );
         window.location.href = paypalOrder.approvalUrl;
@@ -364,7 +437,54 @@ export default function CheckoutPage() {
         return;
       }
 
-      setOrderCode(orderData.orderCode || '');
+      const placedOrderCode = String(orderData.orderCode || '').trim();
+      try {
+        const pendingRaw = sessionStorage.getItem('paypal_order_pending');
+        const pending = pendingRaw ? JSON.parse(pendingRaw) : null;
+        const snapshotItems = Array.isArray(pending?.ga4?.items)
+          ? (pending.ga4.items as Array<{
+              productId: string;
+              name: string;
+              price: number;
+              quantity: number;
+              size?: string;
+              category?: string;
+            }>).map((item) =>
+              toGa4Item({
+                id: item.productId,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                category: item.category,
+                variant: item.size,
+                currency: 'INR',
+              }),
+            )
+          : cartItemsToGa4(state.items);
+
+        if (placedOrderCode) {
+          trackPurchase({
+            currency: 'INR',
+            value: Number(pending?.ga4?.value ?? total),
+            shipping: Number(pending?.ga4?.shipping ?? shippingCost),
+            tax: 0,
+            transaction_id: placedOrderCode,
+            affiliation: 'Gijayi Store',
+            items: snapshotItems,
+          });
+        }
+      } catch {
+        if (placedOrderCode) {
+          trackCheckoutPurchase({
+            transactionId: placedOrderCode,
+            items: state.items,
+            shipping: shippingCost,
+            value: total,
+          });
+        }
+      }
+
+      setOrderCode(placedOrderCode);
       setEstimatedDelivery(orderData.estimatedDeliveryDate || '');
       setOrderPlaced(true);
       clearCart();

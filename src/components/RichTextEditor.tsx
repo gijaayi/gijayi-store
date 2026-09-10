@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Heading1, Heading2, Heading3, Type } from 'lucide-react';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Heading1, Heading2, Heading3, Type, Link2, Unlink, Image as ImageIcon, Quote, Minus } from 'lucide-react';
 
 interface RichTextEditorProps {
   value: string;
@@ -255,6 +255,57 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Enter d
           className="p-2 hover:bg-slate-200 rounded transition-colors"
         >
           <Heading3 size={16} />
+        </button>
+
+        <div className="border-l border-slate-300 mx-1" />
+
+        <button
+          type="button"
+          onClick={() => {
+            const url = window.prompt('Enter link URL');
+            if (!url) return;
+            executeCommand('createLink', url);
+          }}
+          title="Insert Link"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Link2 size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => executeCommand('unlink')}
+          title="Remove Link"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Unlink size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const url = window.prompt('Enter image URL');
+            if (!url) return;
+            executeCommand('insertImage', url);
+          }}
+          title="Insert Image"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <ImageIcon size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => executeCommand('formatBlock', '<blockquote>')}
+          title="Blockquote"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Quote size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() => executeCommand('insertHorizontalRule')}
+          title="Horizontal Divider"
+          className="p-2 hover:bg-slate-200 rounded transition-colors"
+        >
+          <Minus size={16} />
         </button>
 
         <div className="border-l border-slate-300 mx-1" />

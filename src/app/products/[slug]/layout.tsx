@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const title = product.seoTitle?.trim() || `${product.name} | Gijayi`;
+  const rawTitle = product.seoTitle?.trim() || `${product.name} | Gijayi`;
+  const title = /gijayi/i.test(rawTitle) ? rawTitle : `${rawTitle} | Gijayi`;
 
   const plainDescription = stripHtml(product.description || '');
   const fallbackDescription = plainDescription

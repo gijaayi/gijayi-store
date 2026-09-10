@@ -1,4 +1,5 @@
 import type { Viewport } from "next";
+import { Suspense } from "react";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
@@ -8,6 +9,8 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import StoreChrome from "@/components/StoreChrome";
 import PopupManager from "@/components/PopupManager";
 import MetaPixelTracker from "@/components/MetaPixelTracker";
+import GA4Tracker from "@/components/GA4Tracker";
+import ClickInsightTracker from "@/components/ClickInsightTracker";
 import { defaultMetadata, SITE_URL } from "@/lib/siteMetadata";
 
 const inter = Inter({
@@ -58,17 +61,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google Tag Manager */}
-        <Script id="google-tag-manager" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-0F8X38P7XQ" />
+        {/* Google Analytics 4 — page_view is sent manually via GA4Tracker for App Router SPA navigations */}
+        <Script id="ga4-src" strategy="afterInteractive" src="https://www.googletagmanager.com/gtag/js?id=G-0F8X38P7XQ" />
         <Script
-          id="google-tag-manager-init"
+          id="ga4-init"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-0F8X38P7XQ');
+              gtag('config', 'G-0F8X38P7XQ', {
+                send_page_view: false,
+                anonymize_ip: true
+              });
             `,
           }}
         />
@@ -135,8 +141,12 @@ export default function RootLayout({
         <CartProvider>
           <AuthProvider>
             <WishlistProvider>
-              {/* Track route changes for Meta Pixel PageView events */}
+              {/* Track route changes for Meta Pixel + GA4 */}
               <MetaPixelTracker />
+              <Suspense fallback={null}>
+                <GA4Tracker />
+              </Suspense>
+              <ClickInsightTracker />
               <PopupManager />
               <StoreChrome>{children}</StoreChrome>
             </WishlistProvider>

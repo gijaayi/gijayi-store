@@ -148,6 +148,7 @@ export default function Footer() {
             <h5 className="text-xs tracking-[0.3em] uppercase font-medium mb-3 sm:mb-5 text-white">Help</h5>
             <ul className="space-y-2 sm:space-y-3">
               {[
+                { label: 'Journal', href: '/blog' },
                 { label: 'FAQ', href: '/faq' },
                 { label: 'Track Your Order', href: '/track-order' },
                 { label: 'Size Guide', href: '/size-guide' },

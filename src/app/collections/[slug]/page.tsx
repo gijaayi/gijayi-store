@@ -61,24 +61,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const url = `https://gijayi.com/collections/${collection.slug}`;
   const bannerImage = getCollectionBannerImage(slug, collection.image, db.storefront.collectionHighlights);
+  const description =
+    collection.description?.trim() ||
+    `Explore the ${collection.name} collection at Gijayi — handcrafted Indian jewellery curated for this edit.`;
+  const title = `${collection.name} Collection | Gijayi`;
 
   return {
-    title: `${collection.name} Collection | Gijayi`,
-    description: collection.description,
+    title,
+    description,
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title: `${collection.name} Collection | Gijayi`,
-      description: collection.description,
+      title,
+      description,
       type: 'website',
       url,
       images: [{ url: bannerImage, alt: collection.name }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${collection.name} Collection | Gijayi`,
-      description: collection.description,
+      title,
+      description,
       images: [bannerImage],
     },
   };

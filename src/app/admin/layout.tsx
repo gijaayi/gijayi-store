@@ -17,6 +17,7 @@ import {
   Palette,
   Settings,
   Image,
+  BookOpen,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -29,6 +30,7 @@ const navItems = [
   { label: 'Inquiries', href: '/admin/inquiries', icon: MessageSquare },
   { label: 'Storefront CMS', href: '/admin/storefront', icon: Palette },
   { label: 'Instagram Gallery', href: '/admin/instagram-gallery', icon: Image },
+  { label: 'Blog', href: '/admin/blog', icon: BookOpen },
 ];
 
 function getTitle(pathname: string) {
@@ -39,6 +41,7 @@ function getTitle(pathname: string) {
   if (pathname === '/admin/inquiries') return 'Inquiries';
   if (pathname === '/admin/storefront') return 'Storefront CMS';
   if (pathname === '/admin/instagram-gallery') return 'Instagram Gallery';
+  if (pathname === '/admin/blog' || pathname.startsWith('/admin/blog/')) return 'Blog';
   return 'Overview';
 }
 

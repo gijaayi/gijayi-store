@@ -11,6 +11,7 @@ export default function SocialContactToggle() {
         href="https://instagram.com/gijayi_handcrafted_jewelry"
         target="_blank"
         rel="noopener noreferrer"
+        data-analytics="instagram_float"
         className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-[#feda75] via-[#d62976] to-[#962fbf] text-white shadow-[0_12px_28px_rgba(214,41,118,0.35)] transition-transform hover:scale-105"
         aria-label="Open Instagram chat"
         title="Instagram"
@@ -21,6 +22,7 @@ export default function SocialContactToggle() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        data-analytics="whatsapp_float"
         className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_12px_28px_rgba(37,211,102,0.35)] transition-transform hover:scale-105"
         aria-label="Open WhatsApp chat"
         title="WhatsApp"
