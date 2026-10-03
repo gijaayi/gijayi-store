@@ -194,8 +194,8 @@ export default function AboutClient() {
           <div className="flex gap-6 overflow-x-auto pb-4">
             {[
               { name: 'Emily Carter', text: '“Absolutely delighted — the piece arrived like a small treasure. Quality and finish were superb.”' },
-              { name: 'Priya Sharma', text: '“Absolutely delighted — the piece arrived like a small treasure. Quality and finish were superb.”' },
-              { name: 'Rohit Verma', text: '“Absolutely delighted — the piece arrived like a small treasure. Quality and finish were superb.”' },
+              { name: 'Priya Sharma', text: '“The craftsmanship on my necklace is breathtaking! The intricate details truly reflect royal heritage.”' },
+              { name: 'Rohit Verma', text: '“Exquisite quality and elegant packaging. Bought a gift for my wife and she absolutely loved it.”' },
             ].map((t, i) => (
               <motion.div key={i} whileHover={{ scale: 1.02 }} className="bg-white/60 backdrop-blur-sm p-6 rounded-xl shadow-sm w-full md:w-72">
                 <p className="text-gray-700">{t.text}</p>
