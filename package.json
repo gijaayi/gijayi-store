@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
+    "exceljs": "^4.4.0",
     "framer-motion": "^12.36.0",
     "lucide-react": "^0.577.0",
     "mongodb": "^6.13.1",

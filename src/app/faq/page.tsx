@@ -34,7 +34,7 @@ const faqSections = [
     title: 'Returns and Care',
     icon: RotateCcw,
     items: [
-      ['What is your return policy?', 'Returns are considered only for wrong product delivery, transit damage, or verified manufacturing defects. Items must be unused, unworn, in original packaging, and reported within 48 hours of delivery.'],
+      ['What is your return policy?', 'Returns and exchanges are accepted within 7 calendar days of delivery. Pieces must be unworn, unused, and in their original luxury packaging with all tags attached. For transit damage or defects, notify us within 7 days with photos or unboxing video.'],
       ['Is parcel opening video required for claims?', 'Yes. A continuous parcel opening video is mandatory for damaged, missing, or incorrect item claims.'],
       ['How should I store my jewellery?', 'Store each piece separately in a soft pouch, avoid humidity, and keep away from perfume, hair spray, and lotions.'],
       ['Do you offer repairs?', 'Yes. We can assist with polishing, restringing, clasp replacement, and other repairs for eligible pieces. Reach out with your order number and photos.'],

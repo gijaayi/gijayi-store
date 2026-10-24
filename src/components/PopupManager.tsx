@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import WelcomePopup from './WelcomePopup';
 import EnquiryFormPopup from './EnquiryFormPopup';
 
 export default function PopupManager() {
@@ -26,6 +27,10 @@ export default function PopupManager() {
 
   return (
     <>
+      {/* Deepa Gurnani-inspired Welcome Popup (triggers automatically at 5 seconds) */}
+      <WelcomePopup delayMs={5000} />
+
+      {/* Secondary flash banner toast if scheduled */}
       {showFlashPopup && <EnquiryFormPopup onClose={handleFlashClose} shouldShow={showFlashPopup} />}
     </>
   );

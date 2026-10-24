@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import RichTextEditor from '@/components/RichTextEditor';
 import Cropper from 'react-easy-crop';
 import LowStockDashboard from '@/components/LowStockDashboard';
+import { Download, CheckCircle2 } from 'lucide-react';
 
 interface AdminCategory {
   id: string;
@@ -83,6 +84,8 @@ export default function AdminProductsPage() {
   const [busy, setBusy] = useState(false);
   const [imageFiles, setImageFiles] = useState<(File | null)[]>([null, null, null, null, null, null]);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState('');
   const [cropOpen, setCropOpen] = useState(false);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [cropIndexState, setCropIndexState] = useState<number | null>(null);
@@ -428,6 +431,39 @@ export default function AdminProductsPage() {
     setImageFiles(newFiles);
   }
 
+  async function handleExportExcel() {
+    if (exporting) return;
+    setExporting(true);
+    setError('');
+    setExportSuccess('');
+
+    try {
+      const res = await fetch('/api/admin/products/export');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to download products export');
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.download = `gijayi-products-export-${dateStr}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setExportSuccess(`Successfully exported ${products.length} products to Excel (.xlsx)`);
+      setTimeout(() => setExportSuccess(''), 5000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to download products export.');
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="mb-6">
@@ -756,7 +792,38 @@ export default function AdminProductsPage() {
       )}
 
       <section className="bg-white border border-slate-200 rounded-2xl p-6">
-        <h3 className="font-serif text-2xl text-slate-900 mb-4">Catalog List</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 className="font-serif text-2xl text-slate-900">Catalog List</h3>
+            <p className="text-xs text-slate-500">{products.length} {products.length === 1 ? 'product' : 'products'} currently in database</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            disabled={exporting || products.length === 0}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            title="Download full catalog as an Excel spreadsheet (.xlsx)"
+          >
+            {exporting ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Exporting...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Download Products (.xlsx)</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {exportSuccess && (
+          <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{exportSuccess}</span>
+          </div>
+        )}
         <div className="space-y-2 mb-6">
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
             <p className="text-xs tracking-widest uppercase text-blue-700 mb-1">Fresh Arrivals</p>
