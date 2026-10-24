@@ -9,6 +9,8 @@
   --cream: #faf8f4;
   --charcoal: #2c2c2c;
   --warm-gray: #f5f3ef;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
 }
 
 @theme inline {
@@ -18,6 +20,8 @@
   --color-gold-light: var(--gold-light);
   --color-cream: var(--cream);
   --color-charcoal: var(--charcoal);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
 }
 
 * {

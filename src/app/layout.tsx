@@ -1,6 +1,5 @@
 import type { Viewport } from "next";
 import { Suspense } from "react";
-import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { CartProvider } from "@/context/CartContext";
@@ -12,18 +11,6 @@ import MetaPixelTracker from "@/components/MetaPixelTracker";
 import GA4Tracker from "@/components/GA4Tracker";
 import ClickInsightTracker from "@/components/ClickInsightTracker";
 import { defaultMetadata, SITE_URL } from "@/lib/siteMetadata";
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-sans",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-serif",
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -132,12 +119,19 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        {/* Google Fonts: Inter & Playfair Display loaded reliably without build-time network failures */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap"
+          rel="stylesheet"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
         />
       </head>
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <CartProvider>
           <AuthProvider>
             <WishlistProvider>
